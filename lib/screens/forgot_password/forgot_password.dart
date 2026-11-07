@@ -29,7 +29,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
     return CommonGradientBackground(
         child: GetBuilder<AuthController>(builder: (authController) {
           return Loader(
@@ -68,7 +67,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 text: "Reset",
                                 margin: EdgeInsets.zero,
                                 onTap: () {
-                                  Get.toNamed(CheckYourEmail.screenName);
+                                  if (key.currentState!.validate()) {
+                                    authController.forgotPassword(emailController.text.trim());
+                                  }
                                 },
                               ),
                               verticalSpace(20),

@@ -42,13 +42,13 @@ cd /Users/umer/Documents/Moolah-Guardian/android
 
 ### Step 2: Verify APK
 ```bash
-ls -lh /Users/umer/Documents/Moolah-Guardian/android/app/build/outputs/apk/debug/app-debug.apk
+ls -lh /Users/umer/Documents/Moolah-Guardian/android/app/build/outputs/apk/debug/testv1.apk
 ```
 
 ### Step 3: Install
 ```bash
 /Users/umer/Library/Android/sdk/platform-tools/adb install -r \
-  /Users/umer/Documents/Moolah-Guardian/android/app/build/outputs/apk/debug/app-debug.apk
+  /Users/umer/Documents/Moolah-Guardian/android/app/build/outputs/apk/debug/testv1.apk
 ```
 
 ### Step 4: Launch
@@ -88,7 +88,7 @@ cd /Users/umer/Documents/Moolah-Guardian/android && ./gradlew app:assembleDebug
 
 # Install only
 /Users/umer/Library/Android/sdk/platform-tools/adb install -r \
-  /Users/umer/Documents/Moolah-Guardian/android/app/build/outputs/apk/debug/app-debug.apk
+  /Users/umer/Documents/Moolah-Guardian/android/app/build/outputs/apk/debug/testv1.apk
 
 # Launch
 /Users/umer/Library/Android/sdk/platform-tools/adb shell am start \

@@ -76,7 +76,7 @@ class _EnterEmailSignUpState extends State<EnterEmailSignUp> {
                               bigHeadingText("Signup"),
                               verticalSpace(5),
                               subHeadingText(
-                                  "Start Securing your devices with geoLock"),
+                                  "Start Securing your devices with Moolah Guardian"),
                               verticalSpace(20),
                               // Row(
                               //   children: [

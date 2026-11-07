@@ -67,7 +67,7 @@ class _SignUpState extends State<SignUp> {
                               bigHeadingText("Signup"),
                               verticalSpace(5),
                               subHeadingText(
-                                  "Start Securing your devices with geoLock"),
+                                  "Start Securing your devices with Moolah Guardian"),
                               verticalSpace(20),
                               Row(
                                 children: [

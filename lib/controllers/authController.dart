@@ -10,6 +10,7 @@ import 'package:moolah/screens/otp_verification/otp_verification.dart';
 import 'package:moolah/util/customtoast.dart';
 
 import '../helper/models/user_model.dart';
+import '../screens/forgot_password/widget/check_your_email.dart';
 import '../screens/subscription_screen/subscription_screen.dart';
 import '../util/mixpanel_events.dart';
 import 'homeController.dart';
@@ -113,6 +114,19 @@ class AuthController extends BaseController {
     if(res.isSuccessful){
       Prefs.verificationPending.set(false);
       Get.offAllNamed(SubscriptionScreen.screenName);
+    }
+    isLoading = false;
+  }
+
+  Future<void> forgotPassword(String email) async {
+    if (isLoading) return;
+    isLoading = true;
+    var res = await AuthRepo.forgotPassword(email);
+    if (res.isSuccessful) {
+      successToast("Reset instructions sent to your email");
+      Get.toNamed(CheckYourEmail.screenName, arguments: email);
+    } else {
+      errorToastShow(res.data);
     }
     isLoading = false;
   }

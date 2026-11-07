@@ -6,10 +6,10 @@ class EndPoints {
   static String login = "$baseUrl/guardian/login";
   static String signUp = "$baseUrl/guardian/register";
   static String refreshToken = "$baseUrl/refreshTokens";
-  static String sendMobileOtp = "$baseUrl/send-mobile-otp";
-  static String verifyMobileOtp = "$baseUrl/verifyMobileOtp";
+  static String sendMobileOtp = "$baseUrl/guardian/send-otp";
+  static String verifyMobileOtp = "$baseUrl/guardian/verify-otp";
 
-  static String getSyncedKidDevicesUrl = "$baseUrl/getConnectedKidDevices";//getConnectedKidDevicesEncryption,getConnectedKidDevices, getSyncedKidDevices";
+  static String getSyncedKidDevicesUrl = "$baseUrl/getConnectedKidDevices";
   static String getMSMSMonitoringStatus = "$baseUrl/getMSMSMonitoringStatus";
   static String enableMSMSMonitoring = "$baseUrl/enableMSMSMonitoring";
   static String getWalletStatus = "$baseUrl/getWalletEnabled";
@@ -22,7 +22,8 @@ class EndPoints {
   static String getBlacklistUrlsUrl = "$baseUrl/getBlockedUrlsEncryption";
   static String blacklistUrl = "$baseUrl/blacklistUrl";
   static String addBlacklistUrl = "$baseUrl/addBlockedUrl";
-  static String getDeviceDetails = "$baseUrl/getSingleDeviceDetail";//getDeviceDetailsEncryption, getDeviceDetails
+  static String getDeviceDetails = "$baseUrl/getSingleDeviceDetail";
+  static String forgotPassword = "$baseUrl/guardian/forgot-password";
   static String getDeviceThreads = "$baseUrl/getDeviceThreadsEncryption";
   static String getThreadsMessages = "$baseUrl/getThreadMessagesEncryption";
   static String parentAppSecurityCheck = "$baseUrl/parentAppSecurityCheck";

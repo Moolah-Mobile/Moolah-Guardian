@@ -74,7 +74,7 @@ class _EnterDobSignUpState extends State<EnterDobSignUp> {
                         children: [
                           bigHeadingText("Signup"),
                           verticalSpace(5),
-                          subHeadingText("Start Securing your devices with geoLock"),
+                          subHeadingText("Start Securing your devices with Moolah Guardian"),
                           verticalSpace(20),
                           // Row(
                           //   children: [

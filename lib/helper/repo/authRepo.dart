@@ -23,30 +23,7 @@ class AuthRepo {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     String deviceId = Platform.isAndroid?(await deviceInfo.androidInfo).id:Platform.isIOS?(await deviceInfo.iosInfo).identifierForVendor??"":"";
     String moolahApp = "guardian";
-    print("bodyyyyy::${{
-      "email": email,
-      "password": password,
-      "firstName": firstName,
-      "lastName": lastName,
-      "phone": phone,
-      "dob": dob,
-      // "username": username,
-      "moolahApp": moolahApp,
-      "device_id": deviceId,
-      "imei": ""
-    }}");
-    print("bodyyyyy::${{
-      "email": email,
-      "password": password,
-      "firstName": firstName,
-      "lastName": lastName,
-      "phone": phone,
-      "dob": dob,
-      // "username": username,
-      "moolahApp": moolahApp,
-      "device_id": deviceId,
-      "imei": deviceId
-    }}");
+    
     return await Network.post(EndPoints.signUp, body: {
       "email": email,
       "password": password,
@@ -77,6 +54,12 @@ class AuthRepo {
     return await Network.post(EndPoints.verifyMobileOtp, body: {
       "otp": otp,
       "phone": phone
+    });
+  }
+
+  static Future<ResponseModel> forgotPassword(String email) async {
+    return await Network.post(EndPoints.forgotPassword, body: {
+      "email": email
     });
   }
 }
