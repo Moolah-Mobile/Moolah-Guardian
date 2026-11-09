@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace "com.moolahmobile.moolahmobileguardian"
-    compileSdkVersion 36
+    compileSdkVersion 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -25,8 +25,8 @@ android {
 
     defaultConfig {
         applicationId "com.moolahmobile.moolahmobileguardian"
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 36
+        minSdkVersion 21
+        targetSdkVersion 35
 
         versionCode flutter.versionCode
         versionName flutter.versionName

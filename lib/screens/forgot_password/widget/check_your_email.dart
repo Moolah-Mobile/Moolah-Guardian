@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:moolah/screens/forgot_password/verify_reset_otp_screen.dart';
 
 import '../../../util/apptext.dart';
 import '../../../util/colors.dart';
@@ -19,6 +20,14 @@ class CheckYourEmail extends StatefulWidget {
 }
 
 class _CheckYourEmailState extends State<CheckYourEmail> {
+  String email = "";
+
+  @override
+  void initState() {
+    email = Get.arguments ?? "";
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
@@ -31,7 +40,7 @@ class _CheckYourEmailState extends State<CheckYourEmail> {
             roundedContainer(
                 borderRadius: 20,
                 margin: const EdgeInsets.all(15),
-                padding: EdgeInsets.symmetric(vertical: 40, horizontal: 10),
+                padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 10),
                 width: width,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -40,21 +49,21 @@ class _CheckYourEmailState extends State<CheckYourEmail> {
                     verticalSpace(30),
                     bigHeadingText("Check your Email"),
                     verticalSpace(10),
-                    subHeadingText("We sent a password reset link to"),
-                    subHeadingText("r.mukaram@gmail.com", color: Colors.black),
+                    subHeadingText("We sent a password reset OTP to"),
+                    subHeadingText(email, color: Colors.black),
 
-                    verticalSpace(10),
-                    CustomButton(text: "Open Email App", onTap: (){
-                      // Get.offAllNamed(Home.screenName);
+                    verticalSpace(20),
+                    CustomButton(text: "Enter OTP", onTap: (){
+                      Get.toNamed(VerifyResetOTPScreen.screenName, arguments: email);
                     },),
                     verticalSpace(40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        subHeadingText("Didn’t Recive an Email?"),
+                        subHeadingText("Didn’t Receive an Email?"),
                         customGestureDetecter(
                             onTap: () {
-                              // Get.toNamed(Login.screenName);
+                              // Resend logic
                             },
                             child: subHeadingText(" Send Again",
                                 fontWeight: FontWeight.bold,

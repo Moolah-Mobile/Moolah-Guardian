@@ -80,7 +80,7 @@ class _LoginState extends State<Login> {
                                     alignment: Alignment.centerRight,
                                     child: subHeadingText("Forgot Password?",
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.black)),
+                                        color: AppColors.normalGreen)),
                                 verticalSpace(30),
                               ],
                             ),

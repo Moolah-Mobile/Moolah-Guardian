@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moolah/screens/connect_device/connect_device_screen.dart';
+import 'package:moolah/screens/forgot_password/verify_reset_otp_screen.dart';
 import 'package:moolah/screens/forgot_password/widget/check_your_email.dart';
 import 'package:moolah/screens/home/home.dart';
 import 'package:moolah/screens/login/login.dart';
@@ -56,6 +57,7 @@ class RouteHelper {
     PasswordReset.screenName: (_) => const PasswordReset(),
     ForgotPassword.screenName: (_) => const ForgotPassword(),
     CheckYourEmail.screenName: (_) => const CheckYourEmail(),
+    VerifyResetOTPScreen.screenName: (_) => const VerifyResetOTPScreen(),
     OtpVerification.screenName: (_) => const OtpVerification(),
     LiveLocation.screenName: (_) => LiveLocation(lat: Get.arguments?["lat"] ?? 0, long: Get.arguments?["long"] ?? 0, deviceId: Get.arguments?["deviceId"] ?? 0),
     FeedbackScreen.screenName: (_) => const FeedbackScreen(),

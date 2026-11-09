@@ -62,4 +62,12 @@ class AuthRepo {
       "email": email
     });
   }
+
+  static Future<ResponseModel> resetPassword(String email, String otp, String password) async {
+    return await Network.post(EndPoints.resetPassword, body: {
+      "email": email,
+      "otp": otp,
+      "password": password
+    });
+  }
 }

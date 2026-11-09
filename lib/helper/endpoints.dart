@@ -24,6 +24,7 @@ class EndPoints {
   static String addBlacklistUrl = "$baseUrl/addBlockedUrl";
   static String getDeviceDetails = "$baseUrl/getSingleDeviceDetail";
   static String forgotPassword = "$baseUrl/guardian/forgot-password";
+  static String resetPassword = "$baseUrl/guardian/reset-password";
   static String getDeviceThreads = "$baseUrl/getDeviceThreadsEncryption";
   static String getThreadsMessages = "$baseUrl/getThreadMessagesEncryption";
   static String parentAppSecurityCheck = "$baseUrl/parentAppSecurityCheck";

@@ -76,22 +76,22 @@ class _EnterPasswordLoginState extends State<EnterPasswordLogin> {
                                   hintText: "Password",
                                   textInputType: TextInputType.visiblePassword,
                                   textEditingController: passwordController,validators: Validators.password),
-                              // customGestureDetecter(
-                              //   onTap: (){
-                              //     Get.toNamed(ForgotPassword.screenName);
-                              //   },
-                              //   child: Column(
-                              //     children: [
-                              //       verticalSpace(10),
-                              //       Align(
-                              //           alignment: Alignment.centerLeft,
-                              //           child: subHeadingText("Forgot Password?",
-                              //               fontWeight: FontWeight.bold,
-                              //               color: AppColors.black)),
-                              //       verticalSpace(30),
-                              //     ],
-                              //   ),
-                              // ),
+                              customGestureDetecter(
+                                onTap: (){
+                                  Get.toNamed(ForgotPassword.screenName);
+                                },
+                                child: Column(
+                                  children: [
+                                    verticalSpace(10),
+                                    Align(
+                                        alignment: Alignment.centerRight,
+                                        child: subHeadingText("Forgot Password?",
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.normalGreen)),
+                                    verticalSpace(30),
+                                  ],
+                                ),
+                              ),
                               verticalSpace(20),
                               CustomButton(
                                 text: "Login",
