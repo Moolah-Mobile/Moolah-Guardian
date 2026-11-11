@@ -20,16 +20,16 @@ class CustomTextField extends StatefulWidget {
         this.prefixIcon,
         this.maxLines = 1
       });
-  String hintText;
-  String? prefixIcon;
-  bool required;
-  bool otherOne;
-  TextInputType textInputType;
-  TextEditingController? textEditingController;
-  Validators? validators;
-  String? passwordForConfirmPassword;
-  int maxLines;
-  Function(String)? onChange;
+  final String hintText;
+  final String? prefixIcon;
+  final bool required;
+  final bool otherOne;
+  final TextInputType textInputType;
+  final TextEditingController? textEditingController;
+  final Validators? validators;
+  final String? passwordForConfirmPassword;
+  final int maxLines;
+  final Function(String)? onChange;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -39,28 +39,55 @@ class _CustomTextFieldState extends State<CustomTextField> {
   bool obscure = false;
   bool error = false;
   String errorText = "";
-  bool first = false;
-  TextEditingController textEditingController = TextEditingController();
+  bool hasInteracted = false;
+  late TextEditingController textEditingController;
   FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
-    if (widget.textInputType == TextInputType.visiblePassword) {
-      obscure = true;
-    }
-    if(widget.textEditingController != null){
-      textEditingController = widget.textEditingController!;
-    }
+    obscure = widget.textInputType == TextInputType.visiblePassword;
+    textEditingController = widget.textEditingController ?? TextEditingController();
+    
     if(Prefs.isLoggedIn.get()) {
       focusNode.addListener(() {
-        if(focusNode.hasFocus){
+        if(focusNode.hasFocus) {
           IronSource.hideBanner();
-        }else{
+        } else {
           IronSource.displayBanner();
         }
       });
     }
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Update local controller if the widget's controller changed
+    if (widget.textEditingController != null && widget.textEditingController != oldWidget.textEditingController) {
+      textEditingController = widget.textEditingController!;
+    }
+    
+    // If this is a confirmation field and the source password string changed, re-validate immediately
+    if (widget.validators == Validators.confirmPassword && 
+        oldWidget.passwordForConfirmPassword != widget.passwordForConfirmPassword) {
+      if (hasInteracted || textEditingController.text.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _handleValidation(textEditingController.text);
+          }
+        });
+      }
+    }
+  }
+
+  void _handleValidation(String text) {
+    final result = validate(text);
+    setState(() {
+      errorText = result ?? "";
+      error = result != null;
+    });
   }
 
   @override
@@ -71,7 +98,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.otherOne ? otherOne() : Column(
+    return widget.otherOne ? otherOneWidget() : Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         verticalSpace(10),
@@ -87,25 +114,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
           controller: textEditingController,
           focusNode: focusNode,
           validator: (String? text) {
-            String? t = validate(text?.trim()??"");
-            print("Errroorr: $t");
+            final result = validate(text ?? "");
             setState(() {
-              errorText = t??"";
-              error = t!=null?true:false;
-              first = true;
+              errorText = result ?? "";
+              error = result != null;
+              hasInteracted = true;
             });
-            return t!=null?"":null;
+            return result != null ? "" : null;
           },
           onChanged: (String? text){
-            widget.onChange != null?widget.onChange!(text??""):null;
-            if(first){
-              String? t = validate(text??"");
-              print("Errroorr: $t");
-              setState(() {
-                errorText = t??"";
-                error = t!=null?true:false;
-
-              });
+            if (widget.onChange != null) widget.onChange!(text ?? "");
+            if(hasInteracted) {
+              _handleValidation(text ?? "");
             }
           },
           maxLines: widget.maxLines,
@@ -136,42 +156,34 @@ class _CustomTextFieldState extends State<CustomTextField> {
           obscureText: obscure,
           keyboardType: widget.textInputType,
         ),
-        error?
+        if (error)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5).copyWith(bottom: 0),
           child: regularText(errorText, color: AppColors.red, fontSize: 12),
-        ):
-        const SizedBox.shrink()
+        )
       ],
     );
   }
 
-
-  otherOne(){
+  Widget otherOneWidget(){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFormField(
           controller: textEditingController,
           validator: (String? text) {
-            String? t = validate(text?.trim()??"");
-            print("Errroorr: $t");
+            final result = validate(text ?? "");
             setState(() {
-              errorText = t??"";
-              error = t!=null?true:false;
-              first = true;
+              errorText = result ?? "";
+              error = result != null;
+              hasInteracted = true;
             });
-            return t!=null?"":null;
+            return result != null ? "" : null;
           },
           onChanged: (String? text){
-            widget.onChange != null?widget.onChange!(text??""):null;
-            if(first){
-              String? t = validate(text??"");
-              print("Errroorr: $t");
-              setState(() {
-                errorText = t??"";
-                error = t!=null?true:false;
-              });
+            if (widget.onChange != null) widget.onChange!(text ?? "");
+            if(hasInteracted) {
+              _handleValidation(text ?? "");
             }
           },
           decoration: InputDecoration(
@@ -211,50 +223,55 @@ class _CustomTextFieldState extends State<CustomTextField> {
           obscureText: obscure,
           keyboardType: widget.textInputType,
         ),
-        error?
+        if (error)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5).copyWith(bottom: 0),
           child: regularText(errorText, color: AppColors.red, fontSize: 12),
-        ):
-        const SizedBox.shrink()
+        )
       ],
     );
   }
 
-
-  validate(String text){
-    var valid = widget.validators;
-    if(valid!=null){
-      if((valid == Validators.notEmpty || valid == Validators.email || valid == Validators.password || valid == Validators.confirmPassword) && text.isEmpty){
-        if(text.isEmpty) {
-          return "Please enter ${widget.hintText}";
-        }
+  String? validate(String text){
+    final valid = widget.validators;
+    if(valid != null){
+      final trimmedValue = text.trim();
+      
+      // Basic Empty Check
+      if(trimmedValue.isEmpty && (valid == Validators.notEmpty || valid == Validators.email || valid == Validators.password || valid == Validators.confirmPassword || valid == Validators.passwordForSignup)){
+        return "Please enter ${widget.hintText}";
       }
+      
       if(valid == Validators.email){
-        if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(text)){
+        if(!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(trimmedValue)){
           return "Please enter a valid Email";
         }
       }
+      
       if(valid == Validators.passwordForSignup){
-        RegExp regexPassword =
-        RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
-        if(!regexPassword.hasMatch(text)){
-          return "Password must be at least of 8 characters with at least one lowercase letter, one uppercase letter, one number, and one special character (!@\$%^&*)";
+        RegExp regexPassword = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+        if(!regexPassword.hasMatch(trimmedValue)){
+          return "Must be 8+ chars with A-Z, a-z, 0-9, and special char";
         }
       }
+      
       if(valid == Validators.password){
-        if(text.length < 8){
-          return "Password must be at least of 8 characters";
+        if(trimmedValue.length < 8){
+          return "Password must be at least 8 characters";
         }
       }
+      
       if(valid == Validators.confirmPassword){
-        if(text != widget.passwordForConfirmPassword){
-          return "Confirm Password must be as same as Password";
+        final compareTo = (widget.passwordForConfirmPassword ?? "").trim();
+        if(trimmedValue != compareTo){
+          return "Passwords do not match";
         }
       }
     }
+    return null;
   }
 }
+
 OutlineInputBorder border = OutlineInputBorder(
     borderRadius: BorderRadius.circular(10),
     borderSide: const BorderSide(width: 0, color: Colors.transparent));

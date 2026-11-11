@@ -85,6 +85,7 @@ class _VerifyResetOTPScreenState extends State<VerifyResetOTPScreen> {
                               textInputType: TextInputType.visiblePassword,
                               textEditingController: passwordController,
                               validators: Validators.password,
+                              onChange: (v) => setState(() {}), // Trigger rebuild to update confirm password reference
                             ),
                             CustomTextField(
                               hintText: "Confirm New Password",

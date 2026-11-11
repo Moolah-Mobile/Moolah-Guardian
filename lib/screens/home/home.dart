@@ -1,38 +1,25 @@
-import 'dart:convert';
-import 'dart:math';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-// import 'package:flutter_ironsource_x/banner.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:ironsource_mediation/ironsource_mediation.dart';
 import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/screens/connect_device/connect_device_screen.dart';
 import 'package:moolah/screens/home/widget/SyncDevice.dart';
 import 'package:moolah/screens/subscription_screen/subscription_screen.dart';
 import 'package:moolah/util/apptext.dart';
-import 'package:moolah/util/colors.dart';
 import 'package:moolah/util/common_widgets/common_button.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/images.dart';
-import 'package:pointycastle/digests/sha256.dart';
-// import 'package:pointycastle/pointycastle.dart';
-import 'package:pointycastle/random/fortuna_random.dart';
-import 'package:pointycastle/signers/ecdsa_signer.dart';
 
 import '../../controllers/authController.dart';
 import '../../helper/sharedHelper.dart';
 import '../../util/common_widgets/CommonGradientBackground.dart';
-import '../../util/common_widgets/ads_button.dart';
 import '../main_menu_profile/main_menu_profile.dart';
 
 class Home extends StatefulWidget {
   static const screenName = "home";
 
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
@@ -41,16 +28,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   void initState() {
-    // print("")
     setController();
-
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    // IronSource.destroyBanner();
-    super.dispose();
   }
 
   @override
@@ -78,59 +57,6 @@ class _HomeState extends State<Home> {
                         height: 30,
                         child: Stack(
                           children: [
-                            // Positioned(
-                            //   top: 2,
-                            //   left: 0,
-                            //   right: 0,
-                            //   child: customGestureDetecter(
-                            //     onTap: (){
-                            //       // Get.toNamed(SubscriptionScreen.screenName);
-                            //     },
-                            //     child: Row(
-                            //       mainAxisAlignment: MainAxisAlignment.center,
-                            //       children: [
-                            //         subHeadingText(
-                            //             "Good Morning${Prefs.firstName.get().isNotEmpty ? "," : ""} ",
-                            //             fontSize: 16,
-                            //             fontWeight: FontWeight.w500),
-                            //         subHeadingText(Prefs.firstName.get(),
-                            //             fontSize: 16,
-                            //             fontWeight: FontWeight.w700,
-                            //             color: AppColors.black)
-                            //       ],
-                            //     ),
-                            //   ),
-                            // ),
-
-                            /// For Now
-                            // Positioned(
-                            //     right: 0,
-                            //     top: 0,
-                            //     bottom: 0,
-                            //     child: InkWell(
-                            //       onTap: () {
-                            //         Navigator.push(
-                            //           context,
-                            //           MaterialPageRoute(
-                            //             builder: (_) => const ChatListScreen(),
-                            //           ),
-                            //         );
-                            //       },
-                            //       child: Stack(
-                            //         children: [
-                            //           SvgPicture.asset(AppImages.messaging),
-                            //           roundedContainer(
-                            //               color: Colors.red,
-                            //               height: 15,
-                            //               width: 15,
-                            //               child: Center(
-                            //                   child: regularText("1",
-                            //                       fontSize: 10,
-                            //                       color: AppColors.white)))
-                            //         ],
-                            //       ),
-                            //     ))
-                            /// /// /// /// /// ///
                             Positioned(
                               top: 0,
                                 left: 0,
@@ -149,8 +75,6 @@ class _HomeState extends State<Home> {
                       verticalSpace(30),
                       customGestureDetecter(
                         onTap: () {
-                          // homeController.getData();
-                          // Get.find<AdvertisementController>().loadBanner();
                           Get.toNamed(SubscriptionScreen.screenName);
                         },
                         child: Column(
@@ -160,11 +84,9 @@ class _HomeState extends State<Home> {
                                 child: SvgPicture.asset(AppImages.person)),
                             verticalSpace(15),
                             bigSubHeading(
-                                "${Prefs.firstName.get()} ${""/*Prefs.lastName.get()*/}"
-                                        .trim()
-                                        .isEmpty
+                                Prefs.firstName.get().trim().isEmpty
                                     ? "Your Name"
-                                    : "${Prefs.firstName.get()} ${""/*Prefs.lastName.get()*/}"),
+                                    : Prefs.firstName.get()),
                           ],
                         ),
                       ),
@@ -181,7 +103,7 @@ class _HomeState extends State<Home> {
                       Align(
                           alignment: Alignment.centerLeft,
                           child: bigSubHeading(
-                              "Synched Devices (${homeController.connectedKids.length})")),
+                              "Synced Devices (${homeController.connectedKids.length})")),
                       Expanded(
                         child: SingleChildScrollView(
                           child: Column(
@@ -191,9 +113,8 @@ class _HomeState extends State<Home> {
                                   i++)
                                 SyncDevice(
                                     kidId:
-                                    homeController.connectedKids[i].deviceData?.kidDeviceAccountConnectID ??
                                     homeController.connectedKids[i].connectId ??
-                                    homeController.connectedKids[i].deviceData?.deviceId ??
+                                    homeController.connectedKids[i].kidId ??
                                     "",
                                     name: homeController.connectedKids[i].name ?? "Unknown",
                                     image:
@@ -208,34 +129,6 @@ class _HomeState extends State<Home> {
                                         .connectedKids[i].deviceType ?? "")
                                         .toLowerCase()
                                         .contains("tab"))
-                              // SyncDevice(
-                              //   image: AppImages.child1,
-                              //   name: "John Campbell",
-                              //   battery: "56",
-                              //   mbps: "9.2",
-                              //   active: "32 m ago",
-                              // ),
-                              // SyncDevice(
-                              //   image: AppImages.child2,
-                              //   name: "Anna Campbell",
-                              //   battery: "10",
-                              //   mbps: "3.2",
-                              //   active: "Now",
-                              // ),
-                              // SyncDevice(
-                              //     image: AppImages.child3,
-                              //     name: "Rayan Campbell",
-                              //     battery: "100",
-                              //     mbps: "5.2",
-                              //     active: "14 m ago",
-                              //     isIPad: true),
-                              // SyncDevice(
-                              //   image: AppImages.child4,
-                              //   name: "Milli Campbell",
-                              //   battery: "90",
-                              //   mbps: "1.0",
-                              //   active: "2 m ago",
-                              // ),
                             ],
                           ),
                         ),

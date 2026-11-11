@@ -3,56 +3,61 @@ import 'package:get/get.dart';
 import 'package:moolah/controllers/baseController.dart';
 import 'package:moolah/util/colors.dart';
 
-import '../../controllers/authController.dart';
+class Loader extends StatelessWidget {
+  const Loader({super.key, required this.child, required this.c});
+  
+  final Widget child;
+  final BaseController c;
 
-class Loader extends StatefulWidget {
-  Loader({required this.child, required this.c});
-  Widget child;
-  BaseController c;
-
-  @override
-  State<Loader> createState() => _LoaderState();
-}
-
-class _LoaderState extends State<Loader> {
   @override
   Widget build(BuildContext context) {
-    bool loading = widget.c.isLoading;
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
-    print("bool loading = Get.find<BaseController>().isLoading;:::$loading");
-    return WillPopScope(
-      onWillPop: () async {
-        return  loading ? false : true;
-        // return true;
-      },
-      child: Container(
-        height: height,
-        width: width,
+    
+    return Obx(() {
+      final bool loading = c.isLoading;
+      
+      return PopScope(
+        canPop: !loading,
         child: Stack(
           children: [
             SizedBox(
               height: height,
-                child: widget.child),
-            if(loading)
-            Align(
-              alignment: Alignment.center,
-              child: AbsorbPointer(
+              width: width,
+              child: child,
+            ),
+            if (loading)
+              Align(
+                alignment: Alignment.center,
                 child: Container(
-                  color: Colors.black.withOpacity(0.4),
-                    height: height,
-                    width: width,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(height:40, width:40,child: CircularProgressIndicator(color: AppColors.normalGreen,)),
-                      ],
-                    )),
+                  color: Colors.black.withValues(alpha: 0.5),
+                  height: height,
+                  width: width,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(30),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 10,
+                            spreadRadius: 5,
+                          )
+                        ],
+                      ),
+                      child: CircularProgressIndicator(
+                        color: AppColors.normalGreen,
+                        strokeWidth: 4,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            )
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 }

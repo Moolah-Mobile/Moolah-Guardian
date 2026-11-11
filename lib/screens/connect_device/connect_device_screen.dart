@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/connectDeviceController.dart';
-import 'package:moolah/helper/sharedHelper.dart';
 import 'package:moolah/screens/home/home.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
@@ -25,25 +24,19 @@ class ConnectDeviceScreen extends StatefulWidget {
 
 class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
   final TextEditingController codeController = TextEditingController();
-  final TextEditingController parentNameController = TextEditingController();
+  final TextEditingController labelController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    // Pre-fill parent name from stored profile
-    final firstName = Prefs.firstName.get();
-    final lastName = Prefs.lastName.get();
-    final fullName = "$firstName $lastName".trim();
-    if (fullName.isNotEmpty) {
-      parentNameController.text = fullName;
-    }
+    labelController.text = "Kid's Device";
   }
 
   @override
   void dispose() {
     codeController.dispose();
-    parentNameController.dispose();
+    labelController.dispose();
     super.dispose();
   }
 
@@ -72,68 +65,66 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
                     margin: const EdgeInsets.all(10).copyWith(bottom: 0),
                     child: Form(
                       key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          bigHeadingText(
-                            "Moolah Guardian\nSecure Connection",
-                            fontSize: 27,
-                            height: 1.2,
-                          ),
-                          verticalSpace(12),
-                          subHeadingText(
-                            "Enter the connect code shown on the kid's Moolah device to link it to your Guardian account.",
-                            height: 1.4,
-                          ),
-                          verticalSpace(24),
-
-                          // Parent Name field
-                          subHeadingText(
-                            "Your Full Name",
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.black,
-                          ),
-                          verticalSpace(8),
-                          CustomTextField(
-                            hintText: "e.g. Jane Doe",
-                            textEditingController: parentNameController,
-                            validators: Validators.notEmpty,
-                          ),
-                          verticalSpace(16),
-
-                          // Connect Code field
-                          subHeadingText(
-                            "Kid Device Connect Code",
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.black,
-                          ),
-                          verticalSpace(8),
-                          CustomTextField(
-                            hintText: "e.g. ABCD1234",
-                            textEditingController: codeController,
-                            validators: Validators.notEmpty,
-                          ),
-                          verticalSpace(24),
-
-                          CustomButton(
-                            text: "Connect Device",
-                            margin: EdgeInsets.zero,
-                            onTap: () async {
-                              if (_formKey.currentState!.validate()) {
-                                final success =
-                                    await controller.linkKidByConnectCode(
-                                  context: context,
-                                  code: codeController.text.trim(),
-                                  parentFullName:
-                                      parentNameController.text.trim(),
-                                );
-                                if (success) {
-                                  await _showSuccessDialog();
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            bigHeadingText(
+                              "Link New Device",
+                              fontSize: 27,
+                              height: 1.2,
+                            ),
+                            verticalSpace(12),
+                            subHeadingText(
+                              "Enter the connect code shown on the kid's device to link it.",
+                              height: 1.4,
+                            ),
+                            verticalSpace(24),
+                        
+                            subHeadingText(
+                              "Device Label",
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.black,
+                            ),
+                            verticalSpace(8),
+                            CustomTextField(
+                              hintText: "e.g. John's Tablet",
+                              textEditingController: labelController,
+                              validators: Validators.notEmpty,
+                            ),
+                            verticalSpace(16),
+                        
+                            subHeadingText(
+                              "Device Connect ID",
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.black,
+                            ),
+                            verticalSpace(8),
+                            CustomTextField(
+                              hintText: "Enter Connect ID",
+                              textEditingController: codeController,
+                              validators: Validators.notEmpty,
+                            ),
+                            verticalSpace(24),
+                        
+                            CustomButton(
+                              text: "Connect Device",
+                              margin: EdgeInsets.zero,
+                              onTap: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  final success = await controller.linkKidByConnectCode(
+                                    context: context,
+                                    code: codeController.text.trim(),
+                                    label: labelController.text.trim(),
+                                  );
+                                  if (success) {
+                                    await _showSuccessDialog();
+                                  }
                                 }
-                              }
-                            },
-                          ),
-                        ],
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -186,4 +177,3 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
     );
   }
 }
-

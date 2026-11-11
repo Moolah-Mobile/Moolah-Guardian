@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:moolah/helper/sharedHelper.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
+import 'package:moolah/util/customtoast.dart';
 
 import '../helper/endpoints.dart';
 import '../helper/network.dart';
@@ -17,51 +18,44 @@ class SubscriptionController extends BaseController {
 
 
   Future<void> purchaseSubscription({bool isMonthly = false}) async {
-    // var res = await createPaymentIntent("30", "USD", getStripeSecretKey());
     isLoading = true;
+    update();
     var res = await Network.post(EndPoints.createSubscription, body: {
       "amount": isMonthly ? 399 : 3000
-      // "email": Prefs.email.get(),
-      // "paymentMethod": isMonthly ? "prod_RNFOrZWTFTOgD7": "prod_RNFPiTGFkjNQIz",
     });
+    
+    apiToast(res);
 
     if(res.isSuccessful){
-      print("ress:S:S:S:${res}");
-      // return;
-
       try {
-        // Setup payment sheet
         await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
-            paymentIntentClientSecret: res.data["clientSecret"], // From backend
+            paymentIntentClientSecret: res.data["clientSecret"],
             merchantDisplayName: 'Moolah Guardian',
           ),
         );
 
-        // Display payment sheet
-        PaymentSheetPaymentOption? e = await Stripe.instance.presentPaymentSheet();
-        print("e?.toJson()");
-        print(e?.toJson());
-
-        print("Payment completed");
+        await Stripe.instance.presentPaymentSheet();
+        successToast("Payment completed successfully");
       } catch (e) {
-        print("Error: $e");
+        print("Stripe Error: $e");
+        // Don't show generic error if user cancelled
+        if (e is StripeException) {
+          errorToast("Payment failed: ${e.error.localizedMessage}");
+        }
       }
-
     }
     isLoading = false;
+    update();
   }
-
 
   createPaymentIntent(String amount, String currency, String apiKey) async {
     try {
-      //Request body
       Map<String, dynamic> body = {
         'amount': amount,
         'currency': currency,
       };
 
-      //Make post request to Stripe
       var response = await http.post(
         Uri.parse('https://api.stripe.com/v1/payment_intents'),
         headers: {

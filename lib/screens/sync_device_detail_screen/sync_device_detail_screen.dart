@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:ironsource_mediation/ironsource_mediation.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/screens/blacklist/blacklist_screen.dart';
-import 'package:moolah/screens/chat/chat_list_screen.dart';
 import 'package:moolah/screens/sync_device_detail_screen/screens/live_location.dart';
 import 'package:moolah/util/colors.dart';
 import 'package:moolah/util/common_widgets/common_appbar.dart';
@@ -14,10 +11,7 @@ import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/common_widgets/loader.dart';
 import 'package:moolah/util/images.dart';
 
-import '../../controllers/authController.dart';
-import '../../helper/models/app_usage_model.dart';
-import '../../helper/models/blocked_url_model.dart';
-import '../../helper/models/device_detail_model.dart' ;
+import '../../helper/models/device_detail_model.dart' as mdm;
 import '../../helper/models/kids_model.dart';
 import '../../util/apptext.dart';
 import '../../util/common_widgets/CommonGradientBackground.dart';
@@ -26,8 +20,8 @@ import '../../util/common_widgets/common_text_field.dart';
 class SyncDeviceDetailScreen extends StatefulWidget {
   static const screenName = "syncDeviceDetailScreen";
 
-  SyncDeviceDetailScreen({required this.kidId});
-  String kidId;
+  const SyncDeviceDetailScreen({required this.kidId, Key? key}) : super(key: key);
+  final String kidId;
 
   @override
   State<SyncDeviceDetailScreen> createState() => _SyncDeviceDetailScreenState();
@@ -58,6 +52,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(builder: (homeController) {
+      final kid = homeController.getSelectedKid(widget.kidId);
       return CommonGradientBackground(
         child: Loader(
           c: homeController,
@@ -66,7 +61,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               verticalSpace(20),
               commonAppBar(
                   heading:
-                      "${homeController.getSelectedKid(widget.kidId).name?.split(" ")[0]}'s Summary"),
+                      "${kid.name?.split(" ")[0]}'s Summary"),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(10.0).copyWith(bottom: 0),
@@ -82,11 +77,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                                 topRight: Radius.circular(15)),
                             padding: const EdgeInsets.all(10),
                             child: Column(
-                              // mainAxisAlignment: tabController?.index == 0 ? MainAxisAlignment.start : MainAxisAlignment.spaceBetween,
                               children: [
                                 tabBar(),
-                                // if (tabController?.index == 0)
-                                  // section(homeController),
                                   if (tabController?.index != 2)
                                     CustomButton(
                                       text: headingText,
@@ -108,13 +100,10 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                                 verticalSpace(0),
                                 if (tabController?.index == 0)
                                   appSection(homeController)
-                                else if (tabController?.index == 1) //1
-                                  // comingSoon()
+                                else if (tabController?.index == 1)
                                   urlSection(homeController)
-                                else if (tabController?.index == 2) //2
+                                else if (tabController?.index == 2)
                                   messagesSection(homeController),
-                                // if(tabController?.index != 0)
-                                //   comingSoon()
                               ],
                             )),
                       ),
@@ -183,150 +172,47 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
         },
       );
       if(url.isNotEmpty){
-        Get.find<HomeController>().addBlacklistUrl(kidId: widget.kidId??"", url: url);
+        Get.find<HomeController>().addBlacklistUrl(kidId: widget.kidId, url: url);
       }
     }
 
   Widget appSection(HomeController homeController) {
+    var apps = homeController.getSelectedKid(widget.kidId).deviceDetail?.data?.apps ?? [];
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView(
           children: [
-            /// Commented for now
-            // Row(
-            //   crossAxisAlignment: CrossAxisAlignment.end,
-            //   children: [
-            //     bigHeadingText(
-            //         "${homeController.getSelectedKid(widget.kidId).appUsage?.deviceDailyAvgUsage ?? ""} "),
-            //     Column(
-            //       children: [
-            //         subHeadingText(
-            //             homeController
-            //                     .getSelectedKid(widget.kidId)
-            //                     .appUsage
-            //                     ?.deviceDailyAvgUsageChange ??
-            //                 "",
-            //             color: AppColors.normalGreen),
-            //         verticalSpace(5)
-            //       ],
-            //     )
-            //   ],
-            // ),
-            // regularText("Daily Average", fontSize: 12, color: AppColors.grey),
-            /// Commented for now
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16).copyWith(bottom: 25,top: 0),
               child: boldText('All Apps', fontSize: 18),
             ),
 
-            ///FOR PRODUCTION
-            for (int i = 0;
-                i <
-                    ((homeController
-                                .getSelectedKid(widget.kidId)
-                                .deviceDetail
-                                ?.data?.apps
-                                // ?.realTimeStats
-                                // ?.appUsageData
-                                ?.length)
-                            ?.toInt() ??
-                        0) /*.appUsage!.listOfInstalledApps!.length*/;
-                i++)
-              // ((homeController
-              //                 .getSelectedKid(widget.kidId)
-              //                 .deviceDetail!
-              //                 .data!
-              //                 .realTimeStats!
-              //                 .appUsageData![i]
-              //                 .lastUsedTime ??
-              //                 // .mFgUsageTime ??
-              //             0) == 0)
-              //     ? const SizedBox()
-              //     :
-if(!(homeController
-    .getSelectedKid(widget.kidId)
-    .deviceDetail?.data?.apps?[i].systemApp ?? true))
-    appItem(
-                      homeController
-                          .getSelectedKid(widget.kidId)
-                          .deviceDetail!.data!.apps![i],
-                          deviceId: homeController
-                              .getSelectedKid(widget.kidId)
-                              .deviceDetail?.data?.deviceId?.toString() ?? "",
-                          kidId: widget.kidId
-                          // .!
-                          // .realTimeStats!
-                          // .appUsageData![i],
-                      // totalTime: homeController
-                      //         .getSelectedKid(widget.kidId)
-                      //         .deviceDetail!
-                      //         .data!
-                      //         .realTimeStats!
-                      //         .totalAppUsageData
-                      //         ?.toInt() ??
-                      //     0
-                    ),
-
-            ///FOR PRODUCTION
-            ///FOR Staging
-            // for(int i=0;i<homeController.getSelectedKid(widget.kidId).appUsage!.listOfInstalledApps!.length;i++)
-            //   appItemStagging(
-            //       homeController.getSelectedKid(widget.kidId).appUsage!.listOfInstalledApps![i]),
-            ///FOR Staging
-            // appItem('assets/images/home/instagram.svg', 'Instagram', 4,
-            //     "1h 29 mins"),
-            // appItem(
-            //     'assets/images/home/snapchat.svg', 'Snapchat', 3, "30 mins"),
-            // appItem('assets/images/home/tiktok.svg', 'Tiktok', 2, "15 mins"),
-            // appItem('assets/images/home/Facebook.svg', 'Facebook', 1, "5 mins"),
+            for (int i = 0; i < apps.length; i++)
+              if (!(apps[i].systemApp ?? false))
+              appItem(
+                apps[i],
+                kidId: widget.kidId,
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget appItem(App listOfInstalledApp, {int totalTime = 0, required String kidId, required String deviceId}) {
-    // String iconPath = listOfInstalledApp//.appIcon!;
-    var width = MediaQuery.of(context).size.width;
-    // print("listOfInstalledApp.mFgUsageTime!:::${totalTime}");
-    String appName = listOfInstalledApp.appName ?? "Unknown App"; //.appName!;
-    double flex = ((listOfInstalledApp.lastUsedTime) ?? 0) /
-        totalTime; //listOfInstalledApp.//.percentUsage! ~/ 10;
-    String time =
-        "${Duration(milliseconds: listOfInstalledApp.lastUsedTime??0).inMinutes % 60}mins ${Duration(milliseconds: listOfInstalledApp.lastUsedTime??0).inSeconds % 60} sec"; //.durationOfUsage!;
-    print("listOfInstalledApp.isEnabled:::${listOfInstalledApp.isEnabled}");
+  Widget appItem(mdm.App listOfInstalledApp, {required String kidId}) {
+    String appName = listOfInstalledApp.appName ?? "Unknown App";
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
-          // SvgPicture.asset(iconPath),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 boldText(appName, fontSize: 14),
-                // Row(
-                //   children: [
-                //     Flexible(
-                //       flex: (7).toInt(),
-                //       child: Container(
-                //         height: 5,
-                //         width: ((width * .5) * flex),
-                //         decoration: BoxDecoration(
-                //             color: const Color(0xffE8EAE3),
-                //             borderRadius: BorderRadius.circular(15)),
-                //       ),
-                //     ),
-                //     const SizedBox(width: 10),
-                //     Flexible(
-                //       flex: 3,
-                //       child: regularText(time,
-                //           fontSize: 12, color: AppColors.grey),
-                //     )
-                //   ],
-                // )
               ],
             ),
           ),
@@ -335,19 +221,7 @@ if(!(homeController
             itemBuilder: (context) => [
               PopupMenuItem(
                 onTap: () {
-                  print("deleteApp");
-                  Get.find<HomeController>().deleteApp(kidId: kidId, deviceId: deviceId, appPackage: listOfInstalledApp.packageName??"");
-                  Get.snackbar(
-                    "Uninstall Requested",
-                    "The app will be uninstalled from the device. This may take up to 15 minutes based on network connectivity.",
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: AppColors.normalGreen,
-                    colorText: Colors.white,
-                    duration: const Duration(seconds: 15),
-                    margin: const EdgeInsets.all(16),
-                    borderRadius: 10,
-                    icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-                  );
+                  Get.find<HomeController>().deleteApp(kidId: kidId, appPackage: listOfInstalledApp.packageName ?? "");
                 },
                 padding: const EdgeInsets.only(left: 5),
                 height: 30,
@@ -355,10 +229,7 @@ if(!(homeController
                 child: Row(
                   children: [
                     SvgPicture.asset('assets/images/home/trash.svg'),
-                    const SizedBox(
-                      // sized box with width 10
-                      width: 10,
-                    ),
+                    const SizedBox(width: 10),
                     regularText("Uninstall App",
                         color: AppColors.red, fontSize: 13)
                   ],
@@ -366,18 +237,7 @@ if(!(homeController
               ),
               PopupMenuItem(
                 onTap: () {
-                  Get.find<HomeController>().blacklistApp(kidId: kidId, deviceId: deviceId, appPackage: listOfInstalledApp.packageName??"");
-                  Get.snackbar(
-                    "Disable Requested",
-                    "The app will be disabled on the device. This may take up to 15 minutes based on network connectivity.",
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: AppColors.normalGreen,
-                    colorText: Colors.white,
-                    duration: const Duration(seconds: 15),
-                    margin: const EdgeInsets.all(16),
-                    borderRadius: 10,
-                    icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-                  );
+                  Get.find<HomeController>().blacklistApp(kidId: kidId, appPackage: listOfInstalledApp.packageName ?? "");
                 },
                 padding: const EdgeInsets.only(left: 5),
                 height: 30,
@@ -385,97 +245,8 @@ if(!(homeController
                 child: Row(
                   children: [
                     SvgPicture.asset('assets/images/home/slash.svg'),
-                    const SizedBox(
-                      // sized box with width 10
-                      width: 10,
-                    ),
-                    regularText("Disable App", fontSize: 13, color: (listOfInstalledApp.isEnabled??1) == 1 ? null : Colors.grey)
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget appItemStagging(ListOfInstalledApp listOfInstalledApp) {
-    String iconPath = listOfInstalledApp.appIcon ?? "";
-    String appName = listOfInstalledApp.appName ?? "Unknown";
-    int flex = (listOfInstalledApp.percentUsage ?? 0) ~/ 10;
-    String time = listOfInstalledApp.durationOfUsage ?? "0 mins";
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          SvgPicture.asset(iconPath),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                boldText(appName, fontSize: 14),
-                Row(
-                  children: [
-                    Flexible(
-                      flex: flex,
-                      child: Container(
-                        height: 5,
-                        decoration: BoxDecoration(
-                            color: const Color(0xffE8EAE3),
-                            borderRadius: BorderRadius.circular(15)),
-                      ),
-                    ),
                     const SizedBox(width: 10),
-                    Flexible(
-                      flex: 3,
-                      child: regularText(time,
-                          fontSize: 12, color: AppColors.grey),
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
-          PopupMenuButton(
-            icon: SvgPicture.asset('assets/images/home/more.svg'),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                onTap: () {
-                  print("deleteApp");
-                  // Get.find<HomeController>().deleteApp(
-                  //     kidId: widget.kidId,
-                  //     deviceId: ,
-                  //     appPackage: (listOfInstalledApp.appId ?? 0).toString());
-                },
-                padding: const EdgeInsets.only(left: 5),
-                height: 30,
-                value: 1,
-                child: Row(
-                  children: [
-                    SvgPicture.asset('assets/images/home/trash.svg'),
-                    const SizedBox(
-                      // sized box with width 10
-                      width: 10,
-                    ),
-                    regularText("Remove App",
-                        color: AppColors.red, fontSize: 13)
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                padding: const EdgeInsets.only(left: 5),
-                height: 30,
-                value: 2,
-                child: Row(
-                  children: [
-                    SvgPicture.asset('assets/images/home/slash.svg'),
-                    const SizedBox(
-                      // sized box with width 10
-                      width: 10,
-                    ),
-                    regularText("Blacklist App", fontSize: 13)
+                    regularText("Disable App", fontSize: 13)
                   ],
                 ),
               ),
@@ -484,7 +255,6 @@ if(!(homeController
         ],
       ),
     );
-
   }
 
   Widget urlSection(HomeController homeController) {
@@ -516,7 +286,7 @@ if(!(homeController
     );
   }
 
-  messagesSection(HomeController homeController) {
+  Widget messagesSection(HomeController homeController) {
     return Expanded(
       child: Center(
         child: Padding(
@@ -545,30 +315,6 @@ if(!(homeController
     );
   }
 
-  Widget urlItem(String url) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          SvgPicture.asset(AppImages.globalOutlined),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              url,
-              style: TextStyle(
-                fontFamily: fontFamily,
-                fontSize: 14,
-                color: AppColors.grey,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget percentageContainer(
       Color color, String icon, String text, String value, String t,
       {bool otherOne = false}) {
@@ -587,7 +333,7 @@ if(!(homeController
                     color: color,
                     child: SvgPicture.asset(
                       icon,
-                      color: AppColors.white,
+                      colorFilter: ColorFilter.mode(AppColors.white, BlendMode.srcIn),
                     ),
                   ),
                   horizontalSpace(3),
@@ -622,6 +368,8 @@ if(!(homeController
 
   Widget headingWidget(HomeController homeController) {
     Kid kid = homeController.getSelectedKid(widget.kidId);
+    final stats = kid.deviceDetail?.data?.realTimeStats;
+    
     return roundedContainer(
       borderRadius: 15,
       padding: const EdgeInsets.all(20),
@@ -687,25 +435,23 @@ if(!(homeController
           Row(
             children: [
               percentageContainer(AppColors.yellow, AppImages.emptyBattery,
-                  "Battery %", kid.deviceDetail?.data?.realTimeStats?.batteryLevel?.toString() ?? "", "%"),
+                  "Battery %", stats?.batteryLevel?.toString() ?? "0", "%"),
               horizontalSpace(10),
               percentageContainer(AppColors.blue, AppImages.global, "Data Used",
-                  kid.deviceDetail?.data?.realTimeStats?.deviceDataUsage?.toString() ?? "", "GB")
+                  stats?.deviceDataUsage?.toString() ?? "0", "GB")
             ],
           ),
           verticalSpace(10),
           customGestureDetecter(
             onTap: () {
-              print("kid.deviceDetail?.deviceId:::${widget.kidId}");
               Get.toNamed(LiveLocation.screenName, arguments: {
-                "lat": kid.deviceDetail?.data?.realTimeStats?.currentLatitude,
-                "long": kid.deviceDetail?.data?.realTimeStats?.currentLongitude,
+                "lat": stats?.currentLatitude,
+                "long": stats?.currentLongitude,
                 "deviceId": widget.kidId,
               });
             },
             child: Row(
               children: [
-
                   percentageContainer(AppColors.purple, AppImages.location,
                       "View Last Location", kid.batteryStatus ?? "", "%",
                       otherOne: true),
@@ -723,14 +469,12 @@ if(!(homeController
   Widget tabBar() {
     return roundedContainer(
       padding: const EdgeInsets.all(5),
-      // margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10)
-      //     .copyWith(bottom: 0),
       color: AppColors.veryVeryLightGreen,
       child: Theme(
-        data: Theme.of(context).copyWith(colorScheme: Theme.of(context).colorScheme.copyWith(surfaceVariant: Colors.transparent)),
+        data: Theme.of(context).copyWith(colorScheme: Theme.of(context).colorScheme.copyWith(surfaceContainerHighest: Colors.transparent)),
         child: TabBar(
             overlayColor:
-                MaterialStateColor.resolveWith((states) => AppColors.lightGreen),
+                WidgetStateColor.resolveWith((states) => AppColors.lightGreen),
             indicator: BoxDecoration(
                 borderRadius: BorderRadius.circular(6),
                 color: AppColors.normalGreen),
@@ -739,12 +483,9 @@ if(!(homeController
             },
             controller: tabController,
             tabs: [
-              textForTab("Apps", tabController?.index == 0),
-              textForTab("Browser History", tabController?.index == 1),
-              textForTab("Messages", tabController?.index == 2),
-
-              /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
-              // regularText("Browser History",color: AppColors.normalGreen, fontWeight: FontWeight.w500),
+              textForTab("Apps", tabController!.index == 0),
+              textForTab("Browser History", tabController!.index == 1),
+              textForTab("Messages", tabController!.index == 2),
             ]),
       ),
     );
@@ -758,12 +499,6 @@ if(!(homeController
         setState(() {
           switchButton = !switchButton;
         });
-        if (switchButton) {
-          // _showAdDialog();
-        } else {}
-        if (!showM) {
-          Get.back();
-        }
         Get.find<HomeController>()
             .enableWallet(value: switchButton, kidId: widget.kidId);
       },
@@ -800,54 +535,6 @@ if(!(homeController
     );
   }
 
-  Widget customSwitchSMS({bool showM = true, required bool value}) {
-    double size = 35;
-    bool switchButton = value;
-    return customGestureDetecter(
-      onTap: () {
-        setState(() {
-          switchButton = !switchButton;
-        });
-        if (switchButton) {
-          // _showAdDialog();
-        } else {}
-        if (!showM) {
-          Get.back();
-        }
-      },
-      child: Stack(
-        alignment: switchButton ? Alignment.centerRight : Alignment.centerLeft,
-        children: [
-          roundedContainer(
-              borderRadius: 30,
-              color:
-              switchButton ? AppColors.lightGreen : AppColors.darkLightGrey,
-              height: size * 0.65,
-              width: size * 1.2),
-          Stack(
-            alignment: AlignmentDirectional.center,
-            children: [
-              roundedContainer(
-                borderRadius: 30,
-                color: Colors.white,
-                margin: EdgeInsets.all(size * 0.083), //2.5
-                height: size * 0.5,
-                width: size * 0.5,
-              ),
-              if (showM)
-                regularText("M!",
-                    customFontFamily: fontFamilyPraise,
-                    color: switchButton
-                        ? AppColors.lightGreen
-                        : AppColors.darkLightGrey,
-                    fontSize: 11)
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showAdDialog() {
     showDialog(
         context: context,
@@ -856,7 +543,6 @@ if(!(homeController
             type: MaterialType.transparency,
             child: Center(
               child: roundedContainer(
-                  // height: 100,
                   margin: const EdgeInsets.all(30),
                   padding:
                       const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
@@ -898,28 +584,13 @@ if(!(homeController
 
   void initAPIS() async {
     Get.find<HomeController>().getAppUsage(kidId: widget.kidId);
-    await Get.find<AuthController>().refreshToken();
-    Get.find<HomeController>()
-        .getDeviceDetail(kidId: /*"97eb1071c123c76b"*/ widget.kidId);
-    Get.find<HomeController>()
-        .getMessageThreads(kidId: widget.kidId);
-    Get.find<HomeController>()
-        .getBlacklistUrls(kidId: widget.kidId);
-    Get.find<HomeController>()
-        .getWalletStatus(kidId: widget.kidId);
-    Get.find<HomeController>()
-        .getMSMSMonitoringStatus(kidId: widget.kidId);
-
+    Get.find<HomeController>().getDeviceDetail(kidId: widget.kidId);
+    Get.find<HomeController>().getBlacklistUrls(kidId: widget.kidId);
+    Get.find<HomeController>().getWalletStatus(kidId: widget.kidId);
+    Get.find<HomeController>().getMSMSMonitoringStatus(kidId: widget.kidId);
   }
 
-  // Widget section(homeController) {
-  //   return Column(
-  //     children: [
-  //     ],
-  //   );
-  // }
-
-  comingSoon() {
+  Widget comingSoon() {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

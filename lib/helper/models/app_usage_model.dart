@@ -1,12 +1,6 @@
-// To parse this JSON data, do
-//
-//     final appUsage = appUsageFromJson(jsonString);
-
 import 'dart:convert';
 
 AppUsage appUsageFromJson(String str) => AppUsage.fromJson(json.decode(str));
-
-String appUsageToJson(AppUsage data) => json.encode(data.toJson());
 
 class AppUsage {
   int? installedAppsCount;
@@ -25,85 +19,53 @@ class AppUsage {
     this.success,
   });
 
-  AppUsage copyWith({
-    int? installedAppsCount,
-    String? deviceDailyAvgUsage,
-    String? deviceDailyAvgUsageChange,
-    List<ListOfInstalledApp>? listOfInstalledApps,
-    String? msg,
-    bool? success,
-  }) =>
-      AppUsage(
-        installedAppsCount: installedAppsCount ?? this.installedAppsCount,
-        deviceDailyAvgUsage: deviceDailyAvgUsage ?? this.deviceDailyAvgUsage,
-        deviceDailyAvgUsageChange: deviceDailyAvgUsageChange ?? this.deviceDailyAvgUsageChange,
-        listOfInstalledApps: listOfInstalledApps ?? this.listOfInstalledApps,
-        msg: msg ?? this.msg,
-        success: success ?? this.success,
-      );
+  factory AppUsage.fromJson(Map<String, dynamic> json) {
+    var usage = json["usage"];
+    var apps = json["apps"] as List?;
 
-  factory AppUsage.fromJson(Map<String, dynamic> json) => AppUsage(
-    installedAppsCount: json["installedAppsCount"],
-    deviceDailyAvgUsage: json["deviceDailyAvgUsage"],
-    deviceDailyAvgUsageChange: json["deviceDailyAvgUsageChange"],
-    listOfInstalledApps: json["listOfInstalledApps"] == null ? [] : List<ListOfInstalledApp>.from(json["listOfInstalledApps"]!.map((x) => ListOfInstalledApp.fromJson(x))),
-    msg: json["msg"],
-    success: json["success"],
-  );
+    String formatMs(int? ms) {
+      if (ms == null) return "0m";
+      Duration d = Duration(milliseconds: ms);
+      if (d.inHours > 0) return "${d.inHours}h ${d.inMinutes % 60}m";
+      return "${d.inMinutes}m";
+    }
 
-  Map<String, dynamic> toJson() => {
-    "installedAppsCount": installedAppsCount,
-    "deviceDailyAvgUsage": deviceDailyAvgUsage,
-    "deviceDailyAvgUsageChange": deviceDailyAvgUsageChange,
-    "listOfInstalledApps": listOfInstalledApps == null ? [] : List<dynamic>.from(listOfInstalledApps!.map((x) => x.toJson())),
-    "msg": msg,
-    "success": success,
-  };
+    return AppUsage(
+      installedAppsCount: apps?.length,
+      deviceDailyAvgUsage: usage != null ? formatMs(usage["dailyAvgMs"]) : "0m",
+      deviceDailyAvgUsageChange: usage != null ? "${usage["weekTrendPct"] ?? 0}% from last week" : "0%",
+      listOfInstalledApps: apps?.map((x) => ListOfInstalledApp.fromMdm(x)).toList() ?? [],
+      success: json["success"] ?? true,
+    );
+  }
 }
 
 class ListOfInstalledApp {
-  int? appId;
+  String? packageName;
   String? appName;
   String? appIcon;
-  int? percentUsage;
+  int? usageMs;
   String? durationOfUsage;
+  int? percentUsage; // Added for UI compatibility
 
   ListOfInstalledApp({
-    this.appId,
+    this.packageName,
     this.appName,
     this.appIcon,
-    this.percentUsage,
+    this.usageMs,
     this.durationOfUsage,
+    this.percentUsage = 0,
   });
 
-  ListOfInstalledApp copyWith({
-    int? appId,
-    String? appName,
-    String? appIcon,
-    int? percentUsage,
-    String? durationOfUsage,
-  }) =>
-      ListOfInstalledApp(
-        appId: appId ?? this.appId,
-        appName: appName ?? this.appName,
-        appIcon: appIcon ?? this.appIcon,
-        percentUsage: percentUsage ?? this.percentUsage,
-        durationOfUsage: durationOfUsage ?? this.durationOfUsage,
-      );
-
-  factory ListOfInstalledApp.fromJson(Map<String, dynamic> json) => ListOfInstalledApp(
-    appId: json["appId"],
-    appName: json["app_name"],
-    appIcon: json["app_icon"],
-    percentUsage: json["percent_usage"],
-    durationOfUsage: json["duration_of_usage"],
-  );
-
-  Map<String, dynamic> toJson() => {
-    "appId": appId,
-    "app_name": appName,
-    "app_icon": appIcon,
-    "percent_usage": percentUsage,
-    "duration_of_usage": durationOfUsage,
-  };
+  factory ListOfInstalledApp.fromMdm(Map<String, dynamic> json) {
+    int ms = json["usageTodayMs"] ?? 0;
+    Duration d = Duration(milliseconds: ms);
+    return ListOfInstalledApp(
+      packageName: json["pkg"],
+      appName: json["name"],
+      usageMs: ms,
+      durationOfUsage: d.inHours > 0 ? "${d.inHours}h ${d.inMinutes % 60}m" : "${d.inMinutes}m",
+      percentUsage: 0, // Calculate if needed
+    );
+  }
 }
