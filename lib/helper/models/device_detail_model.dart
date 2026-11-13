@@ -61,7 +61,7 @@ class Data {
     this.location,
   });
 
-  // Backward compatibility getter for legacy UI
+  // Backward compatibility getter for legacy UI code
   RealTimeStats get realTimeStats => RealTimeStats(
     batteryLevel: batteryPct ?? 0,
     batteryStatus: online == true ? "Online" : "Offline",
@@ -76,7 +76,7 @@ class Data {
     model: json["model"],
     osVersion: json["osVersion"]?.toString(),
     online: json["online"] ?? (json["isOnline"] == 1),
-    batteryPct: (json["batteryPct"] ?? json["batteryLevel"])?.toInt(),
+    batteryPct: (json["batteryPct"] ?? json["batteryLevel"] ?? json["batteryLevel"])?.toInt(),
     lastSeenAt: json["lastSeenAt"] ?? json["lastReportedTime"]?.toString(),
     apps: json["apps"] == null ? [] : List<App>.from(json["apps"]!.map((x) => App.fromJson(x))),
     usage: json["usage"] == null ? null : Usage.fromJson(json["usage"]),
@@ -99,13 +99,14 @@ class Data {
 class App {
   String? pkg;
   String? name;
+  String? version;
   int? usageTodayMs;
   bool? systemApp;
   int? isEnabled;
 
-  App({this.pkg, this.name, this.usageTodayMs, this.systemApp = false, this.isEnabled = 1});
+  App({this.pkg, this.name, this.version, this.usageTodayMs, this.systemApp = false, this.isEnabled = 1});
 
-  // Backward compatibility getters
+  // Backward compatibility getters for legacy UI code
   String? get packageName => pkg;
   String? get appName => name;
   int? get lastUsedTime => usageTodayMs;
@@ -113,6 +114,7 @@ class App {
   factory App.fromJson(Map<String, dynamic> json) => App(
     pkg: json["pkg"] ?? json["packageName"],
     name: json["name"] ?? json["appName"],
+    version: json["version"] ?? json["versionName"],
     usageTodayMs: (json["usageTodayMs"] ?? json["totalUsedTime"] ?? 0).toInt(),
     systemApp: json["systemApp"] ?? false,
     isEnabled: json["isEnabled"] ?? 1,
@@ -120,7 +122,7 @@ class App {
 
   Map<String, dynamic> toJson() => {
     "pkg": pkg, 
-    "name": name,
+    "name": name, 
     "usageTodayMs": usageTodayMs,
     "systemApp": systemApp,
     "isEnabled": isEnabled,
@@ -135,7 +137,14 @@ class RealTimeStats {
   double? currentLongitude;
   int? deviceDataUsage;
 
-  RealTimeStats({this.batteryLevel, this.batteryStatus, this.isOnline, this.currentLatitude, this.currentLongitude, this.deviceDataUsage});
+  RealTimeStats({
+    this.batteryLevel, 
+    this.batteryStatus, 
+    this.isOnline, 
+    this.currentLatitude, 
+    this.currentLongitude, 
+    this.deviceDataUsage
+  });
 
   Map<String, dynamic> toJson() => {
     "batteryLevel": batteryLevel,
@@ -149,18 +158,24 @@ class RealTimeStats {
 
 class Usage {
   int? todayMs;
+  int? weekMs;
   int? dailyAvgMs;
+  int? weekTrendPct;
 
-  Usage({this.todayMs, this.dailyAvgMs});
+  Usage({this.todayMs, this.weekMs, this.dailyAvgMs, this.weekTrendPct});
 
   factory Usage.fromJson(Map<String, dynamic> json) => Usage(
     todayMs: (json["todayMs"] as num?)?.toInt(),
+    weekMs: (json["weekMs"] as num?)?.toInt(),
     dailyAvgMs: (json["dailyAvgMs"] as num?)?.toInt(),
+    weekTrendPct: (json["weekTrendPct"] as num?)?.toInt(),
   );
 
   Map<String, dynamic> toJson() => {
     "todayMs": todayMs,
+    "weekMs": weekMs,
     "dailyAvgMs": dailyAvgMs,
+    "weekTrendPct": weekTrendPct,
   };
 }
 

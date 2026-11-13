@@ -12,6 +12,7 @@ import 'package:moolah/helper/models/thread_model.dart';
 import 'package:moolah/helper/network.dart';
 import 'package:moolah/helper/repo/homeRepo.dart';
 import 'package:moolah/util/customtoast.dart';
+import 'package:moolah/helper/sharedHelper.dart';
 import '../helper/repo/singleKidRepo.dart';
 
 class HomeController extends BaseController {
@@ -19,7 +20,9 @@ class HomeController extends BaseController {
 
   Future<void> getSyncedKidDevices() async {
     print("--- [MDM] Fetching Synced Devices ---");
-    ResponseModel responseModel = await HomeRepo.getSyncedKidDevices();
+    String parentId = Prefs.userId.get();
+    
+    ResponseModel responseModel = await HomeRepo.getSyncedKidDevices(externalMoolahId: parentId);
     apiToast(responseModel);
 
     if (responseModel.isSuccessful && responseModel.data != null) {
@@ -33,7 +36,6 @@ class HomeController extends BaseController {
         }
         connectedKids = temp;
 
-        // Automatically fetch deep details for each device
         for (var kid in connectedKids) {
           if (kid.connectId != null) {
             getDeviceDetail(kidId: kid.connectId!);
@@ -53,16 +55,18 @@ class HomeController extends BaseController {
       
       connectedKids[index].deviceDetail = DeviceDetail.fromJson(responseModel.data);
       
-      if (deviceJson["batteryPct"] != null) {
-        connectedKids[index].batteryStatus = deviceJson["batteryPct"].toString();
-      }
-      if (deviceJson["lastSeenAt"] != null) {
-        try {
-          DateTime lastSeen = DateTime.parse(deviceJson["lastSeenAt"]);
-          Duration diff = DateTime.now().difference(lastSeen);
-          connectedKids[index].lastActive = "${diff.inMinutes}m ago";
-        } catch (e) {
-          connectedKids[index].lastActive = "Now";
+      if (deviceJson != null) {
+        if (deviceJson["batteryPct"] != null) {
+          connectedKids[index].batteryStatus = deviceJson["batteryPct"].toString();
+        }
+        if (deviceJson["lastSeenAt"] != null) {
+          try {
+            DateTime lastSeen = DateTime.parse(deviceJson["lastSeenAt"]);
+            Duration diff = DateTime.now().difference(lastSeen);
+            connectedKids[index].lastActive = "${diff.inMinutes}m ago";
+          } catch (e) {
+            connectedKids[index].lastActive = "Now";
+          }
         }
       }
     }
@@ -113,9 +117,7 @@ class HomeController extends BaseController {
     isLoading = true;
     update();
     ResponseModel res = await HomeRepo.getAppUsage(kidId);
-    if (res.isSuccessful && res.data != null) {
-       // Optional: Update detailed usage models here
-    }
+    if (res.isSuccessful && res.data != null) {}
     isLoading = false;
     update();
   }
@@ -187,7 +189,6 @@ class HomeController extends BaseController {
   }
 
   Future<void> getMessageThreads({String? kidId}) async {
-    // MDM doesn't currently provide threads, stubbed for UI
     update();
   }
 

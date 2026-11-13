@@ -3,10 +3,17 @@ import '../models/response_model.dart';
 import '../network.dart';
 
 class HomeRepo {
-  // 3. Get the child's device
-  static Future<ResponseModel> getSyncedKidDevices({String? connectId}) async {
+  // 3. Get the child's device(s)
+  // Supports listing all for a parent (externalMoolahId) or a specific device (connectId)
+  static Future<ResponseModel> getSyncedKidDevices({String? externalMoolahId, String? connectId}) async {
     String url = EndPoints.getSyncedKidDevicesUrl;
-    if (connectId != null) url += "?kidDeviceAccountConnectID=$connectId";
+    List<String> params = [];
+    if (externalMoolahId != null) params.add("externalMoolahId=$externalMoolahId");
+    if (connectId != null) params.add("kidDeviceAccountConnectID=$connectId");
+    
+    if (params.isNotEmpty) {
+      url += "?${params.join("&")}";
+    }
     return await Network.get(url);
   }
 

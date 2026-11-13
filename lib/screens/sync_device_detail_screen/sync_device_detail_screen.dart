@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/screens/blacklist/blacklist_screen.dart';
 import 'package:moolah/screens/sync_device_detail_screen/screens/live_location.dart';
@@ -11,7 +12,7 @@ import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/common_widgets/loader.dart';
 import 'package:moolah/util/images.dart';
 
-import '../../helper/models/device_detail_model.dart' as mdm;
+import '../../helper/models/device_detail_model.dart';
 import '../../helper/models/kids_model.dart';
 import '../../util/apptext.dart';
 import '../../util/common_widgets/CommonGradientBackground.dart';
@@ -61,7 +62,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               verticalSpace(20),
               commonAppBar(
                   heading:
-                      "${kid.name?.split(" ")[0]}'s Summary"),
+                      "${kid.name?.split(" ")[0] ?? "Kid"}'s Summary"),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(10.0).copyWith(bottom: 0),
@@ -79,24 +80,23 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                             child: Column(
                               children: [
                                 tabBar(),
-                                  if (tabController?.index != 2)
-                                    CustomButton(
-                                      text: headingText,
-                                      onTap: () {
-                                        if (tabController?.index != 1) {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const BlackListScreen(),
-                                            ),
-                                          );
-                                        }else{
-                                          _showAddBlackListDialog();
-                                        }
-
-                                      },
-                                    ),
+                                if (tabController?.index != 2)
+                                  CustomButton(
+                                    text: headingText,
+                                    onTap: () {
+                                      if (tabController?.index != 1) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const BlackListScreen(),
+                                          ),
+                                        );
+                                      } else {
+                                        _showAddBlackListDialog();
+                                      }
+                                    },
+                                  ),
                                 verticalSpace(0),
                                 if (tabController?.index == 0)
                                   appSection(homeController)
@@ -121,88 +121,91 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   void _showAddBlackListDialog() async {
     String url = "";
     TextEditingController urlController = TextEditingController();
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            insetPadding: const EdgeInsets.all(10),
-            contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            content: Builder(builder: (context) {
-              var width = MediaQuery.of(context).size.width;
-              return SizedBox(
-                width: width - 40,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const SizedBox(
-                          width: 26,
-                        ),
-                        boldText('Black List URL', fontSize: 18),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.close),
-                        )
-                      ],
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          insetPadding: const EdgeInsets.all(10),
+          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          content: Builder(builder: (context) {
+            var width = MediaQuery.of(context).size.width;
+            return SizedBox(
+              width: width - 40,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SizedBox(
+                        width: 26,
+                      ),
+                      boldText('Black List URL', fontSize: 18),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.close),
+                      )
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CustomTextField(
+                      hintText: "Enter URL",
+                      textEditingController: urlController,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CustomTextField(hintText: "Enter URL", textEditingController: urlController,),
-                    ),
-                    CustomButton(
-                      text: 'Black List',
-                      onTap: () {
-                        if(urlController.text.trim().isNotEmpty){
-                          url = urlController.text.trim();
-                        }
-                        Navigator.pop(context);
-                      },
-                    ),
-                    const SizedBox(height: 10,)
-                  ],
-                ),
-              );
-            }),
-          );
-        },
-      );
-      if(url.isNotEmpty){
-        Get.find<HomeController>().addBlacklistUrl(kidId: widget.kidId, url: url);
-      }
+                  ),
+                  CustomButton(
+                    text: 'Black List',
+                    onTap: () {
+                      if (urlController.text.trim().isNotEmpty) {
+                        url = urlController.text.trim();
+                      }
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  )
+                ],
+              ),
+            );
+          }),
+        );
+      },
+    );
+    if (url.isNotEmpty) {
+      Get.find<HomeController>().addBlacklistUrl(kidId: widget.kidId, url: url);
     }
+  }
 
   Widget appSection(HomeController homeController) {
-    var apps = homeController.getSelectedKid(widget.kidId).deviceDetail?.data?.apps ?? [];
+    final kid = homeController.getSelectedKid(widget.kidId);
+    final apps = kid.deviceDetail?.data?.apps ?? [];
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16).copyWith(bottom: 25,top: 0),
+              padding: const EdgeInsets.symmetric(vertical: 16)
+                  .copyWith(bottom: 25, top: 0),
               child: boldText('All Apps', fontSize: 18),
             ),
-
             for (int i = 0; i < apps.length; i++)
               if (!(apps[i].systemApp ?? false))
-              appItem(
-                apps[i],
-                kidId: widget.kidId,
-              ),
+                appItem(apps[i], kidId: widget.kidId),
           ],
         ),
       ),
     );
   }
 
-  Widget appItem(mdm.App listOfInstalledApp, {required String kidId}) {
+  Widget appItem(App listOfInstalledApp, {required String kidId}) {
     String appName = listOfInstalledApp.appName ?? "Unknown App";
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -221,7 +224,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             itemBuilder: (context) => [
               PopupMenuItem(
                 onTap: () {
-                  Get.find<HomeController>().deleteApp(kidId: kidId, appPackage: listOfInstalledApp.packageName ?? "");
+                  Get.find<HomeController>().deleteApp(
+                      kidId: kidId,
+                      appPackage: listOfInstalledApp.packageName ?? "");
                 },
                 padding: const EdgeInsets.only(left: 5),
                 height: 30,
@@ -229,7 +234,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                 child: Row(
                   children: [
                     SvgPicture.asset('assets/images/home/trash.svg'),
-                    const SizedBox(width: 10),
+                    const SizedBox(
+                      width: 10,
+                    ),
                     regularText("Uninstall App",
                         color: AppColors.red, fontSize: 13)
                   ],
@@ -237,7 +244,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               ),
               PopupMenuItem(
                 onTap: () {
-                  Get.find<HomeController>().blacklistApp(kidId: kidId, appPackage: listOfInstalledApp.packageName ?? "");
+                  Get.find<HomeController>().blacklistApp(
+                      kidId: kidId,
+                      appPackage: listOfInstalledApp.packageName ?? "");
                 },
                 padding: const EdgeInsets.only(left: 5),
                 height: 30,
@@ -245,7 +254,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                 child: Row(
                   children: [
                     SvgPicture.asset('assets/images/home/slash.svg'),
-                    const SizedBox(width: 10),
+                    const SizedBox(
+                      width: 10,
+                    ),
                     regularText("Disable App", fontSize: 13)
                   ],
                 ),
@@ -333,14 +344,16 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                     color: color,
                     child: SvgPicture.asset(
                       icon,
-                      colorFilter: ColorFilter.mode(AppColors.white, BlendMode.srcIn),
+                      colorFilter:
+                          ColorFilter.mode(AppColors.white, BlendMode.srcIn),
                     ),
                   ),
                   horizontalSpace(3),
                   if (otherOne)
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0),
-                      child: regularText(text, fontSize: 15,fontWeight: FontWeight.w600),
+                      child: regularText(text,
+                          fontSize: 15, fontWeight: FontWeight.w600),
                     )
                   else
                     subHeadingText(text, fontSize: 10),
@@ -360,7 +373,10 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   ],
                 )
               else
-                const Icon(Icons.arrow_forward_ios, size: 15,)
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 15,
+                )
             ],
           )),
     );
@@ -369,7 +385,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   Widget headingWidget(HomeController homeController) {
     Kid kid = homeController.getSelectedKid(widget.kidId);
     final stats = kid.deviceDetail?.data?.realTimeStats;
-    
+
     return roundedContainer(
       borderRadius: 15,
       padding: const EdgeInsets.all(20),
@@ -385,12 +401,14 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                     width: 55,
                     child: ClipRRect(
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(1000),
-                          child: kid.kidPic == null
+                      borderRadius: BorderRadius.circular(1000),
+                      child: kid.kidPic == null
                           ? ClipRRect(
                               borderRadius: BorderRadius.circular(1000),
                               child: SvgPicture.asset(AppImages.person))
-                          : Image.network(kid.kidPic!, errorBuilder: (c, e, v) => SvgPicture.asset(AppImages.person)),
+                          : Image.network(kid.kidPic!,
+                              errorBuilder: (c, e, v) =>
+                                  SvgPicture.asset(AppImages.person)),
                     )),
                   ),
                   horizontalSpace(10),
@@ -434,8 +452,12 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           verticalSpace(20),
           Row(
             children: [
-              percentageContainer(AppColors.yellow, AppImages.emptyBattery,
-                  "Battery %", stats?.batteryLevel?.toString() ?? "0", "%"),
+              percentageContainer(
+                  AppColors.yellow,
+                  AppImages.emptyBattery,
+                  "Battery %",
+                  stats?.batteryLevel?.toString() ?? "0",
+                  "%"),
               horizontalSpace(10),
               percentageContainer(AppColors.blue, AppImages.global, "Data Used",
                   stats?.deviceDataUsage?.toString() ?? "0", "GB")
@@ -452,10 +474,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             },
             child: Row(
               children: [
-                  percentageContainer(AppColors.purple, AppImages.location,
-                      "View Last Location", kid.batteryStatus ?? "", "%",
-                      otherOne: true),
-
+                percentageContainer(AppColors.purple, AppImages.location,
+                    "View Last Location", kid.batteryStatus ?? "", "%",
+                    otherOne: true),
               ],
             ),
           ),
@@ -464,14 +485,14 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     );
   }
 
-
-
   Widget tabBar() {
     return roundedContainer(
       padding: const EdgeInsets.all(5),
       color: AppColors.veryVeryLightGreen,
       child: Theme(
-        data: Theme.of(context).copyWith(colorScheme: Theme.of(context).colorScheme.copyWith(surfaceContainerHighest: Colors.transparent)),
+        data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                surfaceContainerHighest: Colors.transparent)),
         child: TabBar(
             overlayColor:
                 WidgetStateColor.resolveWith((states) => AppColors.lightGreen),
@@ -584,6 +605,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
 
   void initAPIS() async {
     Get.find<HomeController>().getAppUsage(kidId: widget.kidId);
+    await Get.find<AuthController>().refreshToken();
     Get.find<HomeController>().getDeviceDetail(kidId: widget.kidId);
     Get.find<HomeController>().getBlacklistUrls(kidId: widget.kidId);
     Get.find<HomeController>().getWalletStatus(kidId: widget.kidId);

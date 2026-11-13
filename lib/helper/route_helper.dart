@@ -59,7 +59,11 @@ class RouteHelper {
     CheckYourEmail.screenName: (_) => const CheckYourEmail(),
     VerifyResetOTPScreen.screenName: (_) => const VerifyResetOTPScreen(),
     OtpVerification.screenName: (_) => const OtpVerification(),
-    LiveLocation.screenName: (_) => LiveLocation(lat: Get.arguments?["lat"] ?? 0, long: Get.arguments?["long"] ?? 0, deviceId: Get.arguments?["deviceId"] ?? 0),
+    LiveLocation.screenName: (_) => LiveLocation(
+          lat: (Get.arguments?["lat"] as num?)?.toDouble() ?? 0.0,
+          long: (Get.arguments?["long"] as num?)?.toDouble() ?? 0.0,
+          deviceId: Get.arguments?["deviceId"]?.toString() ?? "",
+        ),
     FeedbackScreen.screenName: (_) => const FeedbackScreen(),
     ContactUsScreen.screenName: (_) => const ContactUsScreen(),
     PrivacyScreen.screenName: (_) => const PrivacyScreen(),
