@@ -4,16 +4,14 @@ import '../network.dart';
 
 class HomeRepo {
   // 3. Get the child's device(s)
-  // Supports listing all for a parent (externalMoolahId) or a specific device (connectId)
-  static Future<ResponseModel> getSyncedKidDevices({String? externalMoolahId, String? connectId}) async {
+  // API requires kidDeviceAccountConnectID parameter
+  static Future<ResponseModel> getSyncedKidDevices({String? connectId}) async {
     String url = EndPoints.getSyncedKidDevicesUrl;
-    List<String> params = [];
-    if (externalMoolahId != null) params.add("externalMoolahId=$externalMoolahId");
-    if (connectId != null) params.add("kidDeviceAccountConnectID=$connectId");
-    
-    if (params.isNotEmpty) {
-      url += "?${params.join("&")}";
+
+    if (connectId != null) {
+      url += "?kidDeviceAccountConnectID=$connectId";
     }
+
     return await Network.get(url);
   }
 

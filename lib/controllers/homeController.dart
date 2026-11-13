@@ -20,9 +20,10 @@ class HomeController extends BaseController {
 
   Future<void> getSyncedKidDevices() async {
     print("--- [MDM] Fetching Synced Devices ---");
-    String parentId = Prefs.userId.get();
-    
-    ResponseModel responseModel = await HomeRepo.getSyncedKidDevices(externalMoolahId: parentId);
+
+    // Call without parameters to get all devices for this authenticated parent
+    // The API key in the header identifies the parent/guardian
+    ResponseModel responseModel = await HomeRepo.getSyncedKidDevices();
     apiToast(responseModel);
 
     if (responseModel.isSuccessful && responseModel.data != null) {
