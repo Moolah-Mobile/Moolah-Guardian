@@ -31,6 +31,7 @@ class EndPoints {
   static String linkDevice = "$mdmBaseUrl/guardian/link";
 
   // Other Feature Management (api2)
+  static String getParentKidDevicesUrl = "$baseUrl/getConnectedKidDevices";
   static String getMSMSMonitoringStatus = "$baseUrl/getMSMSMonitoringStatus";
   static String enableMSMSMonitoring = "$baseUrl/enableMSMSMonitoring";
   static String getWalletStatus = "$baseUrl/getWalletEnabled";

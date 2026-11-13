@@ -37,7 +37,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   @override
   void initState() {
     super.initState();
-    initAPIS();
+    // initAPIS updates HomeController (loader state), which is not allowed while this screen is building.
+    WidgetsBinding.instance.addPostFrameCallback((_) => initAPIS());
     tabController = TabController(length: 3, vsync: this);
     tabController?.addListener(() {
       final currentIndex = tabController?.index;
@@ -469,7 +470,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               Get.toNamed(LiveLocation.screenName, arguments: {
                 "lat": stats?.currentLatitude,
                 "long": stats?.currentLongitude,
-                "deviceId": widget.kidId,
+                "deviceId": kid.kidId ?? widget.kidId,
               });
             },
             child: Row(

@@ -3,6 +3,10 @@ import '../models/response_model.dart';
 import '../network.dart';
 
 class HomeRepo {
+  // The parent's linked devices come from api2: the MDM can only look a device up by its connect ID.
+  static Future<ResponseModel> getParentKidDevices() async =>
+      await Network.get(EndPoints.getParentKidDevicesUrl);
+
   // 3. Get the child's device(s)
   // API requires kidDeviceAccountConnectID parameter
   static Future<ResponseModel> getSyncedKidDevices({String? connectId}) async {

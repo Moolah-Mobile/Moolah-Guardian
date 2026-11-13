@@ -10,6 +10,8 @@ String kidToJson(Kid data) => json.encode(data.toJson());
 
 class Kid {
   String? kidId;
+  // api2's child ID (kidDeviceAccountUserID); kidId holds the MDM device number.
+  String? kidUserId;
   String? name;
   String? deviceType;
   String? batteryStatus;

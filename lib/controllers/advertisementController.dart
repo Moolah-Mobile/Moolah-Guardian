@@ -56,7 +56,7 @@ class AdvertisementController extends BaseController with LevelPlayBannerListene
       // height: 10,
       // width: 10,
       color: Colors.black,
-      child: currentAd?.bannerImg == null ? const SizedBox() : Image.network(currentAd.bannerImg??""),
+      child: currentAd?.bannerImg == null ? const SizedBox() : Image.network(currentAd.bannerImg??"", errorBuilder: (_, __, ___) => const SizedBox()),
     ) : const SizedBox();
   }
 

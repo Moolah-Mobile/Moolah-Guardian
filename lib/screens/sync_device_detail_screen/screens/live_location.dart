@@ -99,12 +99,17 @@ class _LiveLocationState extends State<LiveLocation> {
   void getLocation() async {
     ResponseModel responseModel = await HomeRepo.getSyncedKidDeviceLocation(widget.deviceId);
     if(responseModel.isSuccessful){
-      log("responseModel.data::::${responseModel.data["data"]}");
-      lat = responseModel.data["data"]["currentLatitude"];
-      long = responseModel.data["data"]["currentLongitude"];
-      setState(() async {
-        (await _controller.future).animateCamera(CameraUpdate.newLatLng(LatLng(lat!, long!)));
+      final data = responseModel.data["data"];
+      log("responseModel.data::::$data");
+      // The MDM returns lat/lng, and both are null until the device has reported a GPS fix.
+      final newLat = (data?["lat"] as num?)?.toDouble();
+      final newLong = (data?["lng"] as num?)?.toDouble();
+      if (newLat == null || newLong == null || !mounted) return;
+      setState(() {
+        lat = newLat;
+        long = newLong;
       });
+      (await _controller.future).animateCamera(CameraUpdate.newLatLng(LatLng(newLat, newLong)));
     }
   }
 }

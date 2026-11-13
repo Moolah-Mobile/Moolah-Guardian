@@ -21,40 +21,54 @@ class HomeController extends BaseController {
   Future<void> getSyncedKidDevices() async {
     print("--- [MDM] Fetching Synced Devices ---");
 
-    // Call without parameters to get all devices for this authenticated parent
-    // The API key in the header identifies the parent/guardian
-    ResponseModel responseModel = await HomeRepo.getSyncedKidDevices();
-    apiToast(responseModel);
+    // The MDM API key is shared by every parent, so the MDM cannot list a parent's devices;
+    // the parent's connect IDs come from api2 and each one is looked up on the MDM.
+    ResponseModel parentRes = await HomeRepo.getParentKidDevices();
+    if (!parentRes.isSuccessful || parentRes.data == null) {
+      apiToast(parentRes);
+      update();
+      return;
+    }
 
-    if (responseModel.isSuccessful && responseModel.data != null) {
-      final data = responseModel.data["data"];
-      if (data != null && data["devices"] != null) {
-        List<Kid> temp = [];
-        var devicesList = data["devices"] as List;
-        
-        for (var dev in devicesList) {
-          temp.add(Kid.fromJson(dev));
-        }
-        connectedKids = temp;
+    List<Kid> temp = [];
+    for (var link in (parentRes.data["devices"] as List? ?? [])) {
+      final String? connectId = link["kidDeviceAccountConnectID"]?.toString();
+      if (connectId == null || connectId.isEmpty) continue;
 
-        for (var kid in connectedKids) {
-          if (kid.connectId != null) {
-            getDeviceDetail(kidId: kid.connectId!);
-          }
-        }
+      ResponseModel responseModel = await HomeRepo.getSyncedKidDevices(connectId: connectId);
+      final devices = responseModel.isSuccessful ? responseModel.data?["data"]?["devices"] : null;
+      if (devices == null) {
+        print("--- [MDM] No device for connect ID $connectId: ${responseModel.message} ---");
+        continue;
+      }
+
+      for (var dev in devices as List) {
+        Kid kid = Kid.fromJson(dev);
+        kid.name = link["kidFullName"] ?? kid.name;
+        kid.kidUserId = link["kidDeviceAccountUserID"]?.toString();
+        temp.add(kid);
+      }
+    }
+    connectedKids = temp;
+
+    for (var kid in connectedKids) {
+      if (kid.kidId != null) {
+        getDeviceDetail(kidId: kid.kidId!);
       }
     }
     update();
   }
 
   Future<void> getDeviceDetail({required String kidId}) async {
-    ResponseModel responseModel = await HomeRepo.getSingleDeviceDetail(kidId);
-    
+    if (connectedKids.isEmpty) return;
+    int index = getSelectedKidIndex(kidId);
+    ResponseModel responseModel = await HomeRepo.getSingleDeviceDetail(connectedKids[index].kidId ?? kidId);
+
     if (responseModel.isSuccessful && responseModel.data != null) {
       final deviceJson = responseModel.data["data"];
-      int index = getSelectedKidIndex(kidId);
-      
-      connectedKids[index].deviceDetail = DeviceDetail.fromJson(responseModel.data);
+
+      // getSingleDeviceDetail has no apps, usage or location, so it must not replace the getDeviceDetails result.
+      connectedKids[index].deviceDetail ??= DeviceDetail.fromJson(responseModel.data);
       
       if (deviceJson != null) {
         if (deviceJson["batteryPct"] != null) {
@@ -74,51 +88,75 @@ class HomeController extends BaseController {
     update();
   }
 
+  String connectIdFor(String kidId) => getSelectedKid(kidId).connectId ?? kidId;
+
   Future<void> blacklistApp({required String kidId, required String appPackage}) async {
+    if (connectedKids.isEmpty) return;
     isLoading = true;
     update();
+    final connectId = connectIdFor(kidId);
 
-    final rules = [
-      {
+    // setDeviceRestrictions replaces the device's whole rule list, so start from the current rules.
+    ResponseModel current = await HomeRepo.getDeviceRestrictions(connectId);
+    if (!current.isSuccessful) {
+      apiToast(current);
+      isLoading = false;
+      update();
+      return;
+    }
+    final rules = (current.data?["data"]?["rules"] as List? ?? [])
+        .map((r) => Map<String, dynamic>.from(r as Map))
+        .toList();
+    final alwaysOff = rules.indexWhere((r) => r["id"] == "always-off");
+    if (alwaysOff < 0) {
+      rules.add({
         "id": "always-off",
         "type": "time",
         "packages": [appPackage],
         "from": "00:00",
         "to": "23:59"
-      }
-    ];
+      });
+    } else {
+      final packages = List<String>.from(rules[alwaysOff]["packages"] as List? ?? []);
+      if (!packages.contains(appPackage)) packages.add(appPackage);
+      rules[alwaysOff]["packages"] = packages;
+    }
 
     ResponseModel res = await HomeRepo.setDeviceRestrictions(
-      connectId: kidId, 
+      connectId: connectId,
       rules: rules
     );
-    
+
     apiToast(res);
     isLoading = false;
     update();
-    if (res.isSuccessful) getDeviceDetail(kidId: kidId);
+    if (res.isSuccessful) getAppUsage(kidId: kidId);
   }
 
   Future<void> deleteApp({required String kidId, required String appPackage}) async {
+    if (connectedKids.isEmpty) return;
     isLoading = true;
     update();
-    
+
     ResponseModel res = await HomeRepo.deleteApp(
-      connectId: kidId, 
+      connectId: connectIdFor(kidId),
       packageName: appPackage
     );
-    
+
     apiToast(res);
     isLoading = false;
     update();
-    if (res.isSuccessful) getDeviceDetail(kidId: kidId);
+    if (res.isSuccessful) getAppUsage(kidId: kidId);
   }
 
   Future<void> getAppUsage({required String kidId}) async {
+    if (connectedKids.isEmpty) return;
     isLoading = true;
     update();
-    ResponseModel res = await HomeRepo.getAppUsage(kidId);
-    if (res.isSuccessful && res.data != null) {}
+    ResponseModel res = await HomeRepo.getAppUsage(connectIdFor(kidId));
+    if (res.isSuccessful && res.data != null) {
+      connectedKids[getSelectedKidIndex(kidId)].deviceDetail = DeviceDetail.fromJson(res.data);
+    }
     isLoading = false;
     update();
   }
@@ -126,7 +164,7 @@ class HomeController extends BaseController {
   Future<void> enableMSMSMonitoring({required String kidId, required bool value}) async {
     isLoading = true;
     update();
-    ResponseModel res = await SingleKidRepo.enableMSMSMonitoring(kidId: kidId, enable: value);
+    ResponseModel res = await SingleKidRepo.enableMSMSMonitoring(kidId: getSelectedKid(kidId).kidUserId ?? kidId, enable: value);
     apiToast(res);
     if(res.isSuccessful) {
        int index = getSelectedKidIndex(kidId);
@@ -139,7 +177,7 @@ class HomeController extends BaseController {
   Future<void> enableWallet({required String kidId, required bool value}) async {
     isLoading = true;
     update();
-    ResponseModel res = await SingleKidRepo.enableWallet(kidId: kidId, enable: value);
+    ResponseModel res = await SingleKidRepo.enableWallet(kidId: getSelectedKid(kidId).kidUserId ?? kidId, enable: value);
     apiToast(res);
     if(res.isSuccessful) {
       int index = getSelectedKidIndex(kidId);
@@ -169,7 +207,7 @@ class HomeController extends BaseController {
 
   Future<void> getBlacklistUrls({String? kidId}) async {
     if (kidId == null) return;
-    ResponseModel responseModel = await SingleKidRepo.getBlacklistUrls(kidId: getSelectedKid(kidId).kidId ?? "");
+    ResponseModel responseModel = await SingleKidRepo.getBlacklistUrls(kidId: getSelectedKid(kidId).kidUserId ?? "");
     if (responseModel.isSuccessful && responseModel.data != null) {
       connectedKids[getSelectedKidIndex(kidId)].blockedUrls = BlockedUrlModel.fromJson(responseModel.data);
     }
@@ -180,7 +218,7 @@ class HomeController extends BaseController {
     if(kidId == null || (url ?? "").isEmpty) return;
     isLoading = true;
     update();
-    ResponseModel responseModel = await SingleKidRepo.addBlacklistUrl(kidId: connectedKids[getSelectedKidIndex(kidId)].kidId, url: url);
+    ResponseModel responseModel = await SingleKidRepo.addBlacklistUrl(kidId: connectedKids[getSelectedKidIndex(kidId)].kidUserId, url: url);
     apiToast(responseModel);
     if(responseModel.isSuccessful){
       connectedKids[getSelectedKidIndex(kidId)].blockedUrls?.blockedUrlsData?.blockedUrls?.add(url ?? "");
