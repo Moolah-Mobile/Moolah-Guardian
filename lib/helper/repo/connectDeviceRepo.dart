@@ -15,13 +15,13 @@ class ConnectDeviceRepo {
   // 2. Link a child's tablet
   static Future<ResponseModel> linkDevice({
     required String externalMoolahId,
-    required String deviceId,
+    required String connectId,
     required String label,
   }) async {
     return await Network.post(EndPoints.linkDevice, body: {
       "externalMoolahId": externalMoolahId,
-      "deviceId": deviceId,
-      "kidDeviceAccountConnectID": deviceId,
+      "deviceId": connectId,
+      "kidDeviceAccountConnectID": connectId,
       "label": label
     });
   }

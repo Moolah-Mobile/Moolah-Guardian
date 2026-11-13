@@ -8,7 +8,7 @@ class ConnectDeviceController extends BaseController {
 
   Future<bool> linkKidByConnectCode({
     required BuildContext context,
-    required String code, // This is the Device ID entered by user
+    required String code, // This is the Connect ID entered by user (e.g., "EMULATOR36X4X9X0")
     required String label, // e.g. "Kid's Tablet"
   }) async {
     isLoading = true;
@@ -33,7 +33,7 @@ class ConnectDeviceController extends BaseController {
     // Step 2: Link Child Device to Parent
     final linkRes = await ConnectDeviceRepo.linkDevice(
       externalMoolahId: externalMoolahId,
-      deviceId: code,
+      connectId: code,
       label: label,
     );
 

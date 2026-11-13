@@ -38,8 +38,8 @@ class HomeController extends BaseController {
         connectedKids = temp;
 
         for (var kid in connectedKids) {
-          if (kid.connectId != null) {
-            getDeviceDetail(kidId: kid.connectId!);
+          if (kid.kidId != null) {
+            getDeviceDetail(kidId: kid.kidId!);
           }
         }
       }
