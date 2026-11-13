@@ -170,6 +170,9 @@ class HomeController extends BaseController {
       kid.installedApps = (appsRes.data?["data"]?["apps"] as List? ?? [])
           .map((a) => App.fromJson(Map<String, dynamic>.from(a as Map)))
           .toList();
+      for (final app in kid.installedApps) {
+        if (app.pkg != null && app.name != null) kid.appNames[app.pkg!] = app.name!;
+      }
     } else {
       apiToast(appsRes);
     }
@@ -229,7 +232,11 @@ class HomeController extends BaseController {
     update();
     ResponseModel res = await HomeRepo.getAppUsage(connectIdFor(kidId));
     if (res.isSuccessful && res.data != null) {
-      connectedKids[getSelectedKidIndex(kidId)].deviceDetail = DeviceDetail.fromJson(res.data);
+      final kid = connectedKids[getSelectedKidIndex(kidId)];
+      kid.deviceDetail = DeviceDetail.fromJson(res.data);
+      for (final app in kid.deviceDetail?.data?.apps ?? <App>[]) {
+        if (app.pkg != null && app.name != null) kid.appNames[app.pkg!] = app.name!;
+      }
     }
     isLoading = false;
     update();

@@ -29,8 +29,16 @@ class _BlackListScreenState extends State<BlackListScreen> {
       final kid = homeController.getSelectedKid(widget.kidId);
       final apps = kid.installedApps
           .where((a) => !HomeController.isProtectedApp(a.packageName))
-          .toList()
-        ..sort((a, b) => (a.appName ?? "").toLowerCase().compareTo((b.appName ?? "").toLowerCase()));
+          .toList();
+      // A blocked app is suspended on the device and drops out of its installed-apps report,
+      // so list it from the rules to keep it unblockable.
+      final listed = apps.map((a) => a.packageName).toSet();
+      for (final pkg in kid.blockedPackages) {
+        if (!listed.contains(pkg) && !HomeController.isProtectedApp(pkg)) {
+          apps.add(App(pkg: pkg, name: kid.appNames[pkg] ?? pkg));
+        }
+      }
+      apps.sort((a, b) => (a.appName ?? "").toLowerCase().compareTo((b.appName ?? "").toLowerCase()));
       return Scaffold(
         appBar: _buildAppBar(),
         backgroundColor: Colors.white,

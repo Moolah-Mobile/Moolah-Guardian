@@ -16,6 +16,8 @@ class Kid {
   List<App> installedApps = [];
   // Packages in the device's "always-off" MDM rule.
   Set<String> blockedPackages = {};
+  // Names of every app seen on the device, kept after an app stops being reported.
+  Map<String, String> appNames = {};
   NetworkHistory? networkHistory;
   String? name;
   String? deviceType;
