@@ -3,6 +3,7 @@ import 'package:moolah/helper/models/thread_model.dart';
 import 'app_usage_model.dart';
 import 'blocked_url_model.dart';
 import 'device_detail_model.dart';
+import 'network_history_model.dart';
 
 Kid kidFromJson(String str) => Kid.fromJson(json.decode(str));
 
@@ -12,6 +13,10 @@ class Kid {
   String? kidId;
   // api2's child ID (kidDeviceAccountUserID); kidId holds the MDM device number.
   String? kidUserId;
+  List<App> installedApps = [];
+  // Packages in the device's "always-off" MDM rule.
+  Set<String> blockedPackages = {};
+  NetworkHistory? networkHistory;
   String? name;
   String? deviceType;
   String? batteryStatus;

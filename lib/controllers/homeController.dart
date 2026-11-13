@@ -7,6 +7,7 @@ import 'package:moolah/helper/models/blocked_url_model.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/helper/models/kids_model.dart';
 import 'package:moolah/helper/models/message_model.dart';
+import 'package:moolah/helper/models/network_history_model.dart';
 import 'package:moolah/helper/models/response_model.dart';
 import 'package:moolah/helper/models/thread_model.dart';
 import 'package:moolah/helper/network.dart';
@@ -90,8 +91,27 @@ class HomeController extends BaseController {
 
   String connectIdFor(String kidId) => getSelectedKid(kidId).connectId ?? kidId;
 
-  Future<void> blacklistApp({required String kidId, required String appPackage}) async {
-    if (connectedKids.isEmpty) return;
+  Future<void> blacklistApp({required String kidId, required String appPackage}) =>
+      setAppBlocked(kidId: kidId, appPackage: appPackage, blocked: true);
+
+  // Blocking or removing these would cut the child's device off from the MDM.
+  static bool isProtectedApp(String? pkg) =>
+      pkg == null ||
+      pkg.startsWith("io.fieldx.") ||
+      pkg.startsWith("com.moolahwireless.") ||
+      pkg == "com.moolahmobile.moolahmobilehomescreen";
+
+  Set<String> _alwaysOffPackages(List rules) {
+    for (final r in rules) {
+      if (r is Map && r["id"] == "always-off") {
+        return Set<String>.from(r["packages"] as List? ?? []);
+      }
+    }
+    return {};
+  }
+
+  Future<void> setAppBlocked({required String kidId, required String appPackage, required bool blocked}) async {
+    if (connectedKids.isEmpty || (blocked && isProtectedApp(appPackage))) return;
     isLoading = true;
     update();
     final connectId = connectIdFor(kidId);
@@ -108,18 +128,21 @@ class HomeController extends BaseController {
         .map((r) => Map<String, dynamic>.from(r as Map))
         .toList();
     final alwaysOff = rules.indexWhere((r) => r["id"] == "always-off");
-    if (alwaysOff < 0) {
+    final packages = alwaysOff < 0
+        ? <String>[]
+        : List<String>.from(rules[alwaysOff]["packages"] as List? ?? []);
+    packages.remove(appPackage);
+    if (blocked) packages.add(appPackage);
+
+    if (alwaysOff >= 0) rules.removeAt(alwaysOff);
+    if (packages.isNotEmpty) {
       rules.add({
         "id": "always-off",
         "type": "time",
-        "packages": [appPackage],
+        "packages": packages,
         "from": "00:00",
         "to": "23:59"
       });
-    } else {
-      final packages = List<String>.from(rules[alwaysOff]["packages"] as List? ?? []);
-      if (!packages.contains(appPackage)) packages.add(appPackage);
-      rules[alwaysOff]["packages"] = packages;
     }
 
     ResponseModel res = await HomeRepo.setDeviceRestrictions(
@@ -128,13 +151,64 @@ class HomeController extends BaseController {
     );
 
     apiToast(res);
+    if (res.isSuccessful) {
+      connectedKids[getSelectedKidIndex(kidId)].blockedPackages = packages.toSet();
+    }
     isLoading = false;
     update();
-    if (res.isSuccessful) getAppUsage(kidId: kidId);
+  }
+
+  Future<void> getInstalledApps({required String kidId}) async {
+    if (connectedKids.isEmpty) return;
+    isLoading = true;
+    update();
+    final connectId = connectIdFor(kidId);
+    final kid = connectedKids[getSelectedKidIndex(kidId)];
+
+    ResponseModel appsRes = await HomeRepo.getInstalledApps(connectId);
+    if (appsRes.isSuccessful) {
+      kid.installedApps = (appsRes.data?["data"]?["apps"] as List? ?? [])
+          .map((a) => App.fromJson(Map<String, dynamic>.from(a as Map)))
+          .toList();
+    } else {
+      apiToast(appsRes);
+    }
+
+    ResponseModel rulesRes = await HomeRepo.getDeviceRestrictions(connectId);
+    if (rulesRes.isSuccessful) {
+      kid.blockedPackages = _alwaysOffPackages(rulesRes.data?["data"]?["rules"] as List? ?? []);
+    }
+    isLoading = false;
+    update();
+  }
+
+  Future<void> getNetworkHistory({required String kidId}) async {
+    if (connectedKids.isEmpty) return;
+    ResponseModel res = await HomeRepo.getNetworkHistory(connectIdFor(kidId));
+    if (res.isSuccessful && res.data?["data"] is Map) {
+      connectedKids[getSelectedKidIndex(kidId)].networkHistory =
+          NetworkHistory.fromJson(Map<String, dynamic>.from(res.data["data"]));
+    }
+    update();
+  }
+
+  Future<void> sendDeviceAction({required String kidId, required String action, required String successMessage}) async {
+    if (connectedKids.isEmpty) return;
+    isLoading = true;
+    update();
+    ResponseModel res = await HomeRepo.sendActionToDevice(
+        action: action, deviceId: getSelectedKid(kidId).kidId ?? kidId);
+    isLoading = false;
+    update();
+    if (res.isSuccessful) {
+      successToast(successMessage);
+    } else {
+      apiToast(res);
+    }
   }
 
   Future<void> deleteApp({required String kidId, required String appPackage}) async {
-    if (connectedKids.isEmpty) return;
+    if (connectedKids.isEmpty || isProtectedApp(appPackage)) return;
     isLoading = true;
     update();
 

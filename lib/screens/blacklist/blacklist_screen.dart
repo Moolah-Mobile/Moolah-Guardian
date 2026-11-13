@@ -1,97 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:moolah/controllers/homeController.dart';
+import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
-import 'package:moolah/util/common_widgets/common_button.dart';
-import 'package:moolah/util/common_widgets/common_text_field.dart';
-import 'package:moolah/util/images.dart';
+import 'package:moolah/util/common_widgets/loader.dart';
 
 class BlackListScreen extends StatefulWidget {
-  const BlackListScreen({Key? key}) : super(key: key);
+  const BlackListScreen({required this.kidId, Key? key}) : super(key: key);
+  final String kidId;
 
   @override
   State<BlackListScreen> createState() => _BlackListScreenState();
 }
 
 class _BlackListScreenState extends State<BlackListScreen> {
-  bool inEditMode = false;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => Get.find<HomeController>().getInstalledApps(kidId: widget.kidId));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      backgroundColor: Colors.white,
-      body: ListView(
-        children: [
-          const SizedBox(height: 20),
-          for (int i = 0; i < 5; i++)
-            urlItem('https://www.fiverr.com/cp/product-release-2023'),
-          if (!inEditMode)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CustomButton(
-                text: 'Add URL',
-                onTap: _showAddBlackListDialog,
-              ),
-            )
-        ],
-      ),
-    );
-  }
-
-  void _showAddBlackListDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          insetPadding: const EdgeInsets.all(10),
-          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          content: Builder(builder: (context) {
-            var width = MediaQuery.of(context).size.width;
-            return SizedBox(
-              width: width - 40,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const SizedBox(
-                        width: 26,
-                      ),
-                      boldText('Black List URL', fontSize: 18),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.close),
-                      )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CustomTextField(hintText: "Enter URL"),
-                  ),
-                  CustomButton(
-                    text: 'Black List',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  const SizedBox(height: 10,)
-                ],
-              ),
-            );
-          }),
-        );
-      },
-    );
+    return GetBuilder<HomeController>(builder: (homeController) {
+      final kid = homeController.getSelectedKid(widget.kidId);
+      final apps = kid.installedApps
+          .where((a) => !HomeController.isProtectedApp(a.packageName))
+          .toList()
+        ..sort((a, b) => (a.appName ?? "").toLowerCase().compareTo((b.appName ?? "").toLowerCase()));
+      return Scaffold(
+        appBar: _buildAppBar(),
+        backgroundColor: Colors.white,
+        body: Loader(
+          c: homeController,
+          child: apps.isEmpty
+              ? Center(
+                  child: regularText(
+                      homeController.isLoading ? "" : "No apps found on this device",
+                      color: AppColors.grey))
+              : ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                      child: regularText(
+                          "Blocked apps are turned off on ${kid.name?.split(" ")[0] ?? "the child"}'s device at all times.",
+                          color: AppColors.grey,
+                          fontSize: 13),
+                    ),
+                    for (final app in apps)
+                      appItem(app, kid.blockedPackages.contains(app.packageName)),
+                  ],
+                ),
+        ),
+      );
+    });
   }
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: boldText('Black Listed URL', fontSize: 18, color: Colors.black),
+      title: boldText('Blocked Apps', fontSize: 18, color: Colors.black),
       centerTitle: true,
       leading: InkWell(
         onTap: () {
@@ -101,59 +72,34 @@ class _BlackListScreenState extends State<BlackListScreen> {
           child: SvgPicture.asset('assets/images/home/back.svg'),
         ),
       ),
-      actions: [
-        Center(
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                inEditMode = !inEditMode;
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: boldText(inEditMode ? 'Save' : 'Edit',
-                  color: AppColors.normalGreen, fontSize: 18),
-            ),
-          ),
-        )
-      ],
       backgroundColor: Colors.white,
       elevation: 0,
     );
   }
 
-  Widget urlItem(String url) {
-    final color = inEditMode ? Colors.black : Colors.red;
+  Widget appItem(App app, bool blocked) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         children: [
-          SvgPicture.asset(
-            AppImages.globalOutlined,
-            color: color,
-          ),
-          const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              url,
-              style: TextStyle(
-                fontFamily: fontFamily,
-                fontSize: 14,
-                color: color,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                boldText(app.appName ?? app.packageName ?? "Unknown App",
+                    fontSize: 14, color: blocked ? AppColors.red : Colors.black),
+                regularText(app.packageName ?? "", color: AppColors.grey, fontSize: 11),
+              ],
             ),
           ),
-          if (inEditMode)
-            InkWell(
-              onTap: () {},
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child:
-                    SvgPicture.asset("${AppImages.pathToHomeImages}/trash.svg"),
-              ),
-            )
+          Switch(
+            value: blocked,
+            activeColor: AppColors.red,
+            onChanged: app.packageName == null
+                ? null
+                : (value) => Get.find<HomeController>().setAppBlocked(
+                    kidId: widget.kidId, appPackage: app.packageName!, blocked: value),
+          ),
         ],
       ),
     );

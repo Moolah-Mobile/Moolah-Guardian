@@ -90,7 +90,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                const BlackListScreen(),
+                                                BlackListScreen(kidId: widget.kidId),
                                           ),
                                         );
                                       } else {
@@ -220,6 +220,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               ],
             ),
           ),
+          if (!HomeController.isProtectedApp(listOfInstalledApp.packageName))
           PopupMenuButton(
             icon: SvgPicture.asset('assets/images/home/more.svg'),
             itemBuilder: (context) => [
@@ -270,30 +271,89 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   }
 
   Widget urlSection(HomeController homeController) {
+    final history = homeController.getSelectedKid(widget.kidId).networkHistory;
+    final websites = history?.websites ?? [];
     return Expanded(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: roundedContainer(
-            color: AppColors.lightGrey,
-            borderRadius: 15,
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.lock_outline, size: 48, color: Colors.grey),
-                verticalSpace(16),
-                bigSubHeading("Platinum Feature"),
-                verticalSpace(10),
-                subHeadingText(
-                  "Browser History is available for Platinum users. This feature is coming soon!",
-                  textAlign: TextAlign.center,
-                  height: 1.4,
-                ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16)
+                  .copyWith(bottom: 15, top: 0),
+              child: boldText('Websites (last 7 days)', fontSize: 18),
             ),
+            if (history == null)
+              subHeadingText("Loading browser history...")
+            else if (websites.isEmpty)
+              subHeadingText("No websites visited in the last 7 days.")
+            else
+              for (final site in websites)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      boldText(site.domain, fontSize: 14),
+                      regularText(
+                          [
+                            if (site.appName != null) site.appName!,
+                            if (site.time != null)
+                              "${site.time!.day}/${site.time!.month} ${site.time!.hour.toString().padLeft(2, '0')}:${site.time!.minute.toString().padLeft(2, '0')}",
+                          ].join(" · "),
+                          color: AppColors.grey,
+                          fontSize: 11),
+                    ],
+                  ),
+                ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget actionButton(IconData icon, String text, VoidCallback onTap) {
+    return Expanded(
+      child: customGestureDetecter(
+        onTap: onTap,
+        child: roundedContainer(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          color: AppColors.lightGrey,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 18),
+              horizontalSpace(6),
+              regularText(text, fontSize: 14, fontWeight: FontWeight.w600),
+            ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _confirmReboot() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: boldText("Reboot device?", fontSize: 18),
+        content: regularText(
+            "The child's device will restart as soon as it is online.",
+            fontSize: 14),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: regularText("Cancel", fontSize: 14)),
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Get.find<HomeController>().sendDeviceAction(
+                    kidId: widget.kidId,
+                    action: "reboot",
+                    successMessage: "Reboot sent to the device");
+              },
+              child: regularText("Reboot", color: AppColors.red, fontSize: 14)),
+        ],
       ),
     );
   }
@@ -461,7 +521,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   "%"),
               horizontalSpace(10),
               percentageContainer(AppColors.blue, AppImages.global, "Data Used",
-                  stats?.deviceDataUsage?.toString() ?? "0", "GB")
+                  kid.networkHistory?.dataUsageGb ?? stats?.deviceDataUsage?.toString() ?? "0", "GB")
             ],
           ),
           verticalSpace(10),
@@ -480,6 +540,19 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                     otherOne: true),
               ],
             ),
+          ),
+          verticalSpace(10),
+          Row(
+            children: [
+              actionButton(Icons.sync, "Sync now", () {
+                Get.find<HomeController>().sendDeviceAction(
+                    kidId: widget.kidId,
+                    action: "configUpdated",
+                    successMessage: "Sync sent to the device");
+              }),
+              horizontalSpace(10),
+              actionButton(Icons.restart_alt, "Reboot", _confirmReboot),
+            ],
           ),
         ],
       ),
@@ -606,6 +679,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
 
   void initAPIS() async {
     Get.find<HomeController>().getAppUsage(kidId: widget.kidId);
+    Get.find<HomeController>().getNetworkHistory(kidId: widget.kidId);
     await Get.find<AuthController>().refreshToken();
     Get.find<HomeController>().getDeviceDetail(kidId: widget.kidId);
     Get.find<HomeController>().getBlacklistUrls(kidId: widget.kidId);
