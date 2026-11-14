@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/screens/blacklist/blacklist_screen.dart';
@@ -184,28 +185,35 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
 
   Widget appSection(HomeController homeController) {
     final kid = homeController.getSelectedKid(widget.kidId);
-    final apps = kid.deviceDetail?.data?.apps ?? [];
+    // getInstalledApps lists every app; getDeviceDetails may report only some of them.
+    final apps = kid.installedApps.isNotEmpty
+        ? kid.installedApps
+        : (kid.deviceDetail?.data?.apps ?? []);
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView(
+          padding: const EdgeInsets.only(bottom: adBannerSpace),
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16)
                   .copyWith(bottom: 25, top: 0),
               child: boldText('All Apps', fontSize: 18),
             ),
-            for (int i = 0; i < apps.length; i++)
-              if (!(apps[i].systemApp ?? false))
-                appItem(apps[i], kidId: widget.kidId),
+            for (final app in apps)
+              appItem(app,
+                  kidId: widget.kidId,
+                  blocked: kid.blockedPackages.contains(app.packageName)),
           ],
         ),
       ),
     );
   }
 
-  Widget appItem(App listOfInstalledApp, {required String kidId}) {
+  Widget appItem(App listOfInstalledApp, {required String kidId, required bool blocked}) {
     String appName = listOfInstalledApp.appName ?? "Unknown App";
+    final pkg = listOfInstalledApp.packageName ?? "";
+    final systemApp = HomeController.isSystemApp(listOfInstalledApp);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
@@ -216,40 +224,44 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                boldText(appName, fontSize: 14),
+                boldText(appName, fontSize: 14, color: blocked ? AppColors.red : Colors.black),
+                regularText(
+                    "${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
+                    color: AppColors.grey,
+                    fontSize: 11),
               ],
             ),
           ),
-          if (!HomeController.isProtectedApp(listOfInstalledApp.packageName))
-          PopupMenuButton(
+          if (!HomeController.isProtectedApp(pkg))
+          PopupMenuButton<int>(
             icon: SvgPicture.asset('assets/images/home/more.svg'),
+            onSelected: (value) {
+              if (value == 1) {
+                _confirmUninstall(appName, pkg);
+              } else {
+                Get.find<HomeController>()
+                    .setAppBlocked(kidId: kidId, appPackage: pkg, blocked: !blocked);
+              }
+            },
             itemBuilder: (context) => [
-              PopupMenuItem(
-                onTap: () {
-                  Get.find<HomeController>().deleteApp(
-                      kidId: kidId,
-                      appPackage: listOfInstalledApp.packageName ?? "");
-                },
-                padding: const EdgeInsets.only(left: 5),
-                height: 30,
-                value: 1,
-                child: Row(
-                  children: [
-                    SvgPicture.asset('assets/images/home/trash.svg'),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    regularText("Uninstall App",
-                        color: AppColors.red, fontSize: 13)
-                  ],
+              // System apps cannot be uninstalled; they can only be disabled.
+              if (!systemApp)
+                PopupMenuItem<int>(
+                  padding: const EdgeInsets.only(left: 5),
+                  height: 30,
+                  value: 1,
+                  child: Row(
+                    children: [
+                      SvgPicture.asset('assets/images/home/trash.svg'),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      regularText("Uninstall App",
+                          color: AppColors.red, fontSize: 13)
+                    ],
+                  ),
                 ),
-              ),
-              PopupMenuItem(
-                onTap: () {
-                  Get.find<HomeController>().blacklistApp(
-                      kidId: kidId,
-                      appPackage: listOfInstalledApp.packageName ?? "");
-                },
+              PopupMenuItem<int>(
                 padding: const EdgeInsets.only(left: 5),
                 height: 30,
                 value: 2,
@@ -259,12 +271,35 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                     const SizedBox(
                       width: 10,
                     ),
-                    regularText("Disable App", fontSize: 13)
+                    regularText(blocked ? "Enable App" : "Disable App", fontSize: 13)
                   ],
                 ),
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmUninstall(String appName, String pkg) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: boldText("Uninstall $appName?", fontSize: 18),
+        content: regularText(
+            "$appName will be removed from the child's device as soon as it is online.",
+            fontSize: 14),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: regularText("Cancel", fontSize: 14)),
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Get.find<HomeController>().deleteApp(kidId: widget.kidId, appPackage: pkg);
+              },
+              child: regularText("Uninstall", color: AppColors.red, fontSize: 14)),
         ],
       ),
     );
@@ -277,6 +312,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView(
+          padding: const EdgeInsets.only(bottom: adBannerSpace),
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16)
@@ -680,6 +716,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   void initAPIS() async {
     Get.find<HomeController>().getAppUsage(kidId: widget.kidId);
     Get.find<HomeController>().getNetworkHistory(kidId: widget.kidId);
+    Get.find<HomeController>().getInstalledApps(kidId: widget.kidId);
     await Get.find<AuthController>().refreshToken();
     Get.find<HomeController>().getDeviceDetail(kidId: widget.kidId);
     Get.find<HomeController>().getBlacklistUrls(kidId: widget.kidId);

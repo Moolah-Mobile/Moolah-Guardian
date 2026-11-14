@@ -94,6 +94,17 @@ class HomeController extends BaseController {
   Future<void> blacklistApp({required String kidId, required String appPackage}) =>
       setAppBlocked(kidId: kidId, appPackage: appPackage, blocked: true);
 
+  // The MDM's app lists carry no system flag; preinstalled apps on these devices use these package prefixes.
+  static bool isSystemApp(App app) {
+    final pkg = app.packageName ?? "";
+    return app.systemApp == true ||
+        pkg.startsWith("android.") ||
+        pkg.startsWith("com.android.") ||
+        pkg.startsWith("com.google.android.") ||
+        pkg.startsWith("com.mediatek.") ||
+        pkg.startsWith("com.umidigi.");
+  }
+
   // Blocking or removing these would cut the child's device off from the MDM.
   static bool isProtectedApp(String? pkg) =>
       pkg == null ||
@@ -211,7 +222,9 @@ class HomeController extends BaseController {
   }
 
   Future<void> deleteApp({required String kidId, required String appPackage}) async {
-    if (connectedKids.isEmpty || isProtectedApp(appPackage)) return;
+    if (connectedKids.isEmpty ||
+        isProtectedApp(appPackage) ||
+        isSystemApp(App(pkg: appPackage))) return;
     isLoading = true;
     update();
 
@@ -220,10 +233,14 @@ class HomeController extends BaseController {
       packageName: appPackage
     );
 
-    apiToast(res);
     isLoading = false;
     update();
-    if (res.isSuccessful) getAppUsage(kidId: kidId);
+    if (res.isSuccessful) {
+      successToast("Uninstall sent to the device");
+      getAppUsage(kidId: kidId);
+    } else {
+      apiToast(res);
+    }
   }
 
   Future<void> getAppUsage({required String kidId}) async {

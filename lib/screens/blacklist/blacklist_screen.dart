@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/util/apptext.dart';
@@ -50,7 +51,7 @@ class _BlackListScreenState extends State<BlackListScreen> {
                       homeController.isLoading ? "" : "No apps found on this device",
                       color: AppColors.grey))
               : ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.only(top: 10, bottom: adBannerSpace),
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),

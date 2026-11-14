@@ -6,6 +6,10 @@ import 'package:moolah/helper/repo/adRepo.dart';
 
 import 'baseController.dart';
 
+// The IronSource banner is drawn over the bottom of every screen; scrolling lists end with
+// this much empty space so their last rows can be scrolled above it.
+const double adBannerSpace = 90;
+
 class AdvertisementController extends BaseController with LevelPlayBannerListener{
 
   bool showLocalAd = false;
