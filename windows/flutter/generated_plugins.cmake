@@ -5,7 +5,6 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   fast_rsa
   firebase_core
-  flutter_js
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

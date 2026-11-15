@@ -43,7 +43,6 @@ dependencies:
   crypton: ^2.2.1
   pinput: ^6.0.1
   flutter_stripe: ^12.1.1
-  flutter_js: ^0.8.5
   characters: ^1.4.0
   flat_buffers: ^23.5.26
   test_api: ^0.7.7
