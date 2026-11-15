@@ -95,13 +95,13 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
                             verticalSpace(16),
                         
                             subHeadingText(
-                              "Device Connect ID",
+                              "Connect Code",
                               fontWeight: FontWeight.w600,
                               color: AppColors.black,
                             ),
                             verticalSpace(8),
                             CustomTextField(
-                              hintText: "Enter Connect ID",
+                              hintText: "Code shown on the child's device",
                               textEditingController: codeController,
                               validators: Validators.notEmpty,
                             ),

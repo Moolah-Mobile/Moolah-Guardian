@@ -132,6 +132,7 @@ class Network {
       }
     }
 
+    print("❌ Error Body: ${res.body}");
     try {
       final errorData = jsonDecode(res.body);
       final errorMessage = errorData["message"] ?? errorData["errorMsg"] ?? "Error ${res.statusCode}";
