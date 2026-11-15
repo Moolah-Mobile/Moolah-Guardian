@@ -233,11 +233,16 @@ class HomeController extends BaseController {
       packageName: appPackage
     );
 
+    if (res.isSuccessful) {
+      // The MDM's app reports still list the app until the device reports again, so drop it here.
+      final kid = connectedKids[getSelectedKidIndex(kidId)];
+      kid.installedApps.removeWhere((app) => app.pkg == appPackage);
+      kid.deviceDetail?.data?.apps?.removeWhere((app) => app.pkg == appPackage);
+    }
     isLoading = false;
     update();
     if (res.isSuccessful) {
       successToast("Uninstall sent to the device");
-      getAppUsage(kidId: kidId);
     } else {
       apiToast(res);
     }
