@@ -60,8 +60,8 @@ class RouteHelper {
     VerifyResetOTPScreen.screenName: (_) => const VerifyResetOTPScreen(),
     OtpVerification.screenName: (_) => const OtpVerification(),
     LiveLocation.screenName: (_) => LiveLocation(
-          lat: (Get.arguments?["lat"] as num?)?.toDouble() ?? 0.0,
-          long: (Get.arguments?["long"] as num?)?.toDouble() ?? 0.0,
+          lat: (Get.arguments?["lat"] as num?)?.toDouble(),
+          long: (Get.arguments?["long"] as num?)?.toDouble(),
           deviceId: Get.arguments?["deviceId"]?.toString() ?? "",
         ),
     FeedbackScreen.screenName: (_) => const FeedbackScreen(),

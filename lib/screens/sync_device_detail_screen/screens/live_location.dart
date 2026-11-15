@@ -14,10 +14,11 @@ import '../../../util/common_widgets/common_widgets.dart';
 class LiveLocation extends StatefulWidget {
   static const screenName = "LiveLocation";
 
-  const LiveLocation({Key? key, required this.lat, required this.long, required this.deviceId}) : super(key: key);
+  const LiveLocation({Key? key, this.lat, this.long, required this.deviceId}) : super(key: key);
 
-  final double lat;
-  final double long;
+  // Null when the device has not reported a position yet.
+  final double? lat;
+  final double? long;
   final String deviceId;
 
 
@@ -32,10 +33,20 @@ class _LiveLocationState extends State<LiveLocation> {
   Completer<GoogleMapController>();
   double? lat;
   double? long;
+  bool firstCheckDone = false;
+
+  // 0,0 is what a missing fix looks like, so it is not a real position.
+  static bool _isPosition(double? lat, double? long) =>
+      lat != null && long != null && !(lat == 0 && long == 0);
 
   @override
   void initState() {
     print("LiveLocation::::${widget.lat}::::${widget.long}");
+    if (_isPosition(widget.lat, widget.long)) {
+      lat = widget.lat;
+      long = widget.long;
+    }
+    getLocation();
     setLocationTimer();
     IronSource.hideBanner();
     super.initState();
@@ -65,30 +76,53 @@ class _LiveLocationState extends State<LiveLocation> {
             //     .copyWith(bottom: 0, left: 15, right: 15),
             margin: const EdgeInsets.all(10).copyWith(bottom: 0),
             width: width,
-            child: GoogleMap(
-              myLocationButtonEnabled: false,
-              myLocationEnabled: false,
-              // mapType: MapType.hybrid,
-              initialCameraPosition: CameraPosition(
-                target: LatLng(lat??widget.lat, long??widget.long),
-                zoom: 14.4746,
-              ),
-              markers: {
-                Marker(
-                  markerId: MarkerId("1"),
-                  position: LatLng(lat??widget.lat, long??widget.long)
-                ),
-              },
-              onMapCreated: (GoogleMapController controller) {
-                print("Hello Map");
-                _controller.complete(controller);
-              },
-            )
+            child: (lat != null && long != null)
+                ? GoogleMap(
+                    myLocationButtonEnabled: false,
+                    myLocationEnabled: false,
+                    initialCameraPosition: CameraPosition(
+                      target: LatLng(lat!, long!),
+                      zoom: 14.4746,
+                    ),
+                    markers: {
+                      Marker(markerId: const MarkerId("1"), position: LatLng(lat!, long!)),
+                    },
+                    onMapCreated: (GoogleMapController controller) {
+                      if (!_controller.isCompleted) _controller.complete(controller);
+                    },
+                  )
+                : _noPosition(),
           ),
         ),
       ],
     ));
   }
+  Widget _noPosition() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!firstCheckDone) ...[
+              const CircularProgressIndicator(),
+              verticalSpace(16),
+              const Text("Getting location…", textAlign: TextAlign.center),
+            ] else ...[
+              const Icon(Icons.location_off_outlined, size: 48, color: Colors.grey),
+              verticalSpace(12),
+              const Text("Location not available yet",
+                  textAlign: TextAlign.center, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              verticalSpace(8),
+              const Text("The map will appear once the child's device reports its position.",
+                  textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   late Timer timer;
   void setLocationTimer() {
     timer = Timer.periodic(const Duration(seconds: 15), (timer) {
@@ -98,18 +132,28 @@ class _LiveLocationState extends State<LiveLocation> {
 
   void getLocation() async {
     ResponseModel responseModel = await HomeRepo.getSyncedKidDeviceLocation(widget.deviceId);
-    if(responseModel.isSuccessful){
-      final data = responseModel.data["data"];
+    if (!mounted) return;
+    double? newLat;
+    double? newLong;
+    if (responseModel.isSuccessful) {
+      final data = responseModel.data?["data"];
       log("responseModel.data::::$data");
       // The MDM returns lat/lng, and both are null until the device has reported a GPS fix.
-      final newLat = (data?["lat"] as num?)?.toDouble();
-      final newLong = (data?["lng"] as num?)?.toDouble();
-      if (newLat == null || newLong == null || !mounted) return;
-      setState(() {
+      newLat = (data?["lat"] as num?)?.toDouble();
+      newLong = (data?["lng"] as num?)?.toDouble();
+    }
+    final hadMap = lat != null && long != null;
+    final hasPosition = _isPosition(newLat, newLong);
+    setState(() {
+      firstCheckDone = true;
+      if (hasPosition) {
         lat = newLat;
         long = newLong;
-      });
-      (await _controller.future).animateCamera(CameraUpdate.newLatLng(LatLng(newLat, newLong)));
+      }
+    });
+    // A map that is already showing is moved; a new one opens at the position by itself.
+    if (hasPosition && hadMap && _controller.isCompleted) {
+      (await _controller.future).animateCamera(CameraUpdate.newLatLng(LatLng(newLat!, newLong!)));
     }
   }
 }
