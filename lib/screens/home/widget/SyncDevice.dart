@@ -67,25 +67,33 @@ class _SyncDeviceState extends State<SyncDevice> {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          bigSubHeading(widget.name),
-                          horizontalSpace(10),
-                          SvgPicture.asset(widget.isIPad ? AppImages.iPad : AppImages.mobile)
-                        ],
+                      Flexible(
+                        child: Text(
+                          widget.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: textStyle.copyWith(
+                              fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.black),
+                        ),
                       ),
+                      horizontalSpace(10),
+                      SvgPicture.asset(widget.isIPad ? AppImages.iPad : AppImages.mobile),
+                      const Spacer(),
+                      horizontalSpace(8),
                       regularText("View", color: AppColors.normalGreen, underline: true)
                     ],
                   ),
                   verticalSpace(10),
+                  // The three stats share the row and shorten with an ellipsis on narrow screens.
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      iconText(AppImages.emptyBattery, "${widget.battery}%"),
-                      iconText(AppImages.global, "${widget.mbps} Mb per sec"),
-                      iconText(AppImages.clock, "Active ${widget.active}",isItalic: true),
+                      _stat(AppImages.emptyBattery, "${widget.battery}%", shrink: false),
+                      horizontalSpace(6),
+                      _stat(AppImages.global, "${widget.mbps} Mb per sec"),
+                      horizontalSpace(6),
+                      _stat(AppImages.clock, "Active ${widget.active}", italic: true),
                     ],
                   )
                 ],
@@ -98,5 +106,18 @@ class _SyncDeviceState extends State<SyncDevice> {
     );
   }
 
-
+  // A stat with shrink: false (the short battery figure) keeps its full width; the others share the rest.
+  Widget _stat(String icon, String text, {bool italic = false, bool shrink = true}) {
+    final label = regularText(text,
+        color: AppColors.grey, fontSize: 10, italic: italic, maxLines: 1, textOverflow: TextOverflow.ellipsis);
+    final stat = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SvgPicture.asset(icon, width: 15, height: 15),
+        horizontalSpace(5),
+        shrink ? Flexible(child: label) : label,
+      ],
+    );
+    return shrink ? Flexible(child: stat) : stat;
+  }
 }
