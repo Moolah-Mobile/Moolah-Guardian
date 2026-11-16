@@ -3,17 +3,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/subscription_controller.dart';
+import 'package:moolah/helper/models/plan.dart';
 import 'package:moolah/screens/onboard/onboard.dart';
 import 'package:moolah/screens/subscription_screen/subscription_screen.dart';
 
-// --- Mock Controllers ---
 class MockSubscriptionController extends SubscriptionController {
-  bool purchaseSubscriptionCalled = false;
-  bool? wasMonthly;
+  Plan? subscribedTo;
 
-  void purchaseSubscription({required bool isMonthly}) {
-    purchaseSubscriptionCalled = true;
-    wasMonthly = isMonthly;
+  @override
+  Future<void> loadSubscription() async {}
+
+  @override
+  Future<bool> subscribe(Plan plan) async {
+    subscribedTo = plan;
+    return true;
   }
 }
 
@@ -21,116 +24,84 @@ class MockAuthController extends AuthController {
   bool logoutCalled = false;
 
   @override
-  void logout() {
+  Future<void> logout() async {
     logoutCalled = true;
-    super.logout();
   }
 }
 
 void main() {
+  late MockSubscriptionController controller;
+
   setUp(() {
-    // Register mock controllers before each test.
-    Get.put<SubscriptionController>(MockSubscriptionController() as SubscriptionController);
-    Get.put<AuthController>(MockAuthController() as AuthController);
+    controller = MockSubscriptionController();
+    Get.put<SubscriptionController>(controller);
+    Get.put<AuthController>(MockAuthController());
   });
 
-  tearDown(() {
-    Get.reset();
-  });
+  tearDown(Get.reset);
 
-  Widget buildTestableWidget(Widget child) {
-    return GetMaterialApp(
-      home: child,
-      getPages: [
-        GetPage(name: OnBoard.screenName, page: () => const Scaffold(body: Text('OnBoard Screen'))),
-      ],
-    );
+  Future<void> pumpScreen(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.6;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(GetMaterialApp(
+      home: const SubscriptionScreen(),
+      routes: {
+        OnBoard.screenName: (_) => const Scaffold(body: Text('OnBoard Screen')),
+      },
+    ));
+    await tester.pumpAndSettle();
   }
 
-  testWidgets('SubscriptionScreen should render initial UI for Monthly plan', (WidgetTester tester) async {
-    await tester.pumpWidget(buildTestableWidget(const SubscriptionScreen()));
-    await tester.pumpAndSettle();
-
-    // Verify titles and buttons.
-    expect(find.text('Moolah Guardian Standard'), findsOneWidget);
-    expect(find.text('Subscribe'), findsOneWidget);
-
-    // Verify that the Monthly plan is active by default.
-    expect(find.textContaining('\$3.99'), findsOneWidget);
-    expect(find.textContaining('/Month'), findsOneWidget);
-
-    // Verify features for the monthly plan are visible.
-    expect(find.text('Unlock Secure SMS Monitioring'), findsOneWidget);
-
-    // Verify other UI elements.
-    expect(find.text('Restore Purchase'), findsOneWidget);
-    expect(find.text('Logout'), findsOneWidget);
+  testWidgets('lists all four plans with their prices', (tester) async {
+    await pumpScreen(tester);
+    for (final plan in Plan.values) {
+      expect(find.text(plan.title), findsOneWidget);
+    }
+    expect(find.text('\$3.99'), findsOneWidget);
+    expect(find.text('\$8.99'), findsOneWidget);
+    expect(find.text('\$19.99'), findsOneWidget);
+    expect(find.text('Current plan: Free'), findsOneWidget);
   });
 
-  testWidgets('Should switch to Yearly plan when tab is tapped', (WidgetTester tester) async {
-    await tester.pumpWidget(buildTestableWidget(const SubscriptionScreen()));
+  testWidgets('a free user subscribes to the plan they pick', (tester) async {
+    await pumpScreen(tester);
+    expect(find.text('Subscribe to Basic'), findsOneWidget);
+
+    await tester.tap(find.text('Premium'));
     await tester.pumpAndSettle();
+    expect(find.text('Delete apps by location and time (coming soon)'), findsOneWidget);
 
-    // Verify initial state is Monthly.
-    expect(find.textContaining('\$3.99'), findsOneWidget);
-
-    // Tap the 'Yearly' tab.
-    await tester.tap(find.text('Yearly'));
+    await tester.tap(find.text('Subscribe to Premium'));
     await tester.pumpAndSettle();
-
-    // Verify the UI updates to the Yearly plan.
-    expect(find.textContaining('\$30'), findsOneWidget);
-    expect(find.textContaining('/Year'), findsOneWidget);
-
-    // The features are the same, so we just check for presence.
-    expect(find.text('Unlock Secure SMS Monitioring'), findsOneWidget);
-
-    // Monthly price should no longer be visible.
-    expect(find.textContaining('\$3.99'), findsNothing);
+    expect(controller.subscribedTo, Plan.premium);
   });
 
-  testWidgets('Subscribe button should call controller with correct plan', (WidgetTester tester) async {
-    await tester.pumpWidget(buildTestableWidget(const SubscriptionScreen()));
+  testWidgets('a paid user can renew, and confirms before switching', (tester) async {
+    controller.currentPlan = Plan.basic;
+    controller.expiresAt = DateTime(2030, 1, 20);
+    await pumpScreen(tester);
+    expect(find.text('Current plan: Basic'), findsOneWidget);
+    expect(find.text('Active until 20/1/2030'), findsOneWidget);
+
+    await tester.tap(find.text('Renew Basic (+1 month)'));
     await tester.pumpAndSettle();
+    expect(controller.subscribedTo, Plan.basic);
 
-    final controller = Get.find<SubscriptionController>() as MockSubscriptionController;
-
-    // --- Test Monthly subscription ---
-    await tester.tap(find.text('Subscribe'));
-    await tester.pump();
-
-    expect(controller.purchaseSubscriptionCalled, isTrue);
-    expect(controller.wasMonthly, isTrue, reason: "Should be monthly by default");
-
-    // Reset for the next check.
-    controller.purchaseSubscriptionCalled = false;
-
-    // --- Test Yearly subscription ---
-    // Switch to yearly tab.
-    await tester.tap(find.text('Yearly'));
+    await tester.tap(find.text('Ultimate'));
     await tester.pumpAndSettle();
-
-    // Tap subscribe again.
-    await tester.tap(find.text('Subscribe'));
-    await tester.pump();
-
-    expect(controller.purchaseSubscriptionCalled, isTrue);
-    expect(controller.wasMonthly, isFalse, reason: "Should be yearly after switching tabs");
+    await tester.tap(find.text('Switch to Ultimate'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Switch'));
+    await tester.pumpAndSettle();
+    expect(controller.subscribedTo, Plan.ultimate);
   });
 
-  testWidgets('Logout text should call AuthController.logout', (WidgetTester tester) async {
-    await tester.pumpWidget(buildTestableWidget(const SubscriptionScreen()));
-    await tester.pumpAndSettle();
-
-    final authController = Get.find<AuthController>() as MockAuthController;
-
-    // Tap the logout text.
+  testWidgets('Logout calls AuthController.logout', (tester) async {
+    await pumpScreen(tester);
     await tester.tap(find.text('Logout'));
     await tester.pumpAndSettle();
-
-    // Verify the method was called.
-    expect(authController.logoutCalled, isTrue);
-    // Also verify navigation to the OnBoard screen.
+    expect((Get.find<AuthController>() as MockAuthController).logoutCalled, isTrue);
     expect(find.text('OnBoard Screen'), findsOneWidget);
   });
 }

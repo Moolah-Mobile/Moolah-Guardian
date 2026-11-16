@@ -1,0 +1,465 @@
+--------- beginning of main
+03-31 17:12:19.323 20193 20269 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+03-31 17:12:19.448 20193 20276 I flutter : The Dart VM service is listening on http://127.0.0.1:33519/V2LY_AGppsY=/
+03-31 17:12:19.991 20193 20193 I flutter : Initializing Firebase
+03-31 17:12:20.395 20193 20193 I flutter : unhandled element <style/>; Picture key: Svg loader
+03-31 17:12:20.932 20193 20193 I flutter : Initializing Mixpanel
+03-31 17:12:21.005 20193 20193 I flutter : Initializing OneSignal
+03-31 17:12:21.021 20193 20193 I flutter : OneSignal.Notifications.permission
+03-31 17:12:21.025 20193 20193 I flutter : false
+03-31 17:12:21.025 20193 20193 I flutter : OneSignal.Notifications.permission::1
+03-31 17:12:21.031 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:12:21.032 20193 20193 I flutter : 🔴 POST REQUEST - 2026-03-31 17:12:21.027093
+03-31 17:12:21.033 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/getBannerAds
+03-31 17:12:21.034 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8}
+03-31 17:12:21.040 20193 20193 I flutter : 📤 Request Body:
+03-31 17:12:21.040 20193 20193 I flutter : {}
+03-31 17:12:21.040 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:12:22.664 20193 20193 I flutter : ✅ POST RESPONSE (1624ms)
+03-31 17:12:22.667 20193 20193 I flutter : 🔢 Status Code: 200
+03-31 17:12:22.676 20193 20193 I flutter : 📥 Response Body:
+03-31 17:12:22.676 20193 20193 I flutter : {
+03-31 17:12:22.676 20193 20193 I flutter :   "campaigns": [
+03-31 17:12:22.676 20193 20193 I flutter :     {
+03-31 17:12:22.676 20193 20193 I flutter :       "campaign_id": 133,
+03-31 17:12:22.676 20193 20193 I flutter :       "platform_campaign_id": 0,
+03-31 17:12:22.676 20193 20193 I flutter :       "advertiser_id": "37",
+03-31 17:12:22.676 20193 20193 I flutter :       "email": "admin@admin.com",
+03-31 17:12:22.676 20193 20193 I flutter :       "bid": 0.002,
+03-31 17:12:22.676 20193 20193 I flutter :       "status": "active",
+03-31 17:12:22.676 20193 20193 I flutter :       "type": "impression",
+03-31 17:12:22.676 20193 20193 I flutter :       "location": null,
+03-31 17:12:22.676 20193 20193 I flutter :       "class_name": null,
+03-31 17:12:22.676 20193 20193 I flutter :       "offer_name": "JCI Campaign",
+03-31 17:12:22.676 20193 20193 I flutter :       "app_name": "undefined",
+03-31 17:12:22.676 20193 20193 I flutter :       "link": "--",
+03-31 17:12:22.676 20193 20193 I flutter :       "expiration": "2020-12-25T12:00:00.000Z",
+03-31 17:12:22.676 20193 20193 I flutter :       "mulaah": 3,
+03-31 17:12:22.676 20193 20193 I flutter :       "description": "dummy disc",
+03-31 17:12:22.676 20193 20193 I flutter :       "icon": "--",
+03-31 17:12:22.676 20193 20193 I flutter :       "instructions": "We need leads on this ad",
+03-31 17:12:22.676 20193 20193 I flutter :       "city": "undefined",
+03-31 17:12:22.676 20193 20193 I flutter :       "state": "NWIDE",
+03-31 17:12:22.676 20193 20193 I flutter :       "banner_img": "https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media",
+03-31 17:12:22.676 20193 20193 I flutter :       "interstitial_img": "undefined",
+03-31 17:12:22.676 20193 20193 I flutter :       "installs": 0,
+03-31 17:12:22.676 20193 20193 I flutter :       "daily_limit": 0,
+03-31 17:12:22.676 20193 20193 I flutter :       "total_budget": 50,
+03-31 17:12:22.676 20193 20193 I flutter :       "banner_views": 4307833,
+03-31 17:12:22.676 20193 20193 I flutter :       "interstitial_views": 0,
+03-31 17:12:22.676 20193 20193 I flutter :       "banner_clicks": 0,
+03-31 17:12:22.676 20193 20193 I flutter :       "interstitial_clicks": 0,
+03-31 17:12:22.676 20193 20193 I flutter :       "question_1": null,
+03-31 17:12:22.676 20193 20193 I flutter :       "question_2": null,
+03-31 17:12:22.676 20193 20193 I flutter :     
+03-31 17:12:22.678 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:12:22.680 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:12:22.682 20193 20193 I flutter : 📊 Status Code: 200
+03-31 17:12:22.688 20193 20193 I flutter : 📄 Body:
+03-31 17:12:22.688 20193 20193 I flutter : {
+03-31 17:12:22.688 20193 20193 I flutter :   "campaigns": [
+03-31 17:12:22.688 20193 20193 I flutter :     {
+03-31 17:12:22.688 20193 20193 I flutter :       "campaign_id": 133,
+03-31 17:12:22.688 20193 20193 I flutter :       "platform_campaign_id": 0,
+03-31 17:12:22.688 20193 20193 I flutter :       "advertiser_id": "37",
+03-31 17:12:22.688 20193 20193 I flutter :       "email": "admin@admin.com",
+03-31 17:12:22.688 20193 20193 I flutter :       "bid": 0.002,
+03-31 17:12:22.688 20193 20193 I flutter :       "status": "active",
+03-31 17:12:22.688 20193 20193 I flutter :       "type": "impression",
+03-31 17:12:22.688 20193 20193 I flutter :       "location": null,
+03-31 17:12:22.688 20193 20193 I flutter :       "class_name": null,
+03-31 17:12:22.688 20193 20193 I flutter :       "offer_name": "JCI Campaign",
+03-31 17:12:22.688 20193 20193 I flutter :       "app_name": "undefined",
+03-31 17:12:22.688 20193 20193 I flutter :       "link": "--",
+03-31 17:12:22.688 20193 20193 I flutter :       "expiration": "2020-12-25T12:00:00.000Z",
+03-31 17:12:22.688 20193 20193 I flutter :       "mulaah": 3,
+03-31 17:12:22.688 20193 20193 I flutter :       "description": "dummy disc",
+03-31 17:12:22.688 20193 20193 I flutter :       "icon": "--",
+03-31 17:12:22.688 20193 20193 I flutter :       "instructions": "We need leads on this ad",
+03-31 17:12:22.688 20193 20193 I flutter :       "city": "undefined",
+03-31 17:12:22.688 20193 20193 I flutter :       "state": "NWIDE",
+03-31 17:12:22.688 20193 20193 I flutter :       "banner_img": "https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media",
+03-31 17:12:22.688 20193 20193 I flutter :       "interstitial_img": "undefined",
+03-31 17:12:22.688 20193 20193 I flutter :       "installs": 0,
+03-31 17:12:22.688 20193 20193 I flutter :       "daily_limit": 0,
+03-31 17:12:22.688 20193 20193 I flutter :       "total_budget": 50,
+03-31 17:12:22.688 20193 20193 I flutter :       "banner_views": 4307833,
+03-31 17:12:22.688 20193 20193 I flutter :       "interstitial_views": 0,
+03-31 17:12:22.688 20193 20193 I flutter :       "banner_clicks": 0,
+03-31 17:12:22.688 20193 20193 I flutter :       "interstitial_clicks": 0,
+03-31 17:12:22.688 20193 20193 I flutter :       "question_1": null,
+03-31 17:12:22.688 20193 20193 I flutter :       "question_2": null,
+03-31 17:12:22.688 20193 20193 I flutter :       "questi
+03-31 17:12:22.692 20193 20193 I flutter : ✅ Response Status: SUCCESS
+03-31 17:12:22.693 20193 20193 I flutter : 💬 Message: 
+03-31 17:12:22.693 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:12:22.705 20193 20193 I flutter : loadLocalAds:::{campaigns: [{campaign_id: 133, platform_campaign_id: 0, advertiser_id: 37, email: admin@admin.com, bid: 0.002, status: active, type: impression, location: null, class_name: null, offer_name: JCI Campaign, app_name: undefined, link: --, expiration: 2020-12-25T12:00:00.000Z, mulaah: 3, description: dummy disc, icon: --, instructions: We need leads on this ad, city: undefined, state: NWIDE, banner_img: https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media, interstitial_img: undefined, installs: 0, daily_limit: 0, total_budget: 50, banner_views: 4307833, interstitial_views: 0, banner_clicks: 0, interstitial_clicks: 0, question_1: null, question_2: null, question_3: null, question_4: null, question_5: null, question_6: null, question_7: null, question_8: null, question_9: null, question_10: null, banner_type: null, demographics_age_group: null, demographics_gender: null, demographics_ethnicity: null, currentActiveThemes: 0, image1: null, i
+03-31 17:12:23.411 20193 20193 I flutter : controller.value.size.width
+03-31 17:12:23.411 20193 20193 I flutter : Infinity
+03-31 17:12:23.412 20193 20193 I flutter : 0.0
+03-31 17:12:25.250 20193 20193 I flutter : controller.value.size.width
+03-31 17:12:25.251 20193 20193 I flutter : 0.2679787234042553
+03-31 17:12:25.252 20193 20193 I flutter : 90.684
+03-31 17:12:50.087 20193 20193 I flutter : OneSignal.Notifications.permission::2
+03-31 17:12:50.094 20193 20193 I flutter : Has permission true
+03-31 17:12:50.560 20193 20193 I flutter : MixPanel Event Triggered: viewLogin1
+03-31 17:12:50.577 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:12:50.674 20193 20193 I flutter : controller.value.size.width
+03-31 17:12:50.675 20193 20193 I flutter : 0.2679787234042553
+03-31 17:12:50.675 20193 20193 I flutter : 90.684
+03-31 17:12:53.186 20193 20193 I flutter : MixPanel Event Triggered: startLoginEmail
+03-31 17:12:53.190 20193 20193 I flutter : Errroorr: null
+03-31 17:12:53.207 20193 20193 I flutter : MixPanel Event Triggered: viewLogin2
+03-31 17:12:53.211 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:13:03.265 20193 20193 I flutter : Errroorr: null
+03-31 17:13:03.266 20193 20193 I flutter : MixPanel Event Triggered: submitLogin
+03-31 17:13:03.270 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:03.270 20193 20193 I flutter : 🔴 POST REQUEST - 2026-03-31 17:13:03.270216
+03-31 17:13:03.270 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/guardian/login
+03-31 17:13:03.270 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8}
+03-31 17:13:03.270 20193 20193 I flutter : 📤 Request Body:
+03-31 17:13:03.270 20193 20193 I flutter : {
+03-31 17:13:03.270 20193 20193 I flutter :   "email": "ryandevelopertest@gmail.com",
+03-31 17:13:03.270 20193 20193 I flutter :   "password": "Test@123",
+03-31 17:13:03.270 20193 20193 I flutter :   "moolahApp": "guardian"
+03-31 17:13:03.270 20193 20193 I flutter : }
+03-31 17:13:03.270 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:03.276 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:13:03.289 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:13:04.258 20193 20193 I flutter : ✅ POST RESPONSE (987ms)
+03-31 17:13:04.258 20193 20193 I flutter : 🔢 Status Code: 200
+03-31 17:13:04.259 20193 20193 I flutter : 📥 Response Body:
+03-31 17:13:04.259 20193 20193 I flutter : {
+03-31 17:13:04.259 20193 20193 I flutter :   "status": true,
+03-31 17:13:04.259 20193 20193 I flutter :   "message": "Login successful",
+03-31 17:13:04.259 20193 20193 I flutter :   "tokens": {
+03-31 17:13:04.259 20193 20193 I flutter :     "access": {
+03-31 17:13:04.259 20193 20193 I flutter :       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo",
+03-31 17:13:04.259 20193 20193 I flutter :       "expires": "2027-03-31T16:13:09.137Z"
+03-31 17:13:04.259 20193 20193 I flutter :     },
+03-31 17:13:04.259 20193 20193 I flutter :     "refresh": {
+03-31 17:13:04.259 20193 20193 I flutter :       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6InJlZnJlc2giLCJ1c2VyX3R5cGUiOiJndWFyZGlhbiJ9.iWsVQvalchRu6OlhHdp1JtvPx3KY4GQhwjyhtJvv0xA",
+03-31 17:13:04.259 20193 20193 I flutter :       "expires": "2027-03-31T16:13:09.139Z"
+03-31 17:13:04.259 20193 20193 I flutter :     }
+03-31 17:13:04.259 20193 20193 I flutter :   },
+03-31 17:13:04.259 20193 20193 I flutter :   "data": [
+03-31 17:13:04.259 20193 20193 I flutter :     {
+03-31 17:13:04.259 20193 20193 I flutter :       "id": 11,
+03-31 17:13:04.259 20193 20193 I flutter :       "first_name": "RyanDev",
+03-31 17:13:04.259 20193 20193 I flutter :       "last_name": "RyanDev",
+03-31 17:13:04.259 20193 20193 I flutter :       "email": "ryandevelopertest@gmail.com",
+03-31 17:13:04.259 20193 20193 I flutter :       "user_role": 2
+03-31 17:13:04.259 20193 20193 I flutter :     }
+03-31 17:13:04.259 20193 20193 I flutter :   ]
+03-31 17:13:04.259 20193 20193 I flutter : }
+03-31 17:13:04.259 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:04.259 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:13:04.259 20193 20193 I flutter : 📊 Status Code: 200
+03-31 17:13:04.260 20193 20193 I flutter : 📄 Body:
+03-31 17:13:04.260 20193 20193 I flutter : {
+03-31 17:13:04.260 20193 20193 I flutter :   "status": true,
+03-31 17:13:04.260 20193 20193 I flutter :   "message": "Login successful",
+03-31 17:13:04.260 20193 20193 I flutter :   "tokens": {
+03-31 17:13:04.260 20193 20193 I flutter :     "access": {
+03-31 17:13:04.260 20193 20193 I flutter :       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo",
+03-31 17:13:04.260 20193 20193 I flutter :       "expires": "2027-03-31T16:13:09.137Z"
+03-31 17:13:04.260 20193 20193 I flutter :     },
+03-31 17:13:04.260 20193 20193 I flutter :     "refresh": {
+03-31 17:13:04.260 20193 20193 I flutter :       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6InJlZnJlc2giLCJ1c2VyX3R5cGUiOiJndWFyZGlhbiJ9.iWsVQvalchRu6OlhHdp1JtvPx3KY4GQhwjyhtJvv0xA",
+03-31 17:13:04.260 20193 20193 I flutter :       "expires": "2027-03-31T16:13:09.139Z"
+03-31 17:13:04.260 20193 20193 I flutter :     }
+03-31 17:13:04.260 20193 20193 I flutter :   },
+03-31 17:13:04.260 20193 20193 I flutter :   "data": [
+03-31 17:13:04.260 20193 20193 I flutter :     {
+03-31 17:13:04.260 20193 20193 I flutter :       "id": 11,
+03-31 17:13:04.260 20193 20193 I flutter :       "first_name": "RyanDev",
+03-31 17:13:04.260 20193 20193 I flutter :       "last_name": "RyanDev",
+03-31 17:13:04.260 20193 20193 I flutter :       "email": "ryandevelopertest@gmail.com",
+03-31 17:13:04.260 20193 20193 I flutter :       "user_role": 2
+03-31 17:13:04.260 20193 20193 I flutter :     }
+03-31 17:13:04.260 20193 20193 I flutter :   ]
+03-31 17:13:04.260 20193 20193 I flutter : }
+03-31 17:13:04.260 20193 20193 I flutter : ✅ Response Status: SUCCESS
+03-31 17:13:04.260 20193 20193 I flutter : 💬 Message: Login successful
+03-31 17:13:04.260 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:04.314 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:13:04.320 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:13:05.807 20193 20193 I flutter : IronSource.loadBanner
+03-31 17:13:05.808 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:05.808 20193 20193 I flutter : 🔴 POST REQUEST - 2026-03-31 17:13:05.808610
+03-31 17:13:05.808 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/refreshTokens
+03-31 17:13:05.808 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo}
+03-31 17:13:05.809 20193 20193 I flutter : 📤 Request Body:
+03-31 17:13:05.809 20193 20193 I flutter : {
+03-31 17:13:05.809 20193 20193 I flutter :   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6InJlZnJlc2giLCJ1c2VyX3R5cGUiOiJndWFyZGlhbiJ9.iWsVQvalchRu6OlhHdp1JtvPx3KY4GQhwjyhtJvv0xA"
+03-31 17:13:05.809 20193 20193 I flutter : }
+03-31 17:13:05.809 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:05.842 20193 20193 I flutter : VAlue:::
+03-31 17:13:05.843 20193 20193 I flutter : IronSource.loadBanner1
+03-31 17:13:06.539 20193 20193 I flutter : onAdLoadFailed:::::errorCode: 606, message:Empty waterfall
+03-31 17:13:06.578 20193 20193 I flutter : ✅ POST RESPONSE (769ms)
+03-31 17:13:06.582 20193 20193 I flutter : 🔢 Status Code: 401
+03-31 17:13:06.583 20193 20193 I flutter : 📥 Response Body:
+03-31 17:13:06.583 20193 20193 I flutter : {
+03-31 17:13:06.583 20193 20193 I flutter :   "status": false,
+03-31 17:13:06.583 20193 20193 I flutter :   "message": "Please authenticate"
+03-31 17:13:06.583 20193 20193 I flutter : }
+03-31 17:13:06.584 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:06.584 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:13:06.584 20193 20193 I flutter : 📊 Status Code: 401
+03-31 17:13:06.585 20193 20193 I flutter : 📄 Body:
+03-31 17:13:06.585 20193 20193 I flutter : {
+03-31 17:13:06.585 20193 20193 I flutter :   "status": false,
+03-31 17:13:06.585 20193 20193 I flutter :   "message": "Please authenticate"
+03-31 17:13:06.585 20193 20193 I flutter : }
+03-31 17:13:06.585 20193 20193 I flutter : ❌ Error Status: 401
+03-31 17:13:06.586 20193 20193 I flutter : 💬 Error Message: Please authenticate
+03-31 17:13:06.586 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:06.587 20193 20193 I flutter : Token Refresh Failed: {status: false, message: Please authenticate}
+03-31 17:13:06.588 20193 20193 I flutter : --- START: getSyncedKidDevices ---
+03-31 17:13:06.589 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:06.589 20193 20193 I flutter : 🔵 GET REQUEST - 2026-03-31 17:13:06.589259
+03-31 17:13:06.589 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/getConnectedKidDevices
+03-31 17:13:06.590 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo}
+03-31 17:13:06.590 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:07.058 20193 20193 I flutter : ✅ GET RESPONSE (467ms)
+03-31 17:13:07.058 20193 20193 I flutter : 🔢 Status Code: 200
+03-31 17:13:07.059 20193 20193 I flutter : 📦 Response Body:
+03-31 17:13:07.059 20193 20193 I flutter : {
+03-31 17:13:07.059 20193 20193 I flutter :   "status": true,
+03-31 17:13:07.059 20193 20193 I flutter :   "devices": [
+03-31 17:13:07.059 20193 20193 I flutter :     {
+03-31 17:13:07.059 20193 20193 I flutter :       "verifiedParentConnection": 1,
+03-31 17:13:07.059 20193 20193 I flutter :       "kidDeviceAccountUserID": "aaaf74ad3fb34ae880991de56d2929c1",
+03-31 17:13:07.059 20193 20193 I flutter :       "kidDeviceAccountConnectID": "cd5b7a3783d691aa",
+03-31 17:13:07.059 20193 20193 I flutter :       "kidDeviceType": "tablet",
+03-31 17:13:07.059 20193 20193 I flutter :       "kidFullName": "Test Umer",
+03-31 17:13:07.059 20193 20193 I flutter :       "kidProfileAvatar": null,
+03-31 17:13:07.059 20193 20193 I flutter :       "device_id": "eaca6059aac97fb9",
+03-31 17:13:07.059 20193 20193 I flutter :       "imei": "",
+03-31 17:13:07.059 20193 20193 I flutter :       "email": "testumer@gmail.com",
+03-31 17:13:07.059 20193 20193 I flutter :       "photo": null,
+03-31 17:13:07.059 20193 20193 I flutter :       "privateKey": "-----BEGIN PRIVATE KEY-----\nMIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQCmlHa3YHUZdx6c\nfx14GkXo2bO6gHfuWViCbZUraEg0bJ0L5MvPM2jQasISeW1yqtix2D4kXDg22QNk\nCgHsDJVvhOhl3/9bZUDcnyCaxUtnvbuRS9uQpR39QBAv3/C71aGJUKciMgmbd0E8\nYs9kkPjnVJIqngD07kEEbbu8cSqcmI1Qsmpp9RTEUdfUrSBjULtBysxCrvTd4fRF\nPy8c8qDT+8WR8nlDlJRsMQNEfo09EwC496+HksOqsImodHA/sscJDADMvceE2/Jy\nh3Kl0J9EqisBUN3vfxhxyTUOi4ST2SbWubnlJN767LYuPIcuWjwKOgfjCJDL3B0l\nhrkNGG7Oo1i5r/qbCaJ3dq6ho1Tfj36tmav52Y51Xu+H/82zS7AqgRCRAkPOYc5e\nkCj1DYmC1CeH2mNdf4Qg0vey0X7HAg8qYEandrGkOwWNdXw7KakqKKGlxrWEIPsE\n6PxtXhOdzl
+03-31 17:13:07.059 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:07.059 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:13:07.059 20193 20193 I flutter : 📊 Status Code: 200
+03-31 17:13:07.060 20193 20193 I flutter : 📄 Body:
+03-31 17:13:07.060 20193 20193 I flutter : {
+03-31 17:13:07.060 20193 20193 I flutter :   "status": true,
+03-31 17:13:07.060 20193 20193 I flutter :   "devices": [
+03-31 17:13:07.060 20193 20193 I flutter :     {
+03-31 17:13:07.060 20193 20193 I flutter :       "verifiedParentConnection": 1,
+03-31 17:13:07.060 20193 20193 I flutter :       "kidDeviceAccountUserID": "aaaf74ad3fb34ae880991de56d2929c1",
+03-31 17:13:07.060 20193 20193 I flutter :       "kidDeviceAccountConnectID": "cd5b7a3783d691aa",
+03-31 17:13:07.060 20193 20193 I flutter :       "kidDeviceType": "tablet",
+03-31 17:13:07.060 20193 20193 I flutter :       "kidFullName": "Test Umer",
+03-31 17:13:07.060 20193 20193 I flutter :       "kidProfileAvatar": null,
+03-31 17:13:07.060 20193 20193 I flutter :       "device_id": "eaca6059aac97fb9",
+03-31 17:13:07.060 20193 20193 I flutter :       "imei": "",
+03-31 17:13:07.060 20193 20193 I flutter :       "email": "testumer@gmail.com",
+03-31 17:13:07.060 20193 20193 I flutter :       "photo": null,
+03-31 17:13:07.060 20193 20193 I flutter :       "privateKey": "-----BEGIN PRIVATE KEY-----\nMIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQCmlHa3YHUZdx6c\nfx14GkXo2bO6gHfuWViCbZUraEg0bJ0L5MvPM2jQasISeW1yqtix2D4kXDg22QNk\nCgHsDJVvhOhl3/9bZUDcnyCaxUtnvbuRS9uQpR39QBAv3/C71aGJUKciMgmbd0E8\nYs9kkPjnVJIqngD07kEEbbu8cSqcmI1Qsmpp9RTEUdfUrSBjULtBysxCrvTd4fRF\nPy8c8qDT+8WR8nlDlJRsMQNEfo09EwC496+HksOqsImodHA/sscJDADMvceE2/Jy\nh3Kl0J9EqisBUN3vfxhxyTUOi4ST2SbWubnlJN767LYuPIcuWjwKOgfjCJDL3B0l\nhrkNGG7Oo1i5r/qbCaJ3dq6ho1Tfj36tmav52Y51Xu+H/82zS7AqgRCRAkPOYc5e\nkCj1DYmC1CeH2mNdf4Qg0vey0X7HAg8qYEandrGkOwWNdXw7KakqKKGlxrWEIPsE\n6PxtXhOdzliIu+mYcWG
+03-31 17:13:07.061 20193 20193 I flutter : ✅ Response Status: SUCCESS
+03-31 17:13:07.061 20193 20193 I flutter : 💬 Message: Success
+03-31 17:13:07.061 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:07.061 20193 20193 I flutter : Found 1 devices. Processing...
+03-31 17:13:07.061 20193 20193 I flutter : Syncing device: Test Umer (ID: aaaf74ad3fb34ae880991de56d2929c1)
+03-31 17:13:07.064 20193 20193 I flutter : Successfully updated connectedKids list. Total: 1
+03-31 17:13:07.066 20193 20193 I flutter : --- END: getSyncedKidDevices ---
+03-31 17:13:07.556 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:07.557 20193 20193 I flutter : 🔴 POST REQUEST - 2026-03-31 17:13:07.556213
+03-31 17:13:07.558 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/refreshTokens
+03-31 17:13:07.559 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo}
+03-31 17:13:07.560 20193 20193 I flutter : 📤 Request Body:
+03-31 17:13:07.560 20193 20193 I flutter : {
+03-31 17:13:07.560 20193 20193 I flutter :   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6InJlZnJlc2giLCJ1c2VyX3R5cGUiOiJndWFyZGlhbiJ9.iWsVQvalchRu6OlhHdp1JtvPx3KY4GQhwjyhtJvv0xA"
+03-31 17:13:07.560 20193 20193 I flutter : }
+03-31 17:13:07.560 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:07.569 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:13:08.267 20193 20193 I flutter : ✅ POST RESPONSE (706ms)
+03-31 17:13:08.268 20193 20193 I flutter : 🔢 Status Code: 401
+03-31 17:13:08.269 20193 20193 I flutter : 📥 Response Body:
+03-31 17:13:08.269 20193 20193 I flutter : {
+03-31 17:13:08.269 20193 20193 I flutter :   "status": false,
+03-31 17:13:08.269 20193 20193 I flutter :   "message": "Please authenticate"
+03-31 17:13:08.269 20193 20193 I flutter : }
+03-31 17:13:08.269 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.270 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:13:08.272 20193 20193 I flutter : 📊 Status Code: 401
+03-31 17:13:08.272 20193 20193 I flutter : 📄 Body:
+03-31 17:13:08.272 20193 20193 I flutter : {
+03-31 17:13:08.272 20193 20193 I flutter :   "status": false,
+03-31 17:13:08.272 20193 20193 I flutter :   "message": "Please authenticate"
+03-31 17:13:08.272 20193 20193 I flutter : }
+03-31 17:13:08.272 20193 20193 I flutter : ❌ Error Status: 401
+03-31 17:13:08.272 20193 20193 I flutter : 💬 Error Message: Please authenticate
+03-31 17:13:08.272 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.272 20193 20193 I flutter : Token Refresh Failed: {status: false, message: Please authenticate}
+03-31 17:13:08.276 20193 20193 I flutter : Fetching Device Details for: cd5b7a3783d691aa
+03-31 17:13:08.277 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.277 20193 20193 I flutter : 🔵 GET REQUEST - 2026-03-31 17:13:08.277052
+03-31 17:13:08.277 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/getSingleDeviceDetail?deviceId=cd5b7a3783d691aa
+03-31 17:13:08.277 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo}
+03-31 17:13:08.277 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.279 20193 20193 I flutter : Fetching Message Threads for: cd5b7a3783d691aa
+03-31 17:13:08.280 20193 20193 I flutter : Fetching Blacklist URLs for: cd5b7a3783d691aa
+03-31 17:13:08.281 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.281 20193 20193 I flutter : 🔴 POST REQUEST - 2026-03-31 17:13:08.281108
+03-31 17:13:08.281 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/getBlockedUrlsEncryption
+03-31 17:13:08.281 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo}
+03-31 17:13:08.281 20193 20193 I flutter : 📤 Request Body:
+03-31 17:13:08.281 20193 20193 I flutter : {
+03-31 17:13:08.281 20193 20193 I flutter :   "kidDeviceAccountUserID": "aaaf74ad3fb34ae880991de56d2929c1"
+03-31 17:13:08.281 20193 20193 I flutter : }
+03-31 17:13:08.281 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.283 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.284 20193 20193 I flutter : 🔵 GET REQUEST - 2026-03-31 17:13:08.283294
+03-31 17:13:08.284 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/getWalletEnabled
+03-31 17:13:08.284 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo}
+03-31 17:13:08.284 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.286 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.286 20193 20193 I flutter : 🔵 GET REQUEST - 2026-03-31 17:13:08.286663
+03-31 17:13:08.286 20193 20193 I flutter : 📍 URL: https://api2.moolahmobile.com/getMSMSMonitoringStatus
+03-31 17:13:08.286 20193 20193 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM1ODksImV4cCI6MTgwNjUwOTU4OSwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.lvpPSFtm2J3ZQwKiRg6hjJmUxcoxpETQm83GIJR_kvo}
+03-31 17:13:08.286 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.300 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:13:08.748 20193 20193 I flutter : ✅ GET RESPONSE (463ms)
+03-31 17:13:08.749 20193 20193 I flutter : 🔢 Status Code: 200
+03-31 17:13:08.749 20193 20193 I flutter : 📦 Response Body:
+03-31 17:13:08.749 20193 20193 I flutter : {
+03-31 17:13:08.749 20193 20193 I flutter :   "status": true,
+03-31 17:13:08.749 20193 20193 I flutter :   "walletEnabled": false,
+03-31 17:13:08.749 20193 20193 I flutter :   "msg": "Wallet enabled value is missing for this user"
+03-31 17:13:08.749 20193 20193 I flutter : }
+03-31 17:13:08.749 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.751 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:13:08.751 20193 20193 I flutter : 📊 Status Code: 200
+03-31 17:13:08.751 20193 20193 I flutter : 📄 Body:
+03-31 17:13:08.751 20193 20193 I flutter : {
+03-31 17:13:08.751 20193 20193 I flutter :   "status": true,
+03-31 17:13:08.751 20193 20193 I flutter :   "walletEnabled": false,
+03-31 17:13:08.751 20193 20193 I flutter :   "msg": "Wallet enabled value is missing for this user"
+03-31 17:13:08.751 20193 20193 I flutter : }
+03-31 17:13:08.752 20193 20193 I flutter : ✅ Response Status: SUCCESS
+03-31 17:13:08.752 20193 20193 I flutter : 💬 Message: 
+03-31 17:13:08.752 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.752 20193 20193 I flutter : getWalletStatus Response: {status: true, walletEnabled: false, msg: Wallet enabled value is missing for this user}
+03-31 17:13:08.755 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:13:08.795 20193 20193 I flutter : ✅ GET RESPONSE (508ms)
+03-31 17:13:08.795 20193 20193 I flutter : 🔢 Status Code: 404
+03-31 17:13:08.795 20193 20193 I flutter : 📦 Response Body:
+03-31 17:13:08.795 20193 20193 I flutter : {
+03-31 17:13:08.795 20193 20193 I flutter :   "status": false,
+03-31 17:13:08.795 20193 20193 I flutter :   "message": "MSMS monitoring status not found for this user"
+03-31 17:13:08.795 20193 20193 I flutter : }
+03-31 17:13:08.795 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.795 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:13:08.795 20193 20193 I flutter : 📊 Status Code: 404
+03-31 17:13:08.795 20193 20193 I flutter : 📄 Body:
+03-31 17:13:08.795 20193 20193 I flutter : {
+03-31 17:13:08.795 20193 20193 I flutter :   "status": false,
+03-31 17:13:08.795 20193 20193 I flutter :   "message": "MSMS monitoring status not found for this user"
+03-31 17:13:08.795 20193 20193 I flutter : }
+03-31 17:13:08.795 20193 20193 I flutter : ❌ Error Status: 404
+03-31 17:13:08.795 20193 20193 I flutter : 💬 Error Message: MSMS monitoring status not found for this user
+03-31 17:13:08.795 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.795 20193 20193 I flutter : getMSMSMonitoringStatus Response: {status: false, message: MSMS monitoring status not found for this user}
+03-31 17:13:08.802 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:13:08.823 20193 20193 I flutter : ✅ POST RESPONSE (541ms)
+03-31 17:13:08.823 20193 20193 I flutter : 🔢 Status Code: 500
+03-31 17:13:08.824 20193 20193 I flutter : 📥 Response Body:
+03-31 17:13:08.824 20193 20193 I flutter : {
+03-31 17:13:08.824 20193 20193 I flutter :   "status": false,
+03-31 17:13:08.824 20193 20193 I flutter :   "message": "An error occurred. Please try again."
+03-31 17:13:08.824 20193 20193 I flutter : }
+03-31 17:13:08.825 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.825 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:13:08.825 20193 20193 I flutter : 📊 Status Code: 500
+03-31 17:13:08.826 20193 20193 I flutter : 📄 Body:
+03-31 17:13:08.826 20193 20193 I flutter : {
+03-31 17:13:08.826 20193 20193 I flutter :   "status": false,
+03-31 17:13:08.826 20193 20193 I flutter :   "message": "An error occurred. Please try again."
+03-31 17:13:08.826 20193 20193 I flutter : }
+03-31 17:13:08.826 20193 20193 I flutter : ❌ Error Status: 500
+03-31 17:13:08.826 20193 20193 I flutter : 💬 Error Message: An error occurred. Please try again.
+03-31 17:13:08.826 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:08.826 20193 20193 I flutter : getBlacklistUrls Response: {status: false, message: An error occurred. Please try again.}
+03-31 17:13:08.836 20193 20193 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:13:09.146 20193 20193 I flutter : ✅ GET RESPONSE (869ms)
+03-31 17:13:09.147 20193 20193 I flutter : 🔢 Status Code: 200
+03-31 17:13:09.169 20193 20193 I flutter : 📦 Response Body:
+03-31 17:13:09.169 20193 20193 I flutter : {
+03-31 17:13:09.169 20193 20193 I flutter :   "code": 200,
+03-31 17:13:09.169 20193 20193 I flutter :   "message": "The request was processed successfully",
+03-31 17:13:09.169 20193 20193 I flutter :   "data": {
+03-31 17:13:09.169 20193 20193 I flutter :     "id": "69af0a0bc6508c50a325ac0b",
+03-31 17:13:09.169 20193 20193 I flutter :     "deviceInitTime": 1773079051316,
+03-31 17:13:09.169 20193 20193 I flutter :     "imeiNumber": "358752920481888",
+03-31 17:13:09.169 20193 20193 I flutter :     "deviceId": "cd5b7a3783d691aa",
+03-31 17:13:09.169 20193 20193 I flutter :     "lastReportedTime": 1774669898016,
+03-31 17:13:09.169 20193 20193 I flutter :     "createdTime": 1773079051316,
+03-31 17:13:09.169 20193 20193 I flutter :     "apps": [
+03-31 17:13:09.169 20193 20193 I flutter :       {
+03-31 17:13:09.169 20193 20193 I flutter :         "id": null,
+03-31 17:13:09.169 20193 20193 I flutter :         "logDirectory": null,
+03-31 17:13:09.169 20193 20193 I flutter :         "appName": "Speech Recognition and Synthesis from Google",
+03-31 17:13:09.169 20193 20193 I flutter :         "packageName": "com.google.android.tts",
+03-31 17:13:09.169 20193 20193 I flutter :         "appSize": 0,
+03-31 17:13:09.169 20193 20193 I flutter :         "appType": null,
+03-31 17:13:09.169 20193 20193 I flutter :         "dataSize": 0,
+03-31 17:13:09.169 20193 20193 I flutter :         "installedLocation": null,
+03-31 17:13:09.169 20193 20193 I flutter :         "isEnabled": 1,
+03-31 17:13:09.169 20193 20193 I flutter :         "isRemoved": 0,
+03-31 17:13:09.169 20193 20193 I flutter :         "versionCode": 210623404,
+03-31 17:13:09.169 20193 20193 I flutter :         "baseVersionCode": 0,
+03-31 17:13:09.169 20193 20193 I flutter :         "versionName": "googletts.google-speech-apk_20260216.02_p0.871028523",
+03-31 17:13:09.169 20193 20193 I flutter :         "systemApp": true,
+03-31 17:13:09.169 20193 20193 I flutter :         "lastUpdated": 1774365768209,
+03-31 17:13:09.169 20193 20193 I flutter :         "uid": 10116,
+03-31 17:13:09.169 20193 20193 I flutter :         "ignBattOp": false,
+03-31 17:13:09.169 20193 20193 I flutter :         "launchable": false,
+03-31 17:13:09.169 20193 20193 I flutter :         "signatures": [
+03-31 17:13:09.169 20193 20193 I flutter :           {
+03-31 17:13:09.169 20193 20193 I flutter :             "sha1": null,
+03-31 17:13:09.169 20193 20193 I flutter :         
+03-31 17:13:09.170 20193 20193 I flutter : ═══════════════════════════════════════════
+03-31 17:13:09.170 20193 20193 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:13:09.170 20193 20193 I flutter : 📊 Status Code: 200
+03-31 17:13:09.192 20193 20193 I flutter : 📄 Body:
+03-31 17:13:09.192 20193 20193 I flutter : {
+03-31 17:13:09.192 20193 20193 I flutter :   "code": 200,
+03-31 17:13:09.192 20193 20193 I flutter :   "message": "The request was processed successfully",
+03-31 17:13:09.192 20193 20193 I flutter :   "data": {
+03-31 17:13:09.192 20193 20193 I flutter :     "id": "69af0a0bc6508c50a325ac0b",
+03-31 17:13:09.192 20193 20193 I flutter :     "deviceInitTime": 1773079051316,
+03-31 17:13:09.192 20193 20193 I flutter :     "imeiNumber": "358752920481888",
+03-31 17:13:09.192 20193 20193 I flutter :     "deviceId": "cd5b7a3783d691aa",
+03-31 17:13:09.192 20193 20193 I flutter :     "lastReportedTime": 1774669898016,
+03-31 17:13:09.192 20193 20193 I flutter :     "createdTime": 1773079051316,
+03-31 17:13:09.192 20193 20193 I flutter :     "apps": [
+03-31 17:13:09.192 20193 20193 I flutter :       {
+03-31 17:13:09.192 20193 20193 I flutter :         "id": null,
+03-31 17:13:09.192 20193 20193 I flutter :         "logDirectory": null,
+03-31 17:13:09.192 20193 20193 I flutter :         "appName": "Speech Recognition and Synthesis from Google",
+03-31 17:13:09.192 20193 20193 I flutter :         "packageName": "com.google.android.tts",
+03-31 17:13:09.192 20193 20193 I flutter :         "appSize": 0,
+03-31 17:13:09.192 20193 20193 I flutter :         "appType": null,
+03-31 17:13:09.192 20193 20193 I flutter :         "dataSize": 0,
+03-31 17:13:09.192 20193 20193 I flutter :         "installedLocation": null,
+03-31 17:13:09.192 20193 20193 I flutter :         "isEnabled": 1,
+03-31 17:13:09.192 20193 20193 I flutter :         "isRemoved": 0,
+03-31 17:13:09.192 20193 20193 I flutter :         "versionCode": 210623404,
+03-31 17:13:09.192 20193 20193 I flutter :         "baseVersionCode": 0,
+03-31 17:13:09.192 20193 20193 I flutter :         "versionName": "googletts.google-speech-apk_20260216.02_p0.871028523",
+03-31 17:13:09.192 20193 20193 I flutter :         "systemApp": true,
+03-31 17:13:09.192 20193 20193 I flutter :         "lastUpdated": 1774365768209,
+03-31 17:13:09.192 20193 20193 I flutter :         "uid": 10116,
+03-31 17:13:09.192 20193 20193 I flutter :         "ignBattOp": false,
+03-31 17:13:09.192 20193 20193 I flutter :         "launchable": false,
+03-31 17:13:09.192 20193 20193 I flutter :         "signatures": [
+03-31 17:13:09.192 20193 20193 I flutter :           {
+03-31 17:13:09.192 20193 20193 I flutter :             "sha1": null,
+03-31 17:13:09.192 20193 20193 I flutter :             "md5"
+03-31 17:13:09.196 20193 20193 I flutter : ✅ Response Status: SUCCESS
+03-31 17:13:09.196 20193 20193 I flutter : 💬 Message: The request was processed successfully
+03-31 17:13:09.196 20193 20193 I flutter : ═══════════════════════════════════════════

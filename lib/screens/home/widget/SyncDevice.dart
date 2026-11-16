@@ -17,12 +17,17 @@ class SyncDevice extends StatefulWidget {
     required this.active,
     required this.battery,
     this.isIPad = false,
+    this.batteryLocked = false,
+    this.usageLocked = false,
     required this.mbps
 
 });
 
   String kidId;
   bool isIPad;
+  // A stat the parent's plan doesn't include shows a padlock instead of its value.
+  bool batteryLocked;
+  bool usageLocked;
   String? image;
   String name;
   String battery;
@@ -89,9 +94,9 @@ class _SyncDeviceState extends State<SyncDevice> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _stat(AppImages.emptyBattery, "${widget.battery}%", shrink: false),
+                      _stat(AppImages.emptyBattery, "${widget.battery}%", shrink: false, locked: widget.batteryLocked),
                       horizontalSpace(6),
-                      _stat(AppImages.global, "${widget.mbps} Mb per sec"),
+                      _stat(AppImages.global, "${widget.mbps} Mb per sec", locked: widget.usageLocked),
                       horizontalSpace(6),
                       _stat(AppImages.clock, "Active ${widget.active}", italic: true),
                     ],
@@ -107,7 +112,17 @@ class _SyncDeviceState extends State<SyncDevice> {
   }
 
   // A stat with shrink: false (the short battery figure) keeps its full width; the others share the rest.
-  Widget _stat(String icon, String text, {bool italic = false, bool shrink = true}) {
+  Widget _stat(String icon, String text, {bool italic = false, bool shrink = true, bool locked = false}) {
+    if (locked) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SvgPicture.asset(icon, width: 15, height: 15),
+          horizontalSpace(5),
+          Icon(Icons.lock_outline, size: 13, color: AppColors.grey),
+        ],
+      );
+    }
     final label = regularText(text,
         color: AppColors.grey, fontSize: 10, italic: italic, maxLines: 1, textOverflow: TextOverflow.ellipsis);
     final stat = Row(

@@ -11,6 +11,7 @@ import 'package:moolah/util/common_widgets/common_button.dart';
 import 'package:moolah/util/common_widgets/common_text_field.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/common_widgets/loader.dart';
+import 'package:moolah/util/common_widgets/plan_gate.dart';
 import 'package:moolah/util/images.dart';
 
 class ConnectDeviceScreen extends StatefulWidget {
@@ -111,6 +112,7 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
                               text: "Connect Device",
                               margin: EdgeInsets.zero,
                               onTap: () async {
+                                if (!requireDeviceSlot()) return;
                                 if (_formKey.currentState!.validate()) {
                                   final success = await controller.linkKidByConnectCode(
                                     context: context,

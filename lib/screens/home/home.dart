@@ -12,6 +12,9 @@ import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/images.dart';
 
 import '../../controllers/authController.dart';
+import '../../controllers/subscription_controller.dart';
+import '../../helper/models/plan.dart';
+import '../../util/common_widgets/plan_gate.dart';
 import '../../helper/sharedHelper.dart';
 import '../../util/common_widgets/CommonGradientBackground.dart';
 import '../main_menu_profile/main_menu_profile.dart';
@@ -37,7 +40,7 @@ class _HomeState extends State<Home> {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return CommonGradientBackground(
-        child: GetBuilder<HomeController>(builder: (homeController) {
+        child: GetBuilder<SubscriptionController>(builder: (subscription) => GetBuilder<HomeController>(builder: (homeController) {
       return GetBuilder<AuthController>(builder: (con) {
         return Column(
           children: [
@@ -96,6 +99,7 @@ class _HomeState extends State<Home> {
                           notExpanded: true,
                           icon: AppImages.scanBarcode,
                           onTap: () {
+                            if (!requireDeviceSlot()) return;
                             Get.find<AuthController>().refreshToken();
                             Get.toNamed(ConnectDeviceScreen.screenName);
                           }),
@@ -125,6 +129,8 @@ class _HomeState extends State<Home> {
                                         .connectedKids[i].batteryStatus ?? "0",
                                     mbps: homeController
                                         .connectedKids[i].dataUsageStatus ?? "0",
+                                    batteryLocked: !subscription.allows(Feature.battery),
+                                    usageLocked: !subscription.allows(Feature.appUsage),
                                     isIPad: (homeController
                                         .connectedKids[i].deviceType ?? "")
                                         .toLowerCase()
@@ -139,12 +145,13 @@ class _HomeState extends State<Home> {
           ],
         );
       });
-    }));
+    })));
   }
 
   void setController() async {
     Get.find<AdvertisementController>().loadBanner();
     await Get.find<AuthController>().refreshToken();
+    Get.find<SubscriptionController>().loadSubscription();
     await Get.find<HomeController>().getSyncedKidDevices();
   }
 }

@@ -1,0 +1,958 @@
+--------- beginning of main
+03-31 17:16:45.206 20749 20828 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+03-31 17:16:45.272 20749 20835 I flutter : The Dart VM service is listening on http://127.0.0.1:36939/36CYVsjFAIk=/
+03-31 17:16:45.700 20749 20749 I flutter : Initializing Firebase
+03-31 17:16:46.060 20749 20749 I flutter : unhandled element <style/>; Picture key: Svg loader
+03-31 17:16:46.730 20749 20749 I flutter : Initializing Mixpanel
+03-31 17:16:47.013 20749 20749 I flutter : Initializing OneSignal
+03-31 17:16:47.043 20749 20749 I flutter : OneSignal.Notifications.permission
+03-31 17:16:47.047 20749 20749 I flutter : false
+03-31 17:16:47.049 20749 20749 I flutter : OneSignal.Notifications.permission::1
+03-31 17:16:47.063 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:16:47.063 20749 20749 I flutter : 🔴 POST REQUEST - 2026-03-31 17:16:47.058103
+03-31 17:16:47.064 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/getBannerAds
+03-31 17:16:47.069 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8}
+03-31 17:16:47.078 20749 20749 I flutter : 📤 Request Body:
+03-31 17:16:47.078 20749 20749 I flutter : {}
+03-31 17:16:47.078 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:16:48.989 20749 20749 I flutter : ✅ POST RESPONSE (1909ms)
+03-31 17:16:48.989 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:16:48.993 20749 20749 I flutter : 📥 Response Body:
+03-31 17:16:48.993 20749 20749 I flutter : {
+03-31 17:16:48.993 20749 20749 I flutter :   "campaigns": [
+03-31 17:16:48.993 20749 20749 I flutter :     {
+03-31 17:16:48.993 20749 20749 I flutter :       "campaign_id": 133,
+03-31 17:16:48.993 20749 20749 I flutter :       "platform_campaign_id": 0,
+03-31 17:16:48.993 20749 20749 I flutter :       "advertiser_id": "37",
+03-31 17:16:48.993 20749 20749 I flutter :       "email": "admin@admin.com",
+03-31 17:16:48.993 20749 20749 I flutter :       "bid": 0.002,
+03-31 17:16:48.993 20749 20749 I flutter :       "status": "active",
+03-31 17:16:48.993 20749 20749 I flutter :       "type": "impression",
+03-31 17:16:48.993 20749 20749 I flutter :       "location": null,
+03-31 17:16:48.993 20749 20749 I flutter :       "class_name": null,
+03-31 17:16:48.993 20749 20749 I flutter :       "offer_name": "JCI Campaign",
+03-31 17:16:48.993 20749 20749 I flutter :       "app_name": "undefined",
+03-31 17:16:48.993 20749 20749 I flutter :       "link": "--",
+03-31 17:16:48.993 20749 20749 I flutter :       "expiration": "2020-12-25T12:00:00.000Z",
+03-31 17:16:48.993 20749 20749 I flutter :       "mulaah": 3,
+03-31 17:16:48.993 20749 20749 I flutter :       "description": "dummy disc",
+03-31 17:16:48.993 20749 20749 I flutter :       "icon": "--",
+03-31 17:16:48.993 20749 20749 I flutter :       "instructions": "We need leads on this ad",
+03-31 17:16:48.993 20749 20749 I flutter :       "city": "undefined",
+03-31 17:16:48.993 20749 20749 I flutter :       "state": "NWIDE",
+03-31 17:16:48.993 20749 20749 I flutter :       "banner_img": "https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media",
+03-31 17:16:48.993 20749 20749 I flutter :       "interstitial_img": "undefined",
+03-31 17:16:48.993 20749 20749 I flutter :       "installs": 0,
+03-31 17:16:48.993 20749 20749 I flutter :       "daily_limit": 0,
+03-31 17:16:48.993 20749 20749 I flutter :       "total_budget": 50,
+03-31 17:16:48.993 20749 20749 I flutter :       "banner_views": 4307833,
+03-31 17:16:48.993 20749 20749 I flutter :       "interstitial_views": 0,
+03-31 17:16:48.993 20749 20749 I flutter :       "banner_clicks": 0,
+03-31 17:16:48.993 20749 20749 I flutter :       "interstitial_clicks": 0,
+03-31 17:16:48.993 20749 20749 I flutter :       "question_1": null,
+03-31 17:16:48.993 20749 20749 I flutter :       "question_2": null,
+03-31 17:16:48.993 20749 20749 I flutter :     
+03-31 17:16:48.994 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:16:48.998 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:16:48.999 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:16:49.000 20749 20749 I flutter : 📄 Body:
+03-31 17:16:49.000 20749 20749 I flutter : {
+03-31 17:16:49.000 20749 20749 I flutter :   "campaigns": [
+03-31 17:16:49.000 20749 20749 I flutter :     {
+03-31 17:16:49.000 20749 20749 I flutter :       "campaign_id": 133,
+03-31 17:16:49.000 20749 20749 I flutter :       "platform_campaign_id": 0,
+03-31 17:16:49.000 20749 20749 I flutter :       "advertiser_id": "37",
+03-31 17:16:49.000 20749 20749 I flutter :       "email": "admin@admin.com",
+03-31 17:16:49.000 20749 20749 I flutter :       "bid": 0.002,
+03-31 17:16:49.000 20749 20749 I flutter :       "status": "active",
+03-31 17:16:49.000 20749 20749 I flutter :       "type": "impression",
+03-31 17:16:49.000 20749 20749 I flutter :       "location": null,
+03-31 17:16:49.000 20749 20749 I flutter :       "class_name": null,
+03-31 17:16:49.000 20749 20749 I flutter :       "offer_name": "JCI Campaign",
+03-31 17:16:49.000 20749 20749 I flutter :       "app_name": "undefined",
+03-31 17:16:49.000 20749 20749 I flutter :       "link": "--",
+03-31 17:16:49.000 20749 20749 I flutter :       "expiration": "2020-12-25T12:00:00.000Z",
+03-31 17:16:49.000 20749 20749 I flutter :       "mulaah": 3,
+03-31 17:16:49.000 20749 20749 I flutter :       "description": "dummy disc",
+03-31 17:16:49.000 20749 20749 I flutter :       "icon": "--",
+03-31 17:16:49.000 20749 20749 I flutter :       "instructions": "We need leads on this ad",
+03-31 17:16:49.000 20749 20749 I flutter :       "city": "undefined",
+03-31 17:16:49.000 20749 20749 I flutter :       "state": "NWIDE",
+03-31 17:16:49.000 20749 20749 I flutter :       "banner_img": "https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media",
+03-31 17:16:49.000 20749 20749 I flutter :       "interstitial_img": "undefined",
+03-31 17:16:49.000 20749 20749 I flutter :       "installs": 0,
+03-31 17:16:49.000 20749 20749 I flutter :       "daily_limit": 0,
+03-31 17:16:49.000 20749 20749 I flutter :       "total_budget": 50,
+03-31 17:16:49.000 20749 20749 I flutter :       "banner_views": 4307833,
+03-31 17:16:49.000 20749 20749 I flutter :       "interstitial_views": 0,
+03-31 17:16:49.000 20749 20749 I flutter :       "banner_clicks": 0,
+03-31 17:16:49.000 20749 20749 I flutter :       "interstitial_clicks": 0,
+03-31 17:16:49.000 20749 20749 I flutter :       "question_1": null,
+03-31 17:16:49.000 20749 20749 I flutter :       "question_2": null,
+03-31 17:16:49.000 20749 20749 I flutter :       "questi
+03-31 17:16:49.000 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:16:49.000 20749 20749 I flutter : 💬 Message: 
+03-31 17:16:49.000 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:16:49.005 20749 20749 I flutter : loadLocalAds:::{campaigns: [{campaign_id: 133, platform_campaign_id: 0, advertiser_id: 37, email: admin@admin.com, bid: 0.002, status: active, type: impression, location: null, class_name: null, offer_name: JCI Campaign, app_name: undefined, link: --, expiration: 2020-12-25T12:00:00.000Z, mulaah: 3, description: dummy disc, icon: --, instructions: We need leads on this ad, city: undefined, state: NWIDE, banner_img: https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media, interstitial_img: undefined, installs: 0, daily_limit: 0, total_budget: 50, banner_views: 4307833, interstitial_views: 0, banner_clicks: 0, interstitial_clicks: 0, question_1: null, question_2: null, question_3: null, question_4: null, question_5: null, question_6: null, question_7: null, question_8: null, question_9: null, question_10: null, banner_type: null, demographics_age_group: null, demographics_gender: null, demographics_ethnicity: null, currentActiveThemes: 0, image1: null, i
+03-31 17:16:49.276 20749 20749 I flutter : controller.value.size.width
+03-31 17:16:49.276 20749 20749 I flutter : Infinity
+03-31 17:16:49.276 20749 20749 I flutter : 0.0
+03-31 17:16:51.025 20749 20749 I flutter : controller.value.size.width
+03-31 17:16:51.027 20749 20749 I flutter : 0.2679787234042553
+03-31 17:16:51.028 20749 20749 I flutter : 90.684
+03-31 17:18:24.957 20749 20749 I flutter : OneSignal.Notifications.permission::2
+03-31 17:18:25.605 20749 20749 I flutter : MixPanel Event Triggered: viewLogin1
+03-31 17:18:25.612 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:18:25.703 20749 20749 I flutter : controller.value.size.width
+03-31 17:18:25.704 20749 20749 I flutter : 0.2679787234042553
+03-31 17:18:25.704 20749 20749 I flutter : 90.684
+03-31 17:18:34.852 20749 20749 I flutter : MixPanel Event Triggered: startLoginEmail
+03-31 17:18:34.856 20749 20749 I flutter : Errroorr: Please enter a valid Email
+03-31 17:18:38.910 20749 20749 I flutter : MixPanel Event Triggered: viewLogin1
+03-31 17:18:38.915 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:18:38.927 20749 20749 I flutter : controller.value.size.width
+03-31 17:18:38.928 20749 20749 I flutter : 0.2679787234042553
+03-31 17:18:38.929 20749 20749 I flutter : 90.684
+03-31 17:19:12.870 20749 20749 I flutter : MixPanel Event Triggered: viewLogin1
+03-31 17:19:12.872 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:12.885 20749 20749 I flutter : controller.value.size.width
+03-31 17:19:12.886 20749 20749 I flutter : 0.2679787234042553
+03-31 17:19:12.886 20749 20749 I flutter : 90.684
+03-31 17:19:14.760 20749 20749 I flutter : MixPanel Event Triggered: startLoginEmail
+03-31 17:19:14.761 20749 20749 I flutter : Errroorr: null
+03-31 17:19:14.770 20749 20749 I flutter : MixPanel Event Triggered: viewLogin2
+03-31 17:19:14.773 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:19.357 20749 20749 I flutter : Errroorr: null
+03-31 17:19:19.358 20749 20749 I flutter : MixPanel Event Triggered: submitLogin
+03-31 17:19:19.361 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:19.361 20749 20749 I flutter : 🔴 POST REQUEST - 2026-03-31 17:19:19.361190
+03-31 17:19:19.361 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/guardian/login
+03-31 17:19:19.361 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8}
+03-31 17:19:19.361 20749 20749 I flutter : 📤 Request Body:
+03-31 17:19:19.361 20749 20749 I flutter : {
+03-31 17:19:19.361 20749 20749 I flutter :   "email": "ryandevelopertest@gmail.com",
+03-31 17:19:19.361 20749 20749 I flutter :   "password": "Test@123",
+03-31 17:19:19.361 20749 20749 I flutter :   "moolahApp": "guardian"
+03-31 17:19:19.361 20749 20749 I flutter : }
+03-31 17:19:19.361 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:19.370 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:19:19.381 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:19:19.832 20749 20749 I flutter : ✅ POST RESPONSE (470ms)
+03-31 17:19:19.832 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:19:19.832 20749 20749 I flutter : 📥 Response Body:
+03-31 17:19:19.832 20749 20749 I flutter : {
+03-31 17:19:19.832 20749 20749 I flutter :   "status": true,
+03-31 17:19:19.832 20749 20749 I flutter :   "message": "Login successful",
+03-31 17:19:19.832 20749 20749 I flutter :   "tokens": {
+03-31 17:19:19.832 20749 20749 I flutter :     "access": {
+03-31 17:19:19.832 20749 20749 I flutter :       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ",
+03-31 17:19:19.832 20749 20749 I flutter :       "expires": "2027-03-31T16:19:24.710Z"
+03-31 17:19:19.832 20749 20749 I flutter :     },
+03-31 17:19:19.832 20749 20749 I flutter :     "refresh": {
+03-31 17:19:19.832 20749 20749 I flutter :       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6InJlZnJlc2giLCJ1c2VyX3R5cGUiOiJndWFyZGlhbiJ9.44ZpwCiwz7UUJNjE5ibKb8qzCYGlbs0vQkwi8znMkrE",
+03-31 17:19:19.832 20749 20749 I flutter :       "expires": "2027-03-31T16:19:24.712Z"
+03-31 17:19:19.832 20749 20749 I flutter :     }
+03-31 17:19:19.832 20749 20749 I flutter :   },
+03-31 17:19:19.832 20749 20749 I flutter :   "data": [
+03-31 17:19:19.832 20749 20749 I flutter :     {
+03-31 17:19:19.832 20749 20749 I flutter :       "id": 11,
+03-31 17:19:19.832 20749 20749 I flutter :       "first_name": "RyanDev",
+03-31 17:19:19.832 20749 20749 I flutter :       "last_name": "RyanDev",
+03-31 17:19:19.832 20749 20749 I flutter :       "email": "ryandevelopertest@gmail.com",
+03-31 17:19:19.832 20749 20749 I flutter :       "user_role": 2
+03-31 17:19:19.832 20749 20749 I flutter :     }
+03-31 17:19:19.832 20749 20749 I flutter :   ]
+03-31 17:19:19.832 20749 20749 I flutter : }
+03-31 17:19:19.834 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:19.835 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:19:19.835 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:19:19.836 20749 20749 I flutter : 📄 Body:
+03-31 17:19:19.836 20749 20749 I flutter : {
+03-31 17:19:19.836 20749 20749 I flutter :   "status": true,
+03-31 17:19:19.836 20749 20749 I flutter :   "message": "Login successful",
+03-31 17:19:19.836 20749 20749 I flutter :   "tokens": {
+03-31 17:19:19.836 20749 20749 I flutter :     "access": {
+03-31 17:19:19.836 20749 20749 I flutter :       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ",
+03-31 17:19:19.836 20749 20749 I flutter :       "expires": "2027-03-31T16:19:24.710Z"
+03-31 17:19:19.836 20749 20749 I flutter :     },
+03-31 17:19:19.836 20749 20749 I flutter :     "refresh": {
+03-31 17:19:19.836 20749 20749 I flutter :       "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6InJlZnJlc2giLCJ1c2VyX3R5cGUiOiJndWFyZGlhbiJ9.44ZpwCiwz7UUJNjE5ibKb8qzCYGlbs0vQkwi8znMkrE",
+03-31 17:19:19.836 20749 20749 I flutter :       "expires": "2027-03-31T16:19:24.712Z"
+03-31 17:19:19.836 20749 20749 I flutter :     }
+03-31 17:19:19.836 20749 20749 I flutter :   },
+03-31 17:19:19.836 20749 20749 I flutter :   "data": [
+03-31 17:19:19.836 20749 20749 I flutter :     {
+03-31 17:19:19.836 20749 20749 I flutter :       "id": 11,
+03-31 17:19:19.836 20749 20749 I flutter :       "first_name": "RyanDev",
+03-31 17:19:19.836 20749 20749 I flutter :       "last_name": "RyanDev",
+03-31 17:19:19.836 20749 20749 I flutter :       "email": "ryandevelopertest@gmail.com",
+03-31 17:19:19.836 20749 20749 I flutter :       "user_role": 2
+03-31 17:19:19.836 20749 20749 I flutter :     }
+03-31 17:19:19.836 20749 20749 I flutter :   ]
+03-31 17:19:19.836 20749 20749 I flutter : }
+03-31 17:19:19.836 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:19:19.836 20749 20749 I flutter : 💬 Message: Login successful
+03-31 17:19:19.837 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:19.881 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:19.885 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:21.278 20749 20749 I flutter : IronSource.loadBanner
+03-31 17:19:21.280 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:21.281 20749 20749 I flutter : 🔴 POST REQUEST - 2026-03-31 17:19:21.280626
+03-31 17:19:21.281 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/refreshTokens
+03-31 17:19:21.281 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:19:21.282 20749 20749 I flutter : 📤 Request Body:
+03-31 17:19:21.282 20749 20749 I flutter : {
+03-31 17:19:21.282 20749 20749 I flutter :   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6InJlZnJlc2giLCJ1c2VyX3R5cGUiOiJndWFyZGlhbiJ9.44ZpwCiwz7UUJNjE5ibKb8qzCYGlbs0vQkwi8znMkrE"
+03-31 17:19:21.282 20749 20749 I flutter : }
+03-31 17:19:21.282 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:21.312 20749 20749 I flutter : VAlue:::
+03-31 17:19:21.313 20749 20749 I flutter : IronSource.loadBanner1
+03-31 17:19:21.774 20749 20749 I flutter : onAdLoadFailed:::::errorCode: 606, message:Empty waterfall
+03-31 17:19:21.901 20749 20749 I flutter : ✅ POST RESPONSE (619ms)
+03-31 17:19:21.901 20749 20749 I flutter : 🔢 Status Code: 401
+03-31 17:19:21.905 20749 20749 I flutter : 📥 Response Body:
+03-31 17:19:21.905 20749 20749 I flutter : {
+03-31 17:19:21.905 20749 20749 I flutter :   "status": false,
+03-31 17:19:21.905 20749 20749 I flutter :   "message": "Please authenticate"
+03-31 17:19:21.905 20749 20749 I flutter : }
+03-31 17:19:21.905 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:21.905 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:19:21.905 20749 20749 I flutter : 📊 Status Code: 401
+03-31 17:19:21.905 20749 20749 I flutter : 📄 Body:
+03-31 17:19:21.905 20749 20749 I flutter : {
+03-31 17:19:21.905 20749 20749 I flutter :   "status": false,
+03-31 17:19:21.905 20749 20749 I flutter :   "message": "Please authenticate"
+03-31 17:19:21.905 20749 20749 I flutter : }
+03-31 17:19:21.905 20749 20749 I flutter : ❌ Error Status: 401
+03-31 17:19:21.905 20749 20749 I flutter : 💬 Error Message: Please authenticate
+03-31 17:19:21.905 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:21.905 20749 20749 I flutter : Token Refresh Failed: {status: false, message: Please authenticate}
+03-31 17:19:21.906 20749 20749 I flutter : --- START: getSyncedKidDevices ---
+03-31 17:19:21.909 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:21.909 20749 20749 I flutter : 🔵 GET REQUEST - 2026-03-31 17:19:21.909050
+03-31 17:19:21.909 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/getConnectedKidDevices
+03-31 17:19:21.909 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:19:21.909 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:22.420 20749 20749 I flutter : ✅ GET RESPONSE (510ms)
+03-31 17:19:22.421 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:19:22.421 20749 20749 I flutter : 📦 Response Body:
+03-31 17:19:22.421 20749 20749 I flutter : {
+03-31 17:19:22.421 20749 20749 I flutter :   "status": true,
+03-31 17:19:22.421 20749 20749 I flutter :   "devices": [
+03-31 17:19:22.421 20749 20749 I flutter :     {
+03-31 17:19:22.421 20749 20749 I flutter :       "verifiedParentConnection": 1,
+03-31 17:19:22.421 20749 20749 I flutter :       "kidDeviceAccountUserID": "aaaf74ad3fb34ae880991de56d2929c1",
+03-31 17:19:22.421 20749 20749 I flutter :       "kidDeviceAccountConnectID": "cd5b7a3783d691aa",
+03-31 17:19:22.421 20749 20749 I flutter :       "kidDeviceType": "tablet",
+03-31 17:19:22.421 20749 20749 I flutter :       "kidFullName": "Test Umer",
+03-31 17:19:22.421 20749 20749 I flutter :       "kidProfileAvatar": null,
+03-31 17:19:22.421 20749 20749 I flutter :       "device_id": "eaca6059aac97fb9",
+03-31 17:19:22.421 20749 20749 I flutter :       "imei": "",
+03-31 17:19:22.421 20749 20749 I flutter :       "email": "testumer@gmail.com",
+03-31 17:19:22.421 20749 20749 I flutter :       "photo": null,
+03-31 17:19:22.421 20749 20749 I flutter :       "privateKey": "-----BEGIN PRIVATE KEY-----\nMIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQCmlHa3YHUZdx6c\nfx14GkXo2bO6gHfuWViCbZUraEg0bJ0L5MvPM2jQasISeW1yqtix2D4kXDg22QNk\nCgHsDJVvhOhl3/9bZUDcnyCaxUtnvbuRS9uQpR39QBAv3/C71aGJUKciMgmbd0E8\nYs9kkPjnVJIqngD07kEEbbu8cSqcmI1Qsmpp9RTEUdfUrSBjULtBysxCrvTd4fRF\nPy8c8qDT+8WR8nlDlJRsMQNEfo09EwC496+HksOqsImodHA/sscJDADMvceE2/Jy\nh3Kl0J9EqisBUN3vfxhxyTUOi4ST2SbWubnlJN767LYuPIcuWjwKOgfjCJDL3B0l\nhrkNGG7Oo1i5r/qbCaJ3dq6ho1Tfj36tmav52Y51Xu+H/82zS7AqgRCRAkPOYc5e\nkCj1DYmC1CeH2mNdf4Qg0vey0X7HAg8qYEandrGkOwWNdXw7KakqKKGlxrWEIPsE\n6PxtXhOdzl
+03-31 17:19:22.422 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:22.422 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:19:22.422 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:19:22.422 20749 20749 I flutter : 📄 Body:
+03-31 17:19:22.422 20749 20749 I flutter : {
+03-31 17:19:22.422 20749 20749 I flutter :   "status": true,
+03-31 17:19:22.422 20749 20749 I flutter :   "devices": [
+03-31 17:19:22.422 20749 20749 I flutter :     {
+03-31 17:19:22.422 20749 20749 I flutter :       "verifiedParentConnection": 1,
+03-31 17:19:22.422 20749 20749 I flutter :       "kidDeviceAccountUserID": "aaaf74ad3fb34ae880991de56d2929c1",
+03-31 17:19:22.422 20749 20749 I flutter :       "kidDeviceAccountConnectID": "cd5b7a3783d691aa",
+03-31 17:19:22.422 20749 20749 I flutter :       "kidDeviceType": "tablet",
+03-31 17:19:22.422 20749 20749 I flutter :       "kidFullName": "Test Umer",
+03-31 17:19:22.422 20749 20749 I flutter :       "kidProfileAvatar": null,
+03-31 17:19:22.422 20749 20749 I flutter :       "device_id": "eaca6059aac97fb9",
+03-31 17:19:22.422 20749 20749 I flutter :       "imei": "",
+03-31 17:19:22.422 20749 20749 I flutter :       "email": "testumer@gmail.com",
+03-31 17:19:22.422 20749 20749 I flutter :       "photo": null,
+03-31 17:19:22.422 20749 20749 I flutter :       "privateKey": "-----BEGIN PRIVATE KEY-----\nMIIJQwIBADANBgkqhkiG9w0BAQEFAASCCS0wggkpAgEAAoICAQCmlHa3YHUZdx6c\nfx14GkXo2bO6gHfuWViCbZUraEg0bJ0L5MvPM2jQasISeW1yqtix2D4kXDg22QNk\nCgHsDJVvhOhl3/9bZUDcnyCaxUtnvbuRS9uQpR39QBAv3/C71aGJUKciMgmbd0E8\nYs9kkPjnVJIqngD07kEEbbu8cSqcmI1Qsmpp9RTEUdfUrSBjULtBysxCrvTd4fRF\nPy8c8qDT+8WR8nlDlJRsMQNEfo09EwC496+HksOqsImodHA/sscJDADMvceE2/Jy\nh3Kl0J9EqisBUN3vfxhxyTUOi4ST2SbWubnlJN767LYuPIcuWjwKOgfjCJDL3B0l\nhrkNGG7Oo1i5r/qbCaJ3dq6ho1Tfj36tmav52Y51Xu+H/82zS7AqgRCRAkPOYc5e\nkCj1DYmC1CeH2mNdf4Qg0vey0X7HAg8qYEandrGkOwWNdXw7KakqKKGlxrWEIPsE\n6PxtXhOdzliIu+mYcWG
+03-31 17:19:22.423 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:19:22.423 20749 20749 I flutter : 💬 Message: Success
+03-31 17:19:22.423 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:22.423 20749 20749 I flutter : Found 1 devices. Processing...
+03-31 17:19:22.424 20749 20749 I flutter : Syncing device: Test Umer (ID: aaaf74ad3fb34ae880991de56d2929c1)
+03-31 17:19:22.425 20749 20749 I flutter : Successfully updated connectedKids list. Total: 1
+03-31 17:19:22.425 20749 20749 I flutter : --- END: getSyncedKidDevices ---
+03-31 17:19:22.812 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:22.813 20749 20749 I flutter : 🔴 POST REQUEST - 2026-03-31 17:19:22.812296
+03-31 17:19:22.813 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/refreshTokens
+03-31 17:19:22.813 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:19:22.813 20749 20749 I flutter : 📤 Request Body:
+03-31 17:19:22.813 20749 20749 I flutter : {
+03-31 17:19:22.813 20749 20749 I flutter :   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6InJlZnJlc2giLCJ1c2VyX3R5cGUiOiJndWFyZGlhbiJ9.44ZpwCiwz7UUJNjE5ibKb8qzCYGlbs0vQkwi8znMkrE"
+03-31 17:19:22.813 20749 20749 I flutter : }
+03-31 17:19:22.813 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:22.823 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:23.543 20749 20749 I flutter : ✅ POST RESPONSE (729ms)
+03-31 17:19:23.543 20749 20749 I flutter : 🔢 Status Code: 401
+03-31 17:19:23.543 20749 20749 I flutter : 📥 Response Body:
+03-31 17:19:23.543 20749 20749 I flutter : {
+03-31 17:19:23.543 20749 20749 I flutter :   "status": false,
+03-31 17:19:23.543 20749 20749 I flutter :   "message": "Please authenticate"
+03-31 17:19:23.543 20749 20749 I flutter : }
+03-31 17:19:23.543 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.543 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:19:23.543 20749 20749 I flutter : 📊 Status Code: 401
+03-31 17:19:23.543 20749 20749 I flutter : 📄 Body:
+03-31 17:19:23.543 20749 20749 I flutter : {
+03-31 17:19:23.543 20749 20749 I flutter :   "status": false,
+03-31 17:19:23.543 20749 20749 I flutter :   "message": "Please authenticate"
+03-31 17:19:23.543 20749 20749 I flutter : }
+03-31 17:19:23.543 20749 20749 I flutter : ❌ Error Status: 401
+03-31 17:19:23.543 20749 20749 I flutter : 💬 Error Message: Please authenticate
+03-31 17:19:23.543 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.543 20749 20749 I flutter : Token Refresh Failed: {status: false, message: Please authenticate}
+03-31 17:19:23.544 20749 20749 I flutter : Fetching Device Details for: cd5b7a3783d691aa
+03-31 17:19:23.545 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.545 20749 20749 I flutter : 🔵 GET REQUEST - 2026-03-31 17:19:23.545030
+03-31 17:19:23.545 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/getSingleDeviceDetail?deviceId=cd5b7a3783d691aa
+03-31 17:19:23.545 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:19:23.545 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.545 20749 20749 I flutter : Fetching Message Threads for: cd5b7a3783d691aa
+03-31 17:19:23.545 20749 20749 I flutter : Fetching Blacklist URLs for: cd5b7a3783d691aa
+03-31 17:19:23.545 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.545 20749 20749 I flutter : 🔴 POST REQUEST - 2026-03-31 17:19:23.545933
+03-31 17:19:23.545 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/getBlockedUrlsEncryption
+03-31 17:19:23.545 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:19:23.546 20749 20749 I flutter : 📤 Request Body:
+03-31 17:19:23.546 20749 20749 I flutter : {
+03-31 17:19:23.546 20749 20749 I flutter :   "kidDeviceAccountUserID": "aaaf74ad3fb34ae880991de56d2929c1"
+03-31 17:19:23.546 20749 20749 I flutter : }
+03-31 17:19:23.546 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.547 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.547 20749 20749 I flutter : 🔵 GET REQUEST - 2026-03-31 17:19:23.547189
+03-31 17:19:23.547 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/getWalletEnabled
+03-31 17:19:23.547 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:19:23.547 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.549 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.549 20749 20749 I flutter : 🔵 GET REQUEST - 2026-03-31 17:19:23.548987
+03-31 17:19:23.549 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/getMSMSMonitoringStatus
+03-31 17:19:23.549 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:19:23.549 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:23.567 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:19:24.042 20749 20749 I flutter : ✅ GET RESPONSE (494ms)
+03-31 17:19:24.043 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:19:24.043 20749 20749 I flutter : 📦 Response Body:
+03-31 17:19:24.043 20749 20749 I flutter : {
+03-31 17:19:24.043 20749 20749 I flutter :   "status": true,
+03-31 17:19:24.043 20749 20749 I flutter :   "walletEnabled": false,
+03-31 17:19:24.043 20749 20749 I flutter :   "msg": "Wallet enabled value is missing for this user"
+03-31 17:19:24.043 20749 20749 I flutter : }
+03-31 17:19:24.043 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:24.043 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:19:24.043 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:19:24.043 20749 20749 I flutter : 📄 Body:
+03-31 17:19:24.043 20749 20749 I flutter : {
+03-31 17:19:24.043 20749 20749 I flutter :   "status": true,
+03-31 17:19:24.043 20749 20749 I flutter :   "walletEnabled": false,
+03-31 17:19:24.043 20749 20749 I flutter :   "msg": "Wallet enabled value is missing for this user"
+03-31 17:19:24.043 20749 20749 I flutter : }
+03-31 17:19:24.043 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:19:24.043 20749 20749 I flutter : 💬 Message: 
+03-31 17:19:24.043 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:24.043 20749 20749 I flutter : getWalletStatus Response: {status: true, walletEnabled: false, msg: Wallet enabled value is missing for this user}
+03-31 17:19:24.052 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:19:24.064 20749 20749 I flutter : ✅ GET RESPONSE (514ms)
+03-31 17:19:24.064 20749 20749 I flutter : 🔢 Status Code: 404
+03-31 17:19:24.065 20749 20749 I flutter : 📦 Response Body:
+03-31 17:19:24.065 20749 20749 I flutter : {
+03-31 17:19:24.065 20749 20749 I flutter :   "status": false,
+03-31 17:19:24.065 20749 20749 I flutter :   "message": "MSMS monitoring status not found for this user"
+03-31 17:19:24.065 20749 20749 I flutter : }
+03-31 17:19:24.065 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:24.065 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:19:24.065 20749 20749 I flutter : 📊 Status Code: 404
+03-31 17:19:24.065 20749 20749 I flutter : 📄 Body:
+03-31 17:19:24.065 20749 20749 I flutter : {
+03-31 17:19:24.065 20749 20749 I flutter :   "status": false,
+03-31 17:19:24.065 20749 20749 I flutter :   "message": "MSMS monitoring status not found for this user"
+03-31 17:19:24.065 20749 20749 I flutter : }
+03-31 17:19:24.065 20749 20749 I flutter : ❌ Error Status: 404
+03-31 17:19:24.065 20749 20749 I flutter : 💬 Error Message: MSMS monitoring status not found for this user
+03-31 17:19:24.065 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:24.065 20749 20749 I flutter : getMSMSMonitoringStatus Response: {status: false, message: MSMS monitoring status not found for this user}
+03-31 17:19:24.070 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:19:24.092 20749 20749 I flutter : ✅ POST RESPONSE (546ms)
+03-31 17:19:24.092 20749 20749 I flutter : 🔢 Status Code: 500
+03-31 17:19:24.094 20749 20749 I flutter : 📥 Response Body:
+03-31 17:19:24.094 20749 20749 I flutter : {
+03-31 17:19:24.094 20749 20749 I flutter :   "status": false,
+03-31 17:19:24.094 20749 20749 I flutter :   "message": "An error occurred. Please try again."
+03-31 17:19:24.094 20749 20749 I flutter : }
+03-31 17:19:24.094 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:24.094 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:19:24.094 20749 20749 I flutter : 📊 Status Code: 500
+03-31 17:19:24.094 20749 20749 I flutter : 📄 Body:
+03-31 17:19:24.094 20749 20749 I flutter : {
+03-31 17:19:24.094 20749 20749 I flutter :   "status": false,
+03-31 17:19:24.094 20749 20749 I flutter :   "message": "An error occurred. Please try again."
+03-31 17:19:24.094 20749 20749 I flutter : }
+03-31 17:19:24.094 20749 20749 I flutter : ❌ Error Status: 500
+03-31 17:19:24.094 20749 20749 I flutter : 💬 Error Message: An error occurred. Please try again.
+03-31 17:19:24.094 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:24.094 20749 20749 I flutter : getBlacklistUrls Response: {status: false, message: An error occurred. Please try again.}
+03-31 17:19:24.102 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:19:24.429 20749 20749 I flutter : ✅ GET RESPONSE (884ms)
+03-31 17:19:24.429 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:19:24.455 20749 20749 I flutter : 📦 Response Body:
+03-31 17:19:24.455 20749 20749 I flutter : {
+03-31 17:19:24.455 20749 20749 I flutter :   "code": 200,
+03-31 17:19:24.455 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:19:24.455 20749 20749 I flutter :   "data": {
+03-31 17:19:24.455 20749 20749 I flutter :     "id": "69af0a0bc6508c50a325ac0b",
+03-31 17:19:24.455 20749 20749 I flutter :     "deviceInitTime": 1773079051316,
+03-31 17:19:24.455 20749 20749 I flutter :     "imeiNumber": "358752920481888",
+03-31 17:19:24.455 20749 20749 I flutter :     "deviceId": "cd5b7a3783d691aa",
+03-31 17:19:24.455 20749 20749 I flutter :     "lastReportedTime": 1774669898016,
+03-31 17:19:24.455 20749 20749 I flutter :     "createdTime": 1773079051316,
+03-31 17:19:24.455 20749 20749 I flutter :     "apps": [
+03-31 17:19:24.455 20749 20749 I flutter :       {
+03-31 17:19:24.455 20749 20749 I flutter :         "id": null,
+03-31 17:19:24.455 20749 20749 I flutter :         "logDirectory": null,
+03-31 17:19:24.455 20749 20749 I flutter :         "appName": "Speech Recognition and Synthesis from Google",
+03-31 17:19:24.455 20749 20749 I flutter :         "packageName": "com.google.android.tts",
+03-31 17:19:24.455 20749 20749 I flutter :         "appSize": 0,
+03-31 17:19:24.455 20749 20749 I flutter :         "appType": null,
+03-31 17:19:24.455 20749 20749 I flutter :         "dataSize": 0,
+03-31 17:19:24.455 20749 20749 I flutter :         "installedLocation": null,
+03-31 17:19:24.455 20749 20749 I flutter :         "isEnabled": 1,
+03-31 17:19:24.455 20749 20749 I flutter :         "isRemoved": 0,
+03-31 17:19:24.455 20749 20749 I flutter :         "versionCode": 210623404,
+03-31 17:19:24.455 20749 20749 I flutter :         "baseVersionCode": 0,
+03-31 17:19:24.455 20749 20749 I flutter :         "versionName": "googletts.google-speech-apk_20260216.02_p0.871028523",
+03-31 17:19:24.455 20749 20749 I flutter :         "systemApp": true,
+03-31 17:19:24.455 20749 20749 I flutter :         "lastUpdated": 1774365768209,
+03-31 17:19:24.455 20749 20749 I flutter :         "uid": 10116,
+03-31 17:19:24.455 20749 20749 I flutter :         "ignBattOp": false,
+03-31 17:19:24.455 20749 20749 I flutter :         "launchable": false,
+03-31 17:19:24.455 20749 20749 I flutter :         "signatures": [
+03-31 17:19:24.455 20749 20749 I flutter :           {
+03-31 17:19:24.455 20749 20749 I flutter :             "sha1": null,
+03-31 17:19:24.455 20749 20749 I flutter :         
+03-31 17:19:24.455 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:24.455 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:19:24.455 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:19:24.472 20749 20749 I flutter : 📄 Body:
+03-31 17:19:24.472 20749 20749 I flutter : {
+03-31 17:19:24.472 20749 20749 I flutter :   "code": 200,
+03-31 17:19:24.472 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:19:24.472 20749 20749 I flutter :   "data": {
+03-31 17:19:24.472 20749 20749 I flutter :     "id": "69af0a0bc6508c50a325ac0b",
+03-31 17:19:24.472 20749 20749 I flutter :     "deviceInitTime": 1773079051316,
+03-31 17:19:24.472 20749 20749 I flutter :     "imeiNumber": "358752920481888",
+03-31 17:19:24.472 20749 20749 I flutter :     "deviceId": "cd5b7a3783d691aa",
+03-31 17:19:24.472 20749 20749 I flutter :     "lastReportedTime": 1774669898016,
+03-31 17:19:24.472 20749 20749 I flutter :     "createdTime": 1773079051316,
+03-31 17:19:24.472 20749 20749 I flutter :     "apps": [
+03-31 17:19:24.472 20749 20749 I flutter :       {
+03-31 17:19:24.472 20749 20749 I flutter :         "id": null,
+03-31 17:19:24.472 20749 20749 I flutter :         "logDirectory": null,
+03-31 17:19:24.472 20749 20749 I flutter :         "appName": "Speech Recognition and Synthesis from Google",
+03-31 17:19:24.472 20749 20749 I flutter :         "packageName": "com.google.android.tts",
+03-31 17:19:24.472 20749 20749 I flutter :         "appSize": 0,
+03-31 17:19:24.472 20749 20749 I flutter :         "appType": null,
+03-31 17:19:24.472 20749 20749 I flutter :         "dataSize": 0,
+03-31 17:19:24.472 20749 20749 I flutter :         "installedLocation": null,
+03-31 17:19:24.472 20749 20749 I flutter :         "isEnabled": 1,
+03-31 17:19:24.472 20749 20749 I flutter :         "isRemoved": 0,
+03-31 17:19:24.472 20749 20749 I flutter :         "versionCode": 210623404,
+03-31 17:19:24.472 20749 20749 I flutter :         "baseVersionCode": 0,
+03-31 17:19:24.472 20749 20749 I flutter :         "versionName": "googletts.google-speech-apk_20260216.02_p0.871028523",
+03-31 17:19:24.472 20749 20749 I flutter :         "systemApp": true,
+03-31 17:19:24.472 20749 20749 I flutter :         "lastUpdated": 1774365768209,
+03-31 17:19:24.472 20749 20749 I flutter :         "uid": 10116,
+03-31 17:19:24.472 20749 20749 I flutter :         "ignBattOp": false,
+03-31 17:19:24.472 20749 20749 I flutter :         "launchable": false,
+03-31 17:19:24.472 20749 20749 I flutter :         "signatures": [
+03-31 17:19:24.472 20749 20749 I flutter :           {
+03-31 17:19:24.472 20749 20749 I flutter :             "sha1": null,
+03-31 17:19:24.472 20749 20749 I flutter :             "md5"
+03-31 17:19:24.474 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:19:24.474 20749 20749 I flutter : 💬 Message: The request was processed successfully
+03-31 17:19:24.474 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:19:24.483 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:24.484 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:24.484 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:24.486 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:25.839 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:25.840 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:25.840 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:25.844 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:36.786 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:36.786 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:36.786 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:36.787 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:51.792 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:51.794 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:51.795 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:51.796 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:57.508 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:58.253 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:58.985 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:19:59.285 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:59.285 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:59.285 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:19:59.287 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:20:04.732 20749 20749 I flutter : deleteApp
+03-31 17:20:04.734 20749 20749 I flutter : Deleting app: com.android.calendar on device: cd5b7a3783d691aa
+03-31 17:20:04.735 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:04.735 20749 20749 I flutter : 🔴 POST REQUEST - 2026-03-31 17:20:04.735381
+03-31 17:20:04.735 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/sendActionToDevice
+03-31 17:20:04.735 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:20:04.735 20749 20749 I flutter : 📤 Request Body:
+03-31 17:20:04.735 20749 20749 I flutter : {
+03-31 17:20:04.735 20749 20749 I flutter :   "actionId": "20",
+03-31 17:20:04.735 20749 20749 I flutter :   "message": "com.android.calendar",
+03-31 17:20:04.735 20749 20749 I flutter :   "deviceId": "cd5b7a3783d691aa"
+03-31 17:20:04.735 20749 20749 I flutter : }
+03-31 17:20:04.735 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:04.744 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:04.744 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:04.745 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:04.745 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:20:05.357 20749 20749 I flutter : ✅ POST RESPONSE (621ms)
+03-31 17:20:05.357 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:20:05.358 20749 20749 I flutter : 📥 Response Body:
+03-31 17:20:05.358 20749 20749 I flutter : {
+03-31 17:20:05.358 20749 20749 I flutter :   "code": 200,
+03-31 17:20:05.358 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:20:05.358 20749 20749 I flutter :   "data": {
+03-31 17:20:05.358 20749 20749 I flutter :     "cd5b7a3783d691aa": "69cbf43ac6508c50a325af22"
+03-31 17:20:05.358 20749 20749 I flutter :   }
+03-31 17:20:05.358 20749 20749 I flutter : }
+03-31 17:20:05.358 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:05.358 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:20:05.359 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:20:05.359 20749 20749 I flutter : 📄 Body:
+03-31 17:20:05.359 20749 20749 I flutter : {
+03-31 17:20:05.359 20749 20749 I flutter :   "code": 200,
+03-31 17:20:05.359 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:20:05.359 20749 20749 I flutter :   "data": {
+03-31 17:20:05.359 20749 20749 I flutter :     "cd5b7a3783d691aa": "69cbf43ac6508c50a325af22"
+03-31 17:20:05.359 20749 20749 I flutter :   }
+03-31 17:20:05.359 20749 20749 I flutter : }
+03-31 17:20:05.359 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:20:05.359 20749 20749 I flutter : 💬 Message: The request was processed successfully
+03-31 17:20:05.359 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:05.359 20749 20749 I flutter : deleteApp Response: {code: 200, message: The request was processed successfully, data: {cd5b7a3783d691aa: 69cbf43ac6508c50a325af22}}
+03-31 17:20:05.359 20749 20749 I flutter : Fetching Device Details for: cd5b7a3783d691aa
+03-31 17:20:05.359 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:05.359 20749 20749 I flutter : 🔵 GET REQUEST - 2026-03-31 17:20:05.359347
+03-31 17:20:05.359 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/getSingleDeviceDetail?deviceId=cd5b7a3783d691aa
+03-31 17:20:05.359 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:20:05.359 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:05.368 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:05.369 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:05.369 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:05.371 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:20:06.225 20749 20749 I flutter : ✅ GET RESPONSE (866ms)
+03-31 17:20:06.225 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:20:06.231 20749 20749 I flutter : 📦 Response Body:
+03-31 17:20:06.231 20749 20749 I flutter : {
+03-31 17:20:06.231 20749 20749 I flutter :   "code": 200,
+03-31 17:20:06.231 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:20:06.231 20749 20749 I flutter :   "data": {
+03-31 17:20:06.231 20749 20749 I flutter :     "id": "69af0a0bc6508c50a325ac0b",
+03-31 17:20:06.231 20749 20749 I flutter :     "deviceInitTime": 1773079051316,
+03-31 17:20:06.231 20749 20749 I flutter :     "imeiNumber": "358752920481888",
+03-31 17:20:06.231 20749 20749 I flutter :     "deviceId": "cd5b7a3783d691aa",
+03-31 17:20:06.231 20749 20749 I flutter :     "lastReportedTime": 1774669898016,
+03-31 17:20:06.231 20749 20749 I flutter :     "createdTime": 1773079051316,
+03-31 17:20:06.231 20749 20749 I flutter :     "apps": [
+03-31 17:20:06.231 20749 20749 I flutter :       {
+03-31 17:20:06.231 20749 20749 I flutter :         "id": null,
+03-31 17:20:06.231 20749 20749 I flutter :         "logDirectory": null,
+03-31 17:20:06.231 20749 20749 I flutter :         "appName": "Speech Recognition and Synthesis from Google",
+03-31 17:20:06.231 20749 20749 I flutter :         "packageName": "com.google.android.tts",
+03-31 17:20:06.231 20749 20749 I flutter :         "appSize": 0,
+03-31 17:20:06.231 20749 20749 I flutter :         "appType": null,
+03-31 17:20:06.231 20749 20749 I flutter :         "dataSize": 0,
+03-31 17:20:06.231 20749 20749 I flutter :         "installedLocation": null,
+03-31 17:20:06.231 20749 20749 I flutter :         "isEnabled": 1,
+03-31 17:20:06.231 20749 20749 I flutter :         "isRemoved": 0,
+03-31 17:20:06.231 20749 20749 I flutter :         "versionCode": 210623404,
+03-31 17:20:06.231 20749 20749 I flutter :         "baseVersionCode": 0,
+03-31 17:20:06.231 20749 20749 I flutter :         "versionName": "googletts.google-speech-apk_20260216.02_p0.871028523",
+03-31 17:20:06.231 20749 20749 I flutter :         "systemApp": true,
+03-31 17:20:06.231 20749 20749 I flutter :         "lastUpdated": 1774365768209,
+03-31 17:20:06.231 20749 20749 I flutter :         "uid": 10116,
+03-31 17:20:06.231 20749 20749 I flutter :         "ignBattOp": false,
+03-31 17:20:06.231 20749 20749 I flutter :         "launchable": false,
+03-31 17:20:06.231 20749 20749 I flutter :         "signatures": [
+03-31 17:20:06.231 20749 20749 I flutter :           {
+03-31 17:20:06.231 20749 20749 I flutter :             "sha1": null,
+03-31 17:20:06.231 20749 20749 I flutter :         
+03-31 17:20:06.232 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:06.232 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:20:06.232 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:20:06.239 20749 20749 I flutter : 📄 Body:
+03-31 17:20:06.239 20749 20749 I flutter : {
+03-31 17:20:06.239 20749 20749 I flutter :   "code": 200,
+03-31 17:20:06.239 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:20:06.239 20749 20749 I flutter :   "data": {
+03-31 17:20:06.239 20749 20749 I flutter :     "id": "69af0a0bc6508c50a325ac0b",
+03-31 17:20:06.239 20749 20749 I flutter :     "deviceInitTime": 1773079051316,
+03-31 17:20:06.239 20749 20749 I flutter :     "imeiNumber": "358752920481888",
+03-31 17:20:06.239 20749 20749 I flutter :     "deviceId": "cd5b7a3783d691aa",
+03-31 17:20:06.239 20749 20749 I flutter :     "lastReportedTime": 1774669898016,
+03-31 17:20:06.239 20749 20749 I flutter :     "createdTime": 1773079051316,
+03-31 17:20:06.239 20749 20749 I flutter :     "apps": [
+03-31 17:20:06.239 20749 20749 I flutter :       {
+03-31 17:20:06.239 20749 20749 I flutter :         "id": null,
+03-31 17:20:06.239 20749 20749 I flutter :         "logDirectory": null,
+03-31 17:20:06.239 20749 20749 I flutter :         "appName": "Speech Recognition and Synthesis from Google",
+03-31 17:20:06.239 20749 20749 I flutter :         "packageName": "com.google.android.tts",
+03-31 17:20:06.239 20749 20749 I flutter :         "appSize": 0,
+03-31 17:20:06.239 20749 20749 I flutter :         "appType": null,
+03-31 17:20:06.239 20749 20749 I flutter :         "dataSize": 0,
+03-31 17:20:06.239 20749 20749 I flutter :         "installedLocation": null,
+03-31 17:20:06.239 20749 20749 I flutter :         "isEnabled": 1,
+03-31 17:20:06.239 20749 20749 I flutter :         "isRemoved": 0,
+03-31 17:20:06.239 20749 20749 I flutter :         "versionCode": 210623404,
+03-31 17:20:06.239 20749 20749 I flutter :         "baseVersionCode": 0,
+03-31 17:20:06.239 20749 20749 I flutter :         "versionName": "googletts.google-speech-apk_20260216.02_p0.871028523",
+03-31 17:20:06.239 20749 20749 I flutter :         "systemApp": true,
+03-31 17:20:06.239 20749 20749 I flutter :         "lastUpdated": 1774365768209,
+03-31 17:20:06.239 20749 20749 I flutter :         "uid": 10116,
+03-31 17:20:06.239 20749 20749 I flutter :         "ignBattOp": false,
+03-31 17:20:06.239 20749 20749 I flutter :         "launchable": false,
+03-31 17:20:06.239 20749 20749 I flutter :         "signatures": [
+03-31 17:20:06.239 20749 20749 I flutter :           {
+03-31 17:20:06.239 20749 20749 I flutter :             "sha1": null,
+03-31 17:20:06.239 20749 20749 I flutter :             "md5"
+03-31 17:20:06.241 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:20:06.241 20749 20749 I flutter : 💬 Message: The request was processed successfully
+03-31 17:20:06.241 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:06.245 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:06.248 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:06.248 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:06.251 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:20:06.788 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:06.789 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:06.789 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:06.790 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:20:19.660 20749 20749 I flutter : Blacklisting app: com.android.calendar on device: cd5b7a3783d691aa
+03-31 17:20:19.661 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:19.661 20749 20749 I flutter : 🔴 POST REQUEST - 2026-03-31 17:20:19.661337
+03-31 17:20:19.661 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/sendActionToDevice
+03-31 17:20:19.662 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:20:19.662 20749 20749 I flutter : 📤 Request Body:
+03-31 17:20:19.662 20749 20749 I flutter : {
+03-31 17:20:19.662 20749 20749 I flutter :   "actionId": "27",
+03-31 17:20:19.662 20749 20749 I flutter :   "message": "com.android.calendar",
+03-31 17:20:19.662 20749 20749 I flutter :   "deviceId": "cd5b7a3783d691aa"
+03-31 17:20:19.662 20749 20749 I flutter : }
+03-31 17:20:19.662 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:19.672 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:19.672 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:19.672 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:19.673 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:20:20.324 20749 20749 I flutter : ✅ POST RESPONSE (661ms)
+03-31 17:20:20.324 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:20:20.325 20749 20749 I flutter : 📥 Response Body:
+03-31 17:20:20.325 20749 20749 I flutter : {
+03-31 17:20:20.325 20749 20749 I flutter :   "code": 200,
+03-31 17:20:20.325 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:20:20.325 20749 20749 I flutter :   "data": {
+03-31 17:20:20.325 20749 20749 I flutter :     "cd5b7a3783d691aa": "69cbf449c6508c50a325af24"
+03-31 17:20:20.325 20749 20749 I flutter :   }
+03-31 17:20:20.325 20749 20749 I flutter : }
+03-31 17:20:20.325 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:20.325 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:20:20.325 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:20:20.325 20749 20749 I flutter : 📄 Body:
+03-31 17:20:20.325 20749 20749 I flutter : {
+03-31 17:20:20.325 20749 20749 I flutter :   "code": 200,
+03-31 17:20:20.325 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:20:20.325 20749 20749 I flutter :   "data": {
+03-31 17:20:20.325 20749 20749 I flutter :     "cd5b7a3783d691aa": "69cbf449c6508c50a325af24"
+03-31 17:20:20.325 20749 20749 I flutter :   }
+03-31 17:20:20.325 20749 20749 I flutter : }
+03-31 17:20:20.326 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:20:20.326 20749 20749 I flutter : 💬 Message: The request was processed successfully
+03-31 17:20:20.326 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:20.326 20749 20749 I flutter : blacklistApp Response: {code: 200, message: The request was processed successfully, data: {cd5b7a3783d691aa: 69cbf449c6508c50a325af24}}
+03-31 17:20:20.326 20749 20749 I flutter : Fetching Device Details for: cd5b7a3783d691aa
+03-31 17:20:20.326 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:20.326 20749 20749 I flutter : 🔵 GET REQUEST - 2026-03-31 17:20:20.326211
+03-31 17:20:20.326 20749 20749 I flutter : 📍 URL: https://api2.moolahmobile.com/getSingleDeviceDetail?deviceId=cd5b7a3783d691aa
+03-31 17:20:20.326 20749 20749 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8, Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjExLCJpYXQiOjE3NzQ5NzM5NjQsImV4cCI6MTgwNjUwOTk2NCwidHlwZSI6ImFjY2VzcyIsInVzZXJfdHlwZSI6Imd1YXJkaWFuIn0.2R5QLFqPoXYMwoq09k9IXwppb0AtT6Yc5XsJq-FYXIQ}
+03-31 17:20:20.326 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:20.334 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:20.335 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:20.335 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:20.336 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::true
+03-31 17:20:21.540 20749 20749 I flutter : ✅ GET RESPONSE (1214ms)
+03-31 17:20:21.541 20749 20749 I flutter : 🔢 Status Code: 200
+03-31 17:20:21.545 20749 20749 I flutter : 📦 Response Body:
+03-31 17:20:21.545 20749 20749 I flutter : {
+03-31 17:20:21.545 20749 20749 I flutter :   "code": 200,
+03-31 17:20:21.545 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:20:21.545 20749 20749 I flutter :   "data": {
+03-31 17:20:21.545 20749 20749 I flutter :     "id": "69af0a0bc6508c50a325ac0b",
+03-31 17:20:21.545 20749 20749 I flutter :     "deviceInitTime": 1773079051316,
+03-31 17:20:21.545 20749 20749 I flutter :     "imeiNumber": "358752920481888",
+03-31 17:20:21.545 20749 20749 I flutter :     "deviceId": "cd5b7a3783d691aa",
+03-31 17:20:21.545 20749 20749 I flutter :     "lastReportedTime": 1774669898016,
+03-31 17:20:21.545 20749 20749 I flutter :     "createdTime": 1773079051316,
+03-31 17:20:21.545 20749 20749 I flutter :     "apps": [
+03-31 17:20:21.545 20749 20749 I flutter :       {
+03-31 17:20:21.545 20749 20749 I flutter :         "id": null,
+03-31 17:20:21.545 20749 20749 I flutter :         "logDirectory": null,
+03-31 17:20:21.545 20749 20749 I flutter :         "appName": "Speech Recognition and Synthesis from Google",
+03-31 17:20:21.545 20749 20749 I flutter :         "packageName": "com.google.android.tts",
+03-31 17:20:21.545 20749 20749 I flutter :         "appSize": 0,
+03-31 17:20:21.545 20749 20749 I flutter :         "appType": null,
+03-31 17:20:21.545 20749 20749 I flutter :         "dataSize": 0,
+03-31 17:20:21.545 20749 20749 I flutter :         "installedLocation": null,
+03-31 17:20:21.545 20749 20749 I flutter :         "isEnabled": 1,
+03-31 17:20:21.545 20749 20749 I flutter :         "isRemoved": 0,
+03-31 17:20:21.545 20749 20749 I flutter :         "versionCode": 210623404,
+03-31 17:20:21.545 20749 20749 I flutter :         "baseVersionCode": 0,
+03-31 17:20:21.545 20749 20749 I flutter :         "versionName": "googletts.google-speech-apk_20260216.02_p0.871028523",
+03-31 17:20:21.545 20749 20749 I flutter :         "systemApp": true,
+03-31 17:20:21.545 20749 20749 I flutter :         "lastUpdated": 1774365768209,
+03-31 17:20:21.545 20749 20749 I flutter :         "uid": 10116,
+03-31 17:20:21.545 20749 20749 I flutter :         "ignBattOp": false,
+03-31 17:20:21.545 20749 20749 I flutter :         "launchable": false,
+03-31 17:20:21.545 20749 20749 I flutter :         "signatures": [
+03-31 17:20:21.545 20749 20749 I flutter :           {
+03-31 17:20:21.545 20749 20749 I flutter :             "sha1": null,
+03-31 17:20:21.545 20749 20749 I flutter :         
+03-31 17:20:21.545 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:21.545 20749 20749 I flutter : 🔍 RESPONSE HANDLER
+03-31 17:20:21.545 20749 20749 I flutter : 📊 Status Code: 200
+03-31 17:20:21.551 20749 20749 I flutter : 📄 Body:
+03-31 17:20:21.551 20749 20749 I flutter : {
+03-31 17:20:21.551 20749 20749 I flutter :   "code": 200,
+03-31 17:20:21.551 20749 20749 I flutter :   "message": "The request was processed successfully",
+03-31 17:20:21.551 20749 20749 I flutter :   "data": {
+03-31 17:20:21.551 20749 20749 I flutter :     "id": "69af0a0bc6508c50a325ac0b",
+03-31 17:20:21.551 20749 20749 I flutter :     "deviceInitTime": 1773079051316,
+03-31 17:20:21.551 20749 20749 I flutter :     "imeiNumber": "358752920481888",
+03-31 17:20:21.551 20749 20749 I flutter :     "deviceId": "cd5b7a3783d691aa",
+03-31 17:20:21.551 20749 20749 I flutter :     "lastReportedTime": 1774669898016,
+03-31 17:20:21.551 20749 20749 I flutter :     "createdTime": 1773079051316,
+03-31 17:20:21.551 20749 20749 I flutter :     "apps": [
+03-31 17:20:21.551 20749 20749 I flutter :       {
+03-31 17:20:21.551 20749 20749 I flutter :         "id": null,
+03-31 17:20:21.551 20749 20749 I flutter :         "logDirectory": null,
+03-31 17:20:21.551 20749 20749 I flutter :         "appName": "Speech Recognition and Synthesis from Google",
+03-31 17:20:21.551 20749 20749 I flutter :         "packageName": "com.google.android.tts",
+03-31 17:20:21.551 20749 20749 I flutter :         "appSize": 0,
+03-31 17:20:21.551 20749 20749 I flutter :         "appType": null,
+03-31 17:20:21.551 20749 20749 I flutter :         "dataSize": 0,
+03-31 17:20:21.551 20749 20749 I flutter :         "installedLocation": null,
+03-31 17:20:21.551 20749 20749 I flutter :         "isEnabled": 1,
+03-31 17:20:21.551 20749 20749 I flutter :         "isRemoved": 0,
+03-31 17:20:21.551 20749 20749 I flutter :         "versionCode": 210623404,
+03-31 17:20:21.551 20749 20749 I flutter :         "baseVersionCode": 0,
+03-31 17:20:21.551 20749 20749 I flutter :         "versionName": "googletts.google-speech-apk_20260216.02_p0.871028523",
+03-31 17:20:21.551 20749 20749 I flutter :         "systemApp": true,
+03-31 17:20:21.551 20749 20749 I flutter :         "lastUpdated": 1774365768209,
+03-31 17:20:21.551 20749 20749 I flutter :         "uid": 10116,
+03-31 17:20:21.551 20749 20749 I flutter :         "ignBattOp": false,
+03-31 17:20:21.551 20749 20749 I flutter :         "launchable": false,
+03-31 17:20:21.551 20749 20749 I flutter :         "signatures": [
+03-31 17:20:21.551 20749 20749 I flutter :           {
+03-31 17:20:21.551 20749 20749 I flutter :             "sha1": null,
+03-31 17:20:21.551 20749 20749 I flutter :             "md5"
+03-31 17:20:21.554 20749 20749 I flutter : ✅ Response Status: SUCCESS
+03-31 17:20:21.554 20749 20749 I flutter : 💬 Message: The request was processed successfully
+03-31 17:20:21.554 20749 20749 I flutter : ═══════════════════════════════════════════
+03-31 17:20:21.558 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:21.558 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:21.559 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:21.560 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:20:21.791 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:21.792 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:21.792 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:21.794 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:20:36.804 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:36.805 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:36.805 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:36.806 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:20:51.807 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:51.807 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:51.807 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:20:51.807 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:21:06.805 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:06.807 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:06.809 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:06.811 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:21:21.819 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:21.820 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:21.820 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:21.832 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:21:36.803 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:36.804 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:36.804 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:36.805 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:21:51.802 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:51.802 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:51.802 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:21:51.803 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:22:06.802 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:06.803 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:06.803 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:06.804 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:22:21.813 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:21.813 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:21.813 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:21.817 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:22:36.809 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:36.809 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:36.809 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:36.810 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:22:51.832 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:51.834 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:51.834 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:22:51.836 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:23:06.819 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:06.820 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:06.820 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:06.821 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:23:21.826 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:21.827 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:21.827 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:21.828 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:23:36.819 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:36.821 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:36.821 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:36.823 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:23:51.827 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:51.828 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:51.828 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:23:51.832 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:24:06.821 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:06.824 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:06.825 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:06.826 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:24:21.831 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:21.831 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:21.833 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:21.843 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:24:36.836 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:36.838 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:36.838 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:36.841 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:24:51.837 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:51.837 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:51.837 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:24:51.838 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:25:06.836 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:06.837 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:06.838 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:06.839 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:25:21.844 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:21.844 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:21.844 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:21.845 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:25:36.856 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:36.858 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:36.859 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:36.860 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:25:51.859 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:51.860 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:51.861 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:25:51.862 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:26:06.872 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:06.873 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:06.879 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:06.880 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:26:21.891 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:21.891 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:21.891 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:21.903 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:26:36.889 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:36.890 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:36.893 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:36.899 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:26:51.903 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:51.904 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:51.905 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:26:51.907 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:27:06.890 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:06.891 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:06.892 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:06.895 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:27:21.896 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:21.897 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:21.897 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:21.900 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:27:36.893 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:36.893 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:36.893 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:36.894 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:27:51.916 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:51.917 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:51.918 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:27:51.920 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:28:06.908 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:06.909 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:06.911 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:06.913 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:28:21.923 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:21.923 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:21.923 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:21.924 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:28:36.923 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:36.924 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:36.924 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:36.925 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:28:51.919 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:51.921 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:51.922 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:28:51.934 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:29:06.927 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:06.928 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:06.929 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:06.934 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:29:21.942 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:21.943 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:21.944 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:21.945 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:29:36.924 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:36.926 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:36.927 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:36.928 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:29:51.934 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:51.934 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:51.935 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:29:51.937 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:30:06.954 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:06.957 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:06.957 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:06.959 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:30:21.929 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:21.929 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:21.930 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:21.935 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:30:36.946 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:36.948 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:36.949 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:36.951 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:30:51.937 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:51.941 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:51.942 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:30:51.945 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:31:06.942 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:06.942 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:06.943 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:06.952 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:31:21.947 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:21.948 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:21.948 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:21.953 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:31:36.957 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:36.967 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:36.968 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:36.975 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false
+03-31 17:31:51.942 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:51.945 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:51.946 20749 20749 I flutter : listOfInstalledApp.isEnabled:::1
+03-31 17:31:51.948 20749 20749 I flutter : bool loading = Get.find<BaseController>().isLoading;:::false

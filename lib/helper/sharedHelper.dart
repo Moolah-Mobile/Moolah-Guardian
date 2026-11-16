@@ -20,6 +20,8 @@ class Prefs {
   static SharedPrefValue<String> get accessToken => SharedPrefValue<String>('access_token');
   static SharedPrefValue<String> get refreshToken => SharedPrefValue<String>('refresh_token');
   static SharedPrefValue<bool> get verificationPending => SharedPrefValue<bool>('verification_pending');
+  /// The plan bought on this phone by [account], as "planId|expiry ISO date". Logout keeps it.
+  static SharedPrefValue<String> purchase(String account) => SharedPrefValue<String>('purchase_$account');
   static SharedPrefValue<bool> get verificationPhone => SharedPrefValue<bool>('verification_hone');
 
 

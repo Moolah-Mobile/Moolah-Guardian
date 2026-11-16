@@ -13,7 +13,10 @@ import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/common_widgets/loader.dart';
 import 'package:moolah/util/images.dart';
 
+import '../../controllers/subscription_controller.dart';
 import '../../helper/models/device_detail_model.dart';
+import '../../helper/models/plan.dart';
+import '../../util/common_widgets/plan_gate.dart';
 import '../../helper/models/kids_model.dart';
 import '../../util/apptext.dart';
 import '../../util/common_widgets/CommonGradientBackground.dart';
@@ -54,7 +57,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HomeController>(builder: (homeController) {
+    return GetBuilder<SubscriptionController>(builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
       final kid = homeController.getSelectedKid(widget.kidId);
       return CommonGradientBackground(
         child: Loader(
@@ -82,7 +85,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                             child: Column(
                               children: [
                                 tabBar(),
-                                if (tabController?.index != 2)
+                                if (_tabUnlocked)
                                   CustomButton(
                                     text: headingText,
                                     onTap: () {
@@ -101,9 +104,13 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                                   ),
                                 verticalSpace(0),
                                 if (tabController?.index == 0)
-                                  appSection(homeController)
+                                  planAllows(Feature.deleteApps)
+                                      ? appSection(homeController)
+                                      : Expanded(child: lockedFeaturePanel(Feature.deleteApps, "Deleting and blocking apps"))
                                 else if (tabController?.index == 1)
-                                  urlSection(homeController)
+                                  planAllows(Feature.browserHistory)
+                                      ? urlSection(homeController)
+                                      : Expanded(child: lockedFeaturePanel(Feature.browserHistory, "Browser history and URL blocking"))
                                 else if (tabController?.index == 2)
                                   messagesSection(homeController),
                               ],
@@ -117,7 +124,19 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           ),
         ),
       );
-    });
+    }));
+  }
+
+  /// The Messages tab has no button, and a locked tab shows its upgrade panel instead.
+  bool get _tabUnlocked {
+    switch (tabController?.index) {
+      case 0:
+        return planAllows(Feature.blockApps);
+      case 1:
+        return planAllows(Feature.urlBlacklist);
+      default:
+        return false;
+    }
   }
 
   void _showAddBlackListDialog() async {
@@ -195,6 +214,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
         child: ListView(
           padding: const EdgeInsets.only(bottom: adBannerSpace),
           children: [
+            comingSoonTile(Icons.location_on_outlined, "Delete apps by location and time"),
+            comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
+            verticalSpace(10),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16)
                   .copyWith(bottom: 25, top: 0),
@@ -204,6 +226,30 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               appItem(app,
                   kidId: widget.kidId,
                   blocked: kid.blockedPackages.contains(app.packageName)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget comingSoonTile(IconData icon, String title) {
+    return customGestureDetecter(
+      onTap: () => showComingSoon(title),
+      child: roundedContainer(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        color: AppColors.lightGrey,
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: AppColors.normalGreen),
+            horizontalSpace(10),
+            Expanded(child: regularText(title, fontSize: 13, fontWeight: FontWeight.w600)),
+            roundedContainer(
+              borderRadius: 20,
+              color: AppColors.veryVeryLightGreen,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              child: regularText("Coming soon", fontSize: 10, color: AppColors.normalGreen, fontWeight: FontWeight.w700),
+            ),
           ],
         ),
       ),
@@ -348,7 +394,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     );
   }
 
-  Widget actionButton(IconData icon, String text, VoidCallback onTap) {
+  Widget actionButton(IconData icon, String text, VoidCallback onTap, {bool locked = false}) {
     return Expanded(
       child: customGestureDetecter(
         onTap: onTap,
@@ -358,7 +404,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18),
+              Icon(locked ? Icons.lock_outline : icon, size: 18),
               horizontalSpace(6),
               regularText(text, fontSize: 14, fontWeight: FontWeight.w600),
             ],
@@ -406,12 +452,12 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.lock_outline, size: 48, color: Colors.grey),
+                const Icon(Icons.hourglass_top, size: 48, color: Colors.grey),
                 verticalSpace(16),
-                bigSubHeading("Platinum Feature"),
+                bigSubHeading("Coming soon"),
                 verticalSpace(10),
                 subHeadingText(
-                  "Messages monitoring is available for Platinum users. This feature is coming soon!",
+                  "Messages monitoring is coming soon. We'll let you know when it's ready.",
                   textAlign: TextAlign.center,
                   height: 1.4,
                 ),
@@ -425,9 +471,12 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
 
   Widget percentageContainer(
       Color color, String icon, String text, String value, String t,
-      {bool otherOne = false}) {
+      {bool otherOne = false, Feature? feature}) {
+    final locked = feature != null && !planAllows(feature);
     return Expanded(
-      child: roundedContainer(
+      child: customGestureDetecter(
+        onTap: locked ? () => withFeature(feature, text, () {}) : null,
+        child: roundedContainer(
           padding: const EdgeInsets.all(7),
           color: AppColors.lightGrey,
           child: Row(
@@ -456,7 +505,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                     subHeadingText(text, fontSize: 10),
                 ],
               ),
-              if (!otherOne)
+              if (locked)
+                const Icon(Icons.lock_outline, size: 20, color: Colors.grey)
+              else if (!otherOne)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -476,6 +527,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                 )
             ],
           )),
+      ),
     );
   }
 
@@ -525,7 +577,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                     children: [
                       customGestureDetecter(
                           onTap: () {
-                            _showAdDialog();
+                            withFeature(Feature.wallet, "The M! wallet", _showAdDialog);
                           },
                           child: SvgPicture.asset(AppImages.information)),
                       horizontalSpace(10),
@@ -554,10 +606,12 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   AppImages.emptyBattery,
                   "Battery %",
                   stats?.batteryLevel?.toString() ?? "0",
-                  "%"),
+                  "%",
+                  feature: Feature.battery),
               horizontalSpace(10),
               percentageContainer(AppColors.blue, AppImages.global, "Data Used",
-                  kid.networkHistory?.dataUsageGb ?? stats?.deviceDataUsage?.toString() ?? "0", "GB")
+                  kid.networkHistory?.dataUsageGb ?? stats?.deviceDataUsage?.toString() ?? "0", "GB",
+                  feature: Feature.appUsage)
             ],
           ),
           verticalSpace(10),
@@ -581,13 +635,17 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           Row(
             children: [
               actionButton(Icons.sync, "Sync now", () {
-                Get.find<HomeController>().sendDeviceAction(
-                    kidId: widget.kidId,
-                    action: "configUpdated",
-                    successMessage: "Sync sent to the device");
-              }),
+                withFeature(Feature.deviceActions, "Sync now", () {
+                  Get.find<HomeController>().sendDeviceAction(
+                      kidId: widget.kidId,
+                      action: "configUpdated",
+                      successMessage: "Sync sent to the device");
+                });
+              }, locked: !planAllows(Feature.deviceActions)),
               horizontalSpace(10),
-              actionButton(Icons.restart_alt, "Reboot", _confirmReboot),
+              actionButton(Icons.restart_alt, "Reboot",
+                  () => withFeature(Feature.deviceActions, "Reboot", _confirmReboot),
+                  locked: !planAllows(Feature.deviceActions)),
             ],
           ),
         ],
@@ -627,11 +685,13 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     bool switchButton = value;
     return customGestureDetecter(
       onTap: () {
-        setState(() {
-          switchButton = !switchButton;
+        withFeature(Feature.wallet, "The M! wallet", () {
+          setState(() {
+            switchButton = !switchButton;
+          });
+          Get.find<HomeController>()
+              .enableWallet(value: switchButton, kidId: widget.kidId);
         });
-        Get.find<HomeController>()
-            .enableWallet(value: switchButton, kidId: widget.kidId);
       },
       child: Stack(
         alignment: switchButton ? Alignment.centerRight : Alignment.centerLeft,
@@ -714,14 +774,18 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   }
 
   void initAPIS() async {
-    Get.find<HomeController>().getAppUsage(kidId: widget.kidId);
-    Get.find<HomeController>().getNetworkHistory(kidId: widget.kidId);
-    Get.find<HomeController>().getInstalledApps(kidId: widget.kidId);
+    final home = Get.find<HomeController>();
+    // getAppUsage also carries the device's location, which every plan shows.
+    home.getAppUsage(kidId: widget.kidId);
+    // Gated data waits for the current plan, so a fresh upgrade isn't missed because of a stale cached plan.
+    await Get.find<SubscriptionController>().loadSubscription();
+    if (planAllows(Feature.browserHistory)) home.getNetworkHistory(kidId: widget.kidId);
+    if (planAllows(Feature.deleteApps)) home.getInstalledApps(kidId: widget.kidId);
     await Get.find<AuthController>().refreshToken();
-    Get.find<HomeController>().getDeviceDetail(kidId: widget.kidId);
-    Get.find<HomeController>().getBlacklistUrls(kidId: widget.kidId);
-    Get.find<HomeController>().getWalletStatus(kidId: widget.kidId);
-    Get.find<HomeController>().getMSMSMonitoringStatus(kidId: widget.kidId);
+    home.getDeviceDetail(kidId: widget.kidId);
+    if (planAllows(Feature.urlBlacklist)) home.getBlacklistUrls(kidId: widget.kidId);
+    if (planAllows(Feature.wallet)) home.getWalletStatus(kidId: widget.kidId);
+    home.getMSMSMonitoringStatus(kidId: widget.kidId);
   }
 
   Widget comingSoon() {

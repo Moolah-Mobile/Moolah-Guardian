@@ -1,0 +1,102 @@
+--------- beginning of main
+05-11 19:58:12.631 19369 19452 I flutter : [IMPORTANT:flutter/shell/platform/android/android_context_gl_impeller.cc(104)] Using the Impeller rendering backend (OpenGLES).
+05-11 19:58:12.785 19369 19459 I flutter : The Dart VM service is listening on http://127.0.0.1:45269/gyS1VKD_HL4=/
+05-11 19:58:13.747 19369 19369 I flutter : Initializing Firebase
+05-11 19:58:14.206 19369 19369 I flutter : unhandled element <style/>; Picture key: Svg loader
+05-11 19:58:14.892 19369 19369 I flutter : Initializing Mixpanel
+05-11 19:58:14.945 19369 19369 I flutter : Initializing OneSignal
+05-11 19:58:14.948 19369 19369 I flutter : OneSignal.Notifications.permission
+05-11 19:58:14.956 19369 19369 I flutter : false
+05-11 19:58:14.957 19369 19369 I flutter : OneSignal.Notifications.permission::1
+05-11 19:58:14.961 19369 19369 I flutter : ═══════════════════════════════════════════
+05-11 19:58:14.962 19369 19369 I flutter : 🔴 POST REQUEST - 2026-05-11 19:58:14.959422
+05-11 19:58:14.962 19369 19369 I flutter : 📍 URL: https://api2.moolahmobile.com/getBannerAds
+05-11 19:58:14.964 19369 19369 I flutter : 📋 Headers: {X-API-VERSION: 0.0.0.1, Content-type: application/json; charset=utf-8}
+05-11 19:58:14.969 19369 19369 I flutter : 📤 Request Body:
+05-11 19:58:14.969 19369 19369 I flutter : {}
+05-11 19:58:14.970 19369 19369 I flutter : ═══════════════════════════════════════════
+05-11 19:58:17.383 19369 19369 I flutter : ✅ POST RESPONSE (2375ms)
+05-11 19:58:17.384 19369 19369 I flutter : 🔢 Status Code: 200
+05-11 19:58:17.522 19369 19369 I flutter : 📥 Response Body:
+05-11 19:58:17.522 19369 19369 I flutter : {
+05-11 19:58:17.522 19369 19369 I flutter :   "campaigns": [
+05-11 19:58:17.522 19369 19369 I flutter :     {
+05-11 19:58:17.522 19369 19369 I flutter :       "campaign_id": 133,
+05-11 19:58:17.522 19369 19369 I flutter :       "platform_campaign_id": 0,
+05-11 19:58:17.522 19369 19369 I flutter :       "advertiser_id": "37",
+05-11 19:58:17.522 19369 19369 I flutter :       "email": "admin@admin.com",
+05-11 19:58:17.522 19369 19369 I flutter :       "bid": 0.002,
+05-11 19:58:17.522 19369 19369 I flutter :       "status": "active",
+05-11 19:58:17.522 19369 19369 I flutter :       "type": "impression",
+05-11 19:58:17.522 19369 19369 I flutter :       "location": null,
+05-11 19:58:17.522 19369 19369 I flutter :       "class_name": null,
+05-11 19:58:17.522 19369 19369 I flutter :       "offer_name": "JCI Campaign",
+05-11 19:58:17.522 19369 19369 I flutter :       "app_name": "undefined",
+05-11 19:58:17.522 19369 19369 I flutter :       "link": "--",
+05-11 19:58:17.522 19369 19369 I flutter :       "expiration": "2020-12-25T12:00:00.000Z",
+05-11 19:58:17.522 19369 19369 I flutter :       "mulaah": 3,
+05-11 19:58:17.522 19369 19369 I flutter :       "description": "dummy disc",
+05-11 19:58:17.522 19369 19369 I flutter :       "icon": "--",
+05-11 19:58:17.522 19369 19369 I flutter :       "instructions": "We need leads on this ad",
+05-11 19:58:17.522 19369 19369 I flutter :       "city": "undefined",
+05-11 19:58:17.522 19369 19369 I flutter :       "state": "NWIDE",
+05-11 19:58:17.522 19369 19369 I flutter :       "banner_img": "https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media",
+05-11 19:58:17.522 19369 19369 I flutter :       "interstitial_img": "undefined",
+05-11 19:58:17.522 19369 19369 I flutter :       "installs": 0,
+05-11 19:58:17.522 19369 19369 I flutter :       "daily_limit": 0,
+05-11 19:58:17.522 19369 19369 I flutter :       "total_budget": 50,
+05-11 19:58:17.522 19369 19369 I flutter :       "banner_views": 4393795,
+05-11 19:58:17.522 19369 19369 I flutter :       "interstitial_views": 0,
+05-11 19:58:17.522 19369 19369 I flutter :       "banner_clicks": 0,
+05-11 19:58:17.522 19369 19369 I flutter :       "interstitial_clicks": 0,
+05-11 19:58:17.522 19369 19369 I flutter :       "question_1": null,
+05-11 19:58:17.522 19369 19369 I flutter :       "question_2": null,
+05-11 19:58:17.522 19369 19369 I flutter :     
+05-11 19:58:17.529 19369 19369 I flutter : ═══════════════════════════════════════════
+05-11 19:58:17.538 19369 19369 I flutter : 🔍 RESPONSE HANDLER
+05-11 19:58:17.542 19369 19369 I flutter : 📊 Status Code: 200
+05-11 19:58:17.545 19369 19369 I flutter : 📄 Body:
+05-11 19:58:17.545 19369 19369 I flutter : {
+05-11 19:58:17.545 19369 19369 I flutter :   "campaigns": [
+05-11 19:58:17.545 19369 19369 I flutter :     {
+05-11 19:58:17.545 19369 19369 I flutter :       "campaign_id": 133,
+05-11 19:58:17.545 19369 19369 I flutter :       "platform_campaign_id": 0,
+05-11 19:58:17.545 19369 19369 I flutter :       "advertiser_id": "37",
+05-11 19:58:17.545 19369 19369 I flutter :       "email": "admin@admin.com",
+05-11 19:58:17.545 19369 19369 I flutter :       "bid": 0.002,
+05-11 19:58:17.545 19369 19369 I flutter :       "status": "active",
+05-11 19:58:17.545 19369 19369 I flutter :       "type": "impression",
+05-11 19:58:17.545 19369 19369 I flutter :       "location": null,
+05-11 19:58:17.545 19369 19369 I flutter :       "class_name": null,
+05-11 19:58:17.545 19369 19369 I flutter :       "offer_name": "JCI Campaign",
+05-11 19:58:17.545 19369 19369 I flutter :       "app_name": "undefined",
+05-11 19:58:17.545 19369 19369 I flutter :       "link": "--",
+05-11 19:58:17.545 19369 19369 I flutter :       "expiration": "2020-12-25T12:00:00.000Z",
+05-11 19:58:17.545 19369 19369 I flutter :       "mulaah": 3,
+05-11 19:58:17.545 19369 19369 I flutter :       "description": "dummy disc",
+05-11 19:58:17.545 19369 19369 I flutter :       "icon": "--",
+05-11 19:58:17.545 19369 19369 I flutter :       "instructions": "We need leads on this ad",
+05-11 19:58:17.545 19369 19369 I flutter :       "city": "undefined",
+05-11 19:58:17.545 19369 19369 I flutter :       "state": "NWIDE",
+05-11 19:58:17.545 19369 19369 I flutter :       "banner_img": "https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media",
+05-11 19:58:17.545 19369 19369 I flutter :       "interstitial_img": "undefined",
+05-11 19:58:17.545 19369 19369 I flutter :       "installs": 0,
+05-11 19:58:17.545 19369 19369 I flutter :       "daily_limit": 0,
+05-11 19:58:17.545 19369 19369 I flutter :       "total_budget": 50,
+05-11 19:58:17.545 19369 19369 I flutter :       "banner_views": 4393795,
+05-11 19:58:17.545 19369 19369 I flutter :       "interstitial_views": 0,
+05-11 19:58:17.545 19369 19369 I flutter :       "banner_clicks": 0,
+05-11 19:58:17.545 19369 19369 I flutter :       "interstitial_clicks": 0,
+05-11 19:58:17.545 19369 19369 I flutter :       "question_1": null,
+05-11 19:58:17.545 19369 19369 I flutter :       "question_2": null,
+05-11 19:58:17.545 19369 19369 I flutter :       "questi
+05-11 19:58:17.548 19369 19369 I flutter : ✅ Response Status: SUCCESS
+05-11 19:58:17.550 19369 19369 I flutter : 💬 Message: 
+05-11 19:58:17.550 19369 19369 I flutter : ═══════════════════════════════════════════
+05-11 19:58:17.560 19369 19369 I flutter : loadLocalAds:::{campaigns: [{campaign_id: 133, platform_campaign_id: 0, advertiser_id: 37, email: admin@admin.com, bid: 0.002, status: active, type: impression, location: null, class_name: null, offer_name: JCI Campaign, app_name: undefined, link: --, expiration: 2020-12-25T12:00:00.000Z, mulaah: 3, description: dummy disc, icon: --, instructions: We need leads on this ad, city: undefined, state: NWIDE, banner_img: https://firebasestorage.googleapis.com/v0/b/moolahmobilesystem.appspot.com/o/Banners%2F16057016104.png?alt=media, interstitial_img: undefined, installs: 0, daily_limit: 0, total_budget: 50, banner_views: 4393795, interstitial_views: 0, banner_clicks: 0, interstitial_clicks: 0, question_1: null, question_2: null, question_3: null, question_4: null, question_5: null, question_6: null, question_7: null, question_8: null, question_9: null, question_10: null, banner_type: null, demographics_age_group: null, demographics_gender: null, demographics_ethnicity: null, currentActiveThemes: 0, image1: null, i
+05-11 19:58:17.753 19369 19369 I flutter : controller.value.size.width
+05-11 19:58:17.754 19369 19369 I flutter : Infinity
+05-11 19:58:17.755 19369 19369 I flutter : 0.0
+05-11 19:58:19.401 19369 19369 I flutter : controller.value.size.width
+05-11 19:58:19.403 19369 19369 I flutter : 0.2679787234042553
+05-11 19:58:19.403 19369 19369 I flutter : 90.684
