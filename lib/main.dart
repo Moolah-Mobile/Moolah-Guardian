@@ -20,6 +20,8 @@ import './helper/get_di/get_di.dart' as get_di;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Prefs.init();
+  // Set before anything can open the payment sheet; initSDKS() below isn't awaited.
+  Stripe.publishableKey = getStripeSecretKey();
   get_di.init();
   initSDKS();
   SystemChrome.setPreferredOrientations([
@@ -79,8 +81,6 @@ void initSDKS() async {
   ///Mixpanel
   await Get.find<MixPanelEventsController>().init();
 
-  ///Stripe
-  Stripe.publishableKey = getStripeSecretKey();
 
 }
 

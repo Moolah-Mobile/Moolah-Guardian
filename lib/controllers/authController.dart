@@ -18,6 +18,7 @@ import '../screens/main_menu_profile/screens/change_password/widget/password_res
 import '../screens/subscription_screen/subscription_screen.dart';
 import '../util/mixpanel_events.dart';
 import 'homeController.dart';
+import 'subscription_controller.dart';
 
 class AuthController extends BaseController {
   UserModel? user;
@@ -74,15 +75,17 @@ class AuthController extends BaseController {
             Prefs.lastName.set(user1?.lastName ?? "");
             Prefs.phone.set(user1?.phone ?? "");
             
-            print("--- [LOGIN] SUCCESS. Releasing UI... ---");
-            
+            print("--- [LOGIN] SUCCESS. Checking plan... ---");
+            final hasPaidPlan = await _hasPaidPlan();
+
             isLoading = false;
             update();
             
             await Future.delayed(const Duration(milliseconds: 200));
             
-            print("--- [LOGIN] Navigating to Subscription ---");
-            Get.offAllNamed(SubscriptionScreen.screenName);
+            // A parent who already pays goes straight to Home; everyone else sees the plans first.
+            print("--- [LOGIN] Navigating to ${hasPaidPlan ? "Home" : "Subscription"} ---");
+            Get.offAllNamed(hasPaidPlan ? Home.screenName : SubscriptionScreen.screenName);
             return; 
           } catch (e) {
             print("--- [LOGIN] Data Parsing Crash: $e ---");
@@ -220,12 +223,26 @@ class AuthController extends BaseController {
     }
   }
 
+  /// Loads the plan of the parent who just logged in. A slow or failed check counts as no paid plan, which
+  /// only means the plans screen is shown first.
+  Future<bool> _hasPaidPlan() async {
+    try {
+      final subscription = Get.find<SubscriptionController>();
+      await subscription.loadSubscription().timeout(const Duration(seconds: 8));
+      return subscription.currentPlan.isPaid;
+    } catch (e) {
+      print("--- [LOGIN] Plan check skipped: $e ---");
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     Prefs.accessToken.clear();
     Prefs.refreshToken.clear();
     Prefs.userId.clear();
     Prefs.isLoggedIn.clear();
     Prefs.email.clear();
+    if (Get.isRegistered<SubscriptionController>()) Get.find<SubscriptionController>().reset();
     Get.find<HomeController>().logout();
     IronSource.hideBanner();
   }

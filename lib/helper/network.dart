@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:moolah/helper/endpoints.dart';
 import 'package:moolah/helper/models/response_model.dart';
@@ -98,6 +99,13 @@ class Network {
       {http.Response? res, bool empty = false}) async {
     if (empty || res == null) {
       return ResponseModel(isSuccessful: false, message: "Network Error", data: null);
+    }
+
+    // `log()` above only reaches DevTools; print subscription responses to the console in debug builds.
+    // Login and OTP responses carry tokens, so only plan/order/subscription bodies are printed.
+    final path = res.request?.url.path ?? "";
+    if (kDebugMode && RegExp(r"^/guardian/(plans|subscription|orders)").hasMatch(path)) {
+      debugPrint("🧾 ${res.request?.method} ${res.request?.url.path} → ${res.statusCode}: ${res.body}", wrapWidth: 900);
     }
 
     print("\n🔍 RESPONSE HANDLER");

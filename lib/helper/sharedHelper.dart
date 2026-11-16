@@ -20,8 +20,9 @@ class Prefs {
   static SharedPrefValue<String> get accessToken => SharedPrefValue<String>('access_token');
   static SharedPrefValue<String> get refreshToken => SharedPrefValue<String>('refresh_token');
   static SharedPrefValue<bool> get verificationPending => SharedPrefValue<bool>('verification_pending');
-  /// The plan bought on this phone by [account], as "planId|expiry ISO date". Logout keeps it.
-  static SharedPrefValue<String> purchase(String account) => SharedPrefValue<String>('purchase_$account');
+  /// The last subscription `/guardian/subscription` returned for [account], as JSON. Only read when that call
+  /// fails, so a paid parent keeps their features through a network error.
+  static SharedPrefValue<String> subscriptionCache(String account) => SharedPrefValue<String>('subscription_cache_$account');
   static SharedPrefValue<bool> get verificationPhone => SharedPrefValue<bool>('verification_hone');
 
 

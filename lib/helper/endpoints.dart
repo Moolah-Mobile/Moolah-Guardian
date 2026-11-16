@@ -47,6 +47,9 @@ class EndPoints {
   static String submitReview = "$baseUrl/submitReview";
   static String feedback = "$baseUrl/feedback";
 
-  // Subscriptions (api2)
-  static String createSubscription = "$baseUrl/createPaymentIntent";
+  // Subscriptions (api2): monthly Stripe subscriptions tied to the guardian
+  static String guardianPlans = "$baseUrl/guardian/plans";
+  static String guardianSubscription = "$baseUrl/guardian/subscription";
+  static String createOrder(String planId) => "$baseUrl/guardian/orders/$planId";
+  static String confirmOrder(String orderId) => "$baseUrl/guardian/orders/${Uri.encodeComponent(orderId)}/confirm";
 }

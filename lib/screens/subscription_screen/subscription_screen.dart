@@ -24,12 +24,26 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
+  /// Picked by the parent, or the plan a locked feature needs (passed as the route argument).
   Plan? selected;
+  final couponController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => Get.find<SubscriptionController>().loadSubscription());
+    final wanted = Get.arguments;
+    if (wanted is Plan && wanted.isPaid) selected = wanted;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final c = Get.find<SubscriptionController>();
+      c.loadSubscription();
+      c.loadPlans();
+    });
+  }
+
+  @override
+  void dispose() {
+    couponController.dispose();
+    super.dispose();
   }
 
   void _leave() => Get.offAllNamed(Home.screenName);
@@ -83,8 +97,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       verticalSpace(12),
                       Center(child: bigHeadingText("Choose your plan", color: Colors.white)),
                       verticalSpace(14),
+                      if (c.isPastDue) ...[
+                        pastDueBanner(),
+                        verticalSpace(12),
+                      ],
                       for (final plan in Plan.values)
-                        planCard(plan, current: plan == c.currentPlan, selected: plan == choice),
+                        planCard(c, plan, current: plan == c.currentPlan, selected: plan == choice),
+                      if (_needsPayment(c, choice)) couponField(),
                       verticalSpace(8),
                     ],
                   ),
@@ -94,7 +113,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   child: CustomButton(
                     text: _buttonText(c, choice),
                     margin: EdgeInsets.zero,
-                    onTap: () => _onSubscribe(c, choice),
+                    color: _canAct(c, choice) ? null : Colors.grey.shade600,
+                    onTap: _canAct(c, choice) ? () => _onSubscribe(c, choice) : null,
                   ),
                 ),
                 verticalSpace(10),
@@ -127,38 +147,45 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   String? _renewalText(SubscriptionController c) {
     final date = c.expiresAt;
     if (!c.currentPlan.isPaid || date == null) return null;
-    return "Active until ${_date(date)}";
+    return c.cancelAtPeriodEnd ? "Ends on ${_date(date)}" : "Renews on ${_date(date)}";
   }
+
+  /// A paid plan other than the one the parent already has.
+  bool _needsPayment(SubscriptionController c, Plan choice) => choice.isPaid && choice != c.currentPlan;
+
+  /// Free with a paid plan, or the paid plan already held: there's nothing to do.
+  bool _canAct(SubscriptionController c, Plan choice) => choice == Plan.free ? !c.currentPlan.isPaid : _needsPayment(c, choice);
 
   String _buttonText(SubscriptionController c, Plan choice) {
     if (choice == Plan.free) {
       return c.currentPlan.isPaid ? "Included in your plan" : "Continue with Free";
     }
-    if (choice == c.currentPlan) return "Renew ${choice.title} (+1 month)";
+    // Plans renew every month on their own, so there's nothing to buy again.
+    if (choice == c.currentPlan) return "Your current plan";
     return c.currentPlan.isPaid ? "Switch to ${choice.title}" : "Subscribe to ${choice.title}";
   }
 
   Future<void> _onSubscribe(SubscriptionController c, Plan choice) async {
     if (choice == Plan.free) {
-      // Free needs no payment; a paid plan simply returns to Free when it runs out.
       if (!c.currentPlan.isPaid) _leave();
       return;
     }
-    if (c.currentPlan.isPaid && choice != c.currentPlan && !await _confirmSwitch(c, choice)) return;
-    final ok = await c.subscribe(choice);
-    if (ok && mounted) setState(() => selected = null);
+    if (!_needsPayment(c, choice)) return;
+    if (c.currentPlan.isPaid && !await _confirmSwitch(c, choice)) return;
+    final ok = await c.subscribe(choice, couponCode: couponController.text);
+    if (ok && mounted) {
+      couponController.clear();
+      setState(() => selected = null);
+    }
   }
 
-  /// A switch starts a fresh month on the new plan; time left on the old one isn't carried over.
   Future<bool> _confirmSwitch(SubscriptionController c, Plan choice) async {
-    final end = c.expiresAt;
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: boldText("Switch to ${choice.title}?", fontSize: 18),
         content: regularText(
-            "You'll pay ${choice.priceLabel} and get ${choice.title} for one month from today."
-            "${end == null ? "" : " Your ${c.currentPlan.title} plan (active until ${_date(end)}) ends now."}",
+            "${choice.title} costs ${c.priceLabel(choice)} and replaces your ${c.currentPlan.title} plan from today.",
             fontSize: 14),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: regularText("Cancel", fontSize: 14)),
@@ -171,6 +198,53 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     return result == true;
   }
 
+  Widget pastDueBanner() {
+    return roundedContainer(
+      color: Colors.orange.shade50,
+      borderRadius: 10,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: Colors.orange.shade800, size: 20),
+          horizontalSpace(10),
+          Expanded(
+            child: regularText(
+                "Your last payment didn't go through. Stripe will try your card again, and your plan stays active meanwhile.",
+                fontSize: 13, color: Colors.orange.shade900, fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget couponField() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: TextField(
+        key: const ValueKey("coupon_code"),
+        controller: couponController,
+        textCapitalization: TextCapitalization.characters,
+        textInputAction: TextInputAction.done,
+        style: const TextStyle(color: Colors.white),
+        cursorColor: Colors.white,
+        decoration: InputDecoration(
+          hintText: "Coupon code (optional)",
+          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+          prefixIcon: Icon(Icons.local_offer_outlined, color: Colors.white.withValues(alpha: 0.8), size: 20),
+          isDense: true,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.white, width: 1.5),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget linkText(String text, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
@@ -179,7 +253,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  Widget planCard(Plan plan, {required bool current, required bool selected}) {
+  Widget planCard(SubscriptionController c, Plan plan, {required bool current, required bool selected}) {
     return GestureDetector(
       onTap: () => setState(() => this.selected = plan),
       child: Container(
@@ -216,7 +290,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       ],
                     ),
                   ),
-                  bigHeadingText(plan.isPaid ? "\$${plan.monthlyPrice.toStringAsFixed(2)}" : "\$0",
+                  bigHeadingText(plan.isPaid ? "\$${c.priceOf(plan).toStringAsFixed(2)}" : "\$0",
                       color: Colors.white, fontSize: 18),
                   regularText("/mo", color: Colors.white, fontSize: 12),
                 ],

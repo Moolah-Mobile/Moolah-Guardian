@@ -11,6 +11,10 @@ import 'package:moolah/util/common_widgets/common_widgets.dart';
 
 bool planAllows(Feature feature) => Get.find<SubscriptionController>().allows(feature);
 
+/// The plan's price from the server when it has been loaded, otherwise the price built into the app.
+String _priceLabel(Plan plan) =>
+    Get.isRegistered<SubscriptionController>() ? Get.find<SubscriptionController>().priceLabel(plan) : plan.priceLabel;
+
 /// Runs [action] when the parent's plan includes [feature]; otherwise offers the plan that does.
 void withFeature(Feature feature, String featureName, VoidCallback action) {
   if (planAllows(feature)) {
@@ -57,13 +61,13 @@ void showUpgradeDialog(Plan plan, String reason) {
         boldText("Upgrade to ${plan.title}", fontSize: 18),
       ],
     ),
-    content: regularText("$reason ${plan.title} plan (${plan.priceLabel}).", fontSize: 14, height: 1.4),
+    content: regularText("$reason ${plan.title} plan (${_priceLabel(plan)}).", fontSize: 14, height: 1.4),
     actions: [
       TextButton(onPressed: Get.back, child: regularText("Not now", fontSize: 14)),
       TextButton(
         onPressed: () {
           Get.back();
-          Get.toNamed(SubscriptionScreen.screenName);
+          Get.toNamed(SubscriptionScreen.screenName, arguments: plan);
         },
         child: regularText("See plans", color: AppColors.normalGreen, fontSize: 14, fontWeight: FontWeight.w700),
       ),
@@ -107,7 +111,7 @@ Widget lockedFeaturePanel(Feature feature, String featureName) {
             bigSubHeading("${plan.title} Feature"),
             verticalSpace(10),
             subHeadingText(
-              "$featureName is available on the ${plan.title} plan (${plan.priceLabel}) and above.",
+              "$featureName is available on the ${plan.title} plan (${_priceLabel(plan)}) and above.",
               textAlign: TextAlign.center,
               height: 1.4,
             ),
@@ -115,7 +119,7 @@ Widget lockedFeaturePanel(Feature feature, String featureName) {
             CustomButton(
               text: "See plans",
               margin: EdgeInsets.zero,
-              onTap: () => Get.toNamed(SubscriptionScreen.screenName),
+              onTap: () => Get.toNamed(SubscriptionScreen.screenName, arguments: plan),
             ),
           ],
         ),
