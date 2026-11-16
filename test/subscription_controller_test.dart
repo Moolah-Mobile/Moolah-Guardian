@@ -232,6 +232,31 @@ void main() {
       expect(sent.last.$2, isEmpty);
     });
 
+    test('the admin coupon unlocks the plan without any server call (debug builds)', () async {
+      await loggedIn();
+      final sent = <(String, Map<String, dynamic>)>[];
+      final sheets = <PlanOrder>[];
+      final c = controller(gets: {subUrl: [ok({"data": {"plan": {"code": "free"}, "status": "active"}})]}, sent: sent, sheets: sheets);
+      expect(await c.subscribe(Plan.ultimate, couponCode: " MOOLAHGUARDIANADMIN123\$ "), isTrue);
+      expect(sent, isEmpty);
+      expect(sheets, isEmpty);
+      expect(c.currentPlan, Plan.ultimate);
+
+      // A reload from the server (still Free) keeps the unlocked plan.
+      await c.loadSubscription();
+      expect(c.currentPlan, Plan.ultimate);
+      expect(c.expiresAt, isNotNull);
+    });
+
+    test('a wrong admin-looking code goes to the server as a normal coupon', () async {
+      await loggedIn();
+      final sent = <(String, Map<String, dynamic>)>[];
+      final c = controller(posts: {orderUrl: [fail("Invalid coupon")]}, sent: sent);
+      expect(await c.subscribe(Plan.premium, couponCode: "MoolahGuardianAdmin124\$"), isFalse);
+      expect(sent.single.$1, orderUrl);
+      expect(c.currentPlan, Plan.free);
+    });
+
     test('Free and logged-out parents never create an order', () async {
       await loggedIn();
       final sent = <(String, Map<String, dynamic>)>[];

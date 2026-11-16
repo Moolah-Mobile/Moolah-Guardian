@@ -7,8 +7,10 @@ import '../apptext.dart';
 import '../colors.dart';
 
 
+/// Stripe publishable key. It must come from the same Stripe account and mode as the backend's secret key,
+/// or the payment sheet fails with "No such payment_intent". This is a LIVE key: payments are real charges.
 String getStripeSecretKey() {
-  return "pk_test_51QUUWTDaY9di1Tkb1Db9XyeaWbakztltifvDLSUnxOtzvhQ2CJLOc5sWpp2FfdgIak1QvVBHBvEJFWVrXg0FQvES00EZNYOuor";
+  return "pk_live_51KO9fgLIMfEj3HFuUuyP1STEfAwtXXjsf1W7iEozlDXaptpKLjTHqq33ajf8gtFvpzGv9v7IXKo9OaGpz3S3Ty9v000JQGtj22";
 }
 
 

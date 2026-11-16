@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:moolah/helper/models/plan.dart';
@@ -141,6 +142,11 @@ class SubscriptionController extends BaseController with WidgetsBindingObserver 
   }
 
   void _apply(Subscription sub) {
+    // Debug builds only: a plan unlocked with the admin coupon wins over a lower plan from the server.
+    if (kDebugMode) {
+      final grant = _debugGrant();
+      if (grant != null && grant.plan.index > sub.effectivePlan(DateTime.now()).index) sub = grant;
+    }
     final plan = sub.effectivePlan(DateTime.now());
     currentPlan = plan;
     expiresAt = plan.isPaid ? sub.renewsAt : null;
@@ -177,6 +183,38 @@ class SubscriptionController extends BaseController with WidgetsBindingObserver 
     }
   }
 
+  // --- Admin coupon (debug builds only) ---------------------------------------------------------------
+  // Every use below sits behind the compile-time constant `kDebugMode`, so release builds drop this code
+  // and the coupon string entirely. The unlock is stored on this phone only; the server never hears of it.
+
+  static const debugGrantLength = Duration(days: 30);
+
+  static bool _isAdminCoupon(String code) => code.trim().toLowerCase() == r"moolahguardianadmin123$";
+
+  SharedPrefValue<String>? get _debugGrantPref {
+    final account = _account;
+    return account == null ? null : SharedPrefValue<String>('debug_plan_$account');
+  }
+
+  Subscription? _debugGrant() {
+    try {
+      final parts = (_debugGrantPref?.getSafe() ?? "").split("|");
+      final expiry = parts.length > 1 ? DateTime.tryParse(parts[1]) : null;
+      if (expiry == null || !expiry.isAfter(DateTime.now())) return null;
+      return Subscription(plan: Plan.fromId(parts.first), status: "active", renewsAt: expiry);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _grantDebugPlan(Plan plan) {
+    final expiry = DateTime.now().add(debugGrantLength);
+    try {
+      _debugGrantPref?.set("${plan.id}|${expiry.toIso8601String()}");
+    } catch (_) {}
+    _apply(Subscription(plan: plan, status: "active", renewsAt: expiry));
+  }
+
   /// Loads prices from `/guardian/plans` once per session. On failure the prices in [Plan] stay.
   Future<void> loadPlans() async {
     if (prices.isNotEmpty || !_loggedIn) return;
@@ -202,6 +240,11 @@ class SubscriptionController extends BaseController with WidgetsBindingObserver 
     if (!_loggedIn) {
       errorToast("Please log in again before subscribing.");
       return false;
+    }
+    if (kDebugMode && _isAdminCoupon(couponCode)) {
+      _grantDebugPlan(plan);
+      successToast("Admin code: ${plan.title} unlocked on this phone for 30 days (debug build)");
+      return true;
     }
 
     isLoading = true;
