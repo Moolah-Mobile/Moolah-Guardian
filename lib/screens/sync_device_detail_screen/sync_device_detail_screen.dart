@@ -87,59 +87,58 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               commonAppBar(
                   heading:
                       "${kid.name?.split(" ")[0] ?? "Kid"}'s Summary"),
+              // The summary card scrolls away as the tab's list scrolls up, the tabs stay pinned, and the
+              // card comes back when the list is scrolled back to the top.
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(10.0).copyWith(bottom: 0),
-                  child: Column(
-                    children: [
-                      if (!_searchingApps) ...[
-                        headingWidget(homeController),
-                        verticalSpace(15),
-                      ],
-                      // Keyed so the tabs and the app search keep their state when the card above collapses.
-                      Expanded(
-                        key: const ValueKey("tabs_panel"),
-                        child: roundedContainer(
-                            borderRadius: 15,
-                            borderRadiusWhole: const BorderRadius.only(
-                                topLeft: Radius.circular(15),
-                                topRight: Radius.circular(15)),
-                            padding: const EdgeInsets.all(10),
-                            child: Column(
-                              children: [
-                                tabBar(),
-                                if (_tabUnlocked && !_searchingApps)
-                                  CustomButton(
-                                    text: headingText,
-                                    onTap: () {
-                                      if (tabController?.index != 1) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                BlackListScreen(kidId: widget.kidId),
-                                          ),
-                                        );
-                                      } else {
-                                        _showAddBlackListDialog();
-                                      }
-                                    },
-                                  ),
-                                verticalSpace(0),
-                                if (tabController?.index == 0)
-                                  planAllows(Feature.deleteApps)
-                                      ? appSection(homeController)
-                                      : Expanded(child: lockedFeaturePanel(Feature.deleteApps, "Deleting and blocking apps"))
-                                else if (tabController?.index == 1)
-                                  planAllows(Feature.browserHistory)
-                                      ? urlSection(homeController)
-                                      : Expanded(child: lockedFeaturePanel(Feature.browserHistory, "Browser history and URL blocking"))
-                                else if (tabController?.index == 2)
-                                  messagesSection(homeController),
-                              ],
-                            )),
+                  child: NestedScrollView(
+                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                      SliverToBoxAdapter(
+                        child: _searchingApps
+                            ? const SizedBox.shrink()
+                            : Padding(
+                                padding: const EdgeInsets.only(bottom: 15),
+                                child: headingWidget(homeController),
+                              ),
+                      ),
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: _PinnedTabBar(
+                          height: _tabBarExtent,
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                            ),
+                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                            alignment: Alignment.topCenter,
+                            child: tabBar(),
+                          ),
+                        ),
                       ),
                     ],
+                    // Keyed so the tabs' lists and the app search keep their state when the card collapses.
+                    body: Container(
+                      key: const ValueKey("tabs_panel"),
+                      color: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        children: [
+                          if (tabController?.index == 0)
+                            planAllows(Feature.deleteApps)
+                                ? appSection(homeController)
+                                : Expanded(child: lockedFeaturePanel(Feature.deleteApps, "Deleting and blocking apps"))
+                          else if (tabController?.index == 1)
+                            planAllows(Feature.browserHistory)
+                                ? urlSection(homeController)
+                                : Expanded(child: lockedFeaturePanel(Feature.browserHistory, "Browser history and URL blocking"))
+                          else if (tabController?.index == 2)
+                            messagesSection(homeController),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -148,6 +147,28 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
         ),
       );
     }));
+  }
+
+  // Height of the pinned bar: 10 top padding plus the tab bar (5 padding each side around a 46 tall TabBar).
+  static const double _tabBarExtent = 10 + 56 + 6;
+
+  /// "Block Apps" or "Add Black List URL" at the top of the tab's list, so it scrolls away with it.
+  Widget _tabActionButton() {
+    if (!_tabUnlocked) return const SizedBox.shrink();
+    return CustomButton(
+      text: headingText,
+      margin: const EdgeInsets.only(bottom: 10),
+      onTap: () {
+        if (tabController?.index != 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => BlackListScreen(kidId: widget.kidId)),
+          );
+        } else {
+          _showAddBlackListDialog();
+        }
+      },
+    );
   }
 
   /// The Messages tab has no button, and a locked tab shows its upgrade panel instead.
@@ -243,6 +264,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           // Keep these children fixed while searching: removing rows above the search field rebuilds it
           // and closes the keyboard.
           children: [
+            _tabActionButton(),
             comingSoonTile(Icons.location_on_outlined, "Delete apps by location and time"),
             comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
             verticalSpace(10),
@@ -405,6 +427,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
         child: ListView(
           padding: const EdgeInsets.only(bottom: adBannerSpace),
           children: [
+            _tabActionButton(),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16)
                   .copyWith(bottom: 15, top: 0),
@@ -925,4 +948,26 @@ class _WipeConfirmDialogState extends State<_WipeConfirmDialog> {
       ],
     );
   }
+}
+
+/// Keeps the tab bar pinned under the screen title while the summary card scrolls away.
+class _PinnedTabBar extends SliverPersistentHeaderDelegate {
+  _PinnedTabBar({required this.height, required this.child});
+
+  final double height;
+  final Widget child;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) =>
+      SizedBox.expand(child: child);
+
+  // The tab bar's labels and selection change with the screen's state, so always rebuild it.
+  @override
+  bool shouldRebuild(covariant _PinnedTabBar oldDelegate) => true;
 }
