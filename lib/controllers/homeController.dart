@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/baseController.dart';
 import 'package:moolah/helper/endpoints.dart';
@@ -376,6 +377,10 @@ class HomeController extends BaseController {
   /// The device for [kidId], or null. Never another device.
   Kid? findKid(String kidId) {
     final index = getSelectedKidIndex(kidId);
+    if (index < 0 && kDebugMode) {
+      debugPrint("--- [DEVICES] No device for '$kidId'; list has "
+          "${connectedKids.map((k) => "kidId=${k.kidId} connectId=${k.connectId}").toList()} ---");
+    }
     return index < 0 ? null : connectedKids[index];
   }
 

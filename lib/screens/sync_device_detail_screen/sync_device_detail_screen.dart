@@ -111,6 +111,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     _releaseSearchFocusWhenKeyboardCloses();
     _syncBannerWithSearch(_searchingApps);
     return GetBuilder<SubscriptionController>(builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
+      if (homeController.findKid(widget.kidId) == null) {
+        return deviceUnavailable(context, homeController);
+      }
       final kid = homeController.getSelectedKid(widget.kidId);
       return CommonGradientBackground(
         // Resize only for the app search; the dialogs' fields move above the keyboard on their own.
@@ -204,6 +207,53 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           _showAddBlackListDialog();
         }
       },
+    );
+  }
+
+  /// Shown instead of the summary when this device isn't in the device list (for example while the list
+  /// reloads). Drawing the summary for a missing device used to crash, or show another device's data.
+  Widget deviceUnavailable(BuildContext context, HomeController homeController) {
+    return CommonGradientBackground(
+      child: Loader(
+        c: homeController,
+        child: Column(
+          children: [
+            verticalSpace(20),
+            commonAppBar(heading: "Device"),
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: roundedContainer(
+                    borderRadius: 15,
+                    padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.phonelink_off, size: 44, color: AppColors.grey),
+                        verticalSpace(14),
+                        bigSubHeading("This device isn't available right now"),
+                        verticalSpace(10),
+                        subHeadingText(
+                          "It isn't in your device list at the moment. Go back to Home and open it again.",
+                          textAlign: TextAlign.center,
+                          height: 1.4,
+                        ),
+                        verticalSpace(18),
+                        CustomButton(
+                          text: "Go back",
+                          margin: EdgeInsets.zero,
+                          onTap: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -691,7 +741,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      bigSubHeading(kid.name),
+                      bigSubHeading(kid.name ?? ""),
                       iconText(AppImages.clock, "Active ${kid.lastActive}",
                           isItalic: true),
                     ],

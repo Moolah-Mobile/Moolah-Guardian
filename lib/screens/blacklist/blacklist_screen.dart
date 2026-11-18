@@ -58,9 +58,17 @@ class _BlackListScreenState extends State<BlackListScreen> {
           c: homeController,
           child: apps.isEmpty
               ? Center(
-                  child: regularText(
-                      homeController.isLoading ? "" : "No apps found on this device",
-                      color: AppColors.grey))
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: regularText(
+                        homeController.isLoading
+                            ? ""
+                            : homeController.findKid(widget.kidId) == null
+                                ? "This device isn't in your device list right now. Go back to Home and open it again."
+                                : "No apps found on this device",
+                        color: AppColors.grey,
+                        textAlign: TextAlign.center),
+                  ))
               : ListView(
                   padding: const EdgeInsets.only(top: 10, bottom: adBannerSpace),
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

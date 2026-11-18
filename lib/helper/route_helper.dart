@@ -45,11 +45,11 @@ class RouteHelper {
     EnterUsernameSignUp.screenName: (_) => const EnterUsernameSignUp(),
     SubscriptionScreen.screenName: (_) => const SubscriptionScreen(),
     Home.screenName: (_) => const Home(),
-    Login.screenName: (_) => Login(fromSignup: Get.arguments?["fromSignup"] ?? false),
-    EnterEmailLogin.screenName: (_) => EnterEmailLogin(fromSignup: Get.arguments?["fromEnterEmailSignUp"] ?? false),
-    EnterPasswordLogin.screenName: (_) => EnterPasswordLogin(fromSignup: Get.arguments?["fromSignup"] ?? false),
+    Login.screenName: (c) => Login(fromSignup: _args(c)?["fromSignup"] ?? false),
+    EnterEmailLogin.screenName: (c) => EnterEmailLogin(fromSignup: _args(c)?["fromEnterEmailSignUp"] ?? false),
+    EnterPasswordLogin.screenName: (c) => EnterPasswordLogin(fromSignup: _args(c)?["fromSignup"] ?? false),
     ConnectDeviceScreen.screenName: (_) => const ConnectDeviceScreen(),
-    SyncDeviceDetailScreen.screenName: (_) => SyncDeviceDetailScreen(kidId: Get.arguments?["kidId"] ?? ""),
+    SyncDeviceDetailScreen.screenName: (c) => SyncDeviceDetailScreen(kidId: _args(c)?["kidId"]?.toString() ?? ""),
     MainMenuProfile.screenName: (_) => const MainMenuProfile(),
     Profile.screenName: (_) => const Profile(),
     EditProfile.screenName: (_) => const EditProfile(),
@@ -59,14 +59,22 @@ class RouteHelper {
     CheckYourEmail.screenName: (_) => const CheckYourEmail(),
     VerifyResetOTPScreen.screenName: (_) => const VerifyResetOTPScreen(),
     OtpVerification.screenName: (_) => const OtpVerification(),
-    LiveLocation.screenName: (_) => LiveLocation(
-          lat: (Get.arguments?["lat"] as num?)?.toDouble(),
-          long: (Get.arguments?["long"] as num?)?.toDouble(),
-          deviceId: Get.arguments?["deviceId"]?.toString() ?? "",
+    LiveLocation.screenName: (c) => LiveLocation(
+          lat: (_args(c)?["lat"] as num?)?.toDouble(),
+          long: (_args(c)?["long"] as num?)?.toDouble(),
+          deviceId: _args(c)?["deviceId"]?.toString() ?? "",
         ),
     FeedbackScreen.screenName: (_) => const FeedbackScreen(),
     ContactUsScreen.screenName: (_) => const ContactUsScreen(),
     PrivacyScreen.screenName: (_) => const PrivacyScreen(),
     TutorialScreen.screenName: (_) => const TutorialScreen(),
   };
+}
+
+/// The arguments this route was opened with. `Get.arguments` holds the arguments of the latest navigation,
+/// so a page rebuilt after another screen opened (for example Blocked Apps) lost its own: the device summary
+/// then had no device ID, crashed, and earlier sent actions to the first device in the list.
+Map? _args(BuildContext context) {
+  final arguments = ModalRoute.of(context)?.settings.arguments;
+  return arguments is Map ? arguments : null;
 }
