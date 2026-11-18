@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -50,6 +51,11 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               routes: RouteHelper.routes,
               initialRoute: Splash.screenName,
+              // Debug builds print GetX's route and controller create/delete messages to logcat.
+              enableLog: kDebugMode,
+              logWriterCallback: (text, {bool isError = false}) {
+                if (kDebugMode) debugPrint("[GETX] $text");
+              },
             ),
             adController.optionalAdWidget()
           ],
@@ -89,6 +95,9 @@ void initSDKS() async {
 void initCrashlytics() {
 
   FlutterError.onError = (errorDetails) {
+      // Debug builds also print the error and its stack to the console (logcat); otherwise only
+      // Crashlytics sees it.
+      if (kDebugMode) FlutterError.presentError(errorDetails);
       FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
   };
 }
