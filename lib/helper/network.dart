@@ -16,7 +16,7 @@ class Network {
     print("🔵 GET REQUEST - $timestamp");
     print("📍 URL: $url");
     final headers = getHeaders(url);
-    print("📋 Headers: $headers");
+    print("📋 Headers: ${_loggableHeaders(headers)}");
     print("$_logHeader");
 
     try {
@@ -45,7 +45,7 @@ class Network {
     print("🔴 POST REQUEST - $timestamp");
     print("📍 URL: $url");
     final headers = getHeaders(url);
-    print("📋 Headers: $headers");
+    print("📋 Headers: ${_loggableHeaders(headers)}");
     log("📤 Request Body:\n${_formatJson(jsonEncode(body))}");
     _printMdmBody(url, "📤 MDM Request Body:", jsonEncode(body));
     print("$_logHeader");
@@ -84,6 +84,15 @@ class Network {
         : body;
     debugPrint("$label $text", wrapWidth: 900);
   }
+
+  // The MDM key and the parent's login token must never reach the device log: `print` also writes to
+  // logcat in release builds, where anyone with adb access to the phone could read them.
+  static const _secretHeaders = {"x-api-key", "authorization"};
+
+  static Map<String, String> _loggableHeaders(Map<String, String> headers) => {
+        for (final e in headers.entries)
+          e.key: _secretHeaders.contains(e.key.toLowerCase()) ? "<hidden>" : e.value,
+      };
 
   static String _formatJson(String jsonString) {
     try {
