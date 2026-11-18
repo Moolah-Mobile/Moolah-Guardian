@@ -17,6 +17,7 @@ import '../../controllers/subscription_controller.dart';
 import '../../helper/models/device_detail_model.dart';
 import '../../helper/models/plan.dart';
 import '../../util/common_widgets/plan_gate.dart';
+import '../../util/common_widgets/app_search_field.dart';
 import '../../helper/models/kids_model.dart';
 import '../../util/apptext.dart';
 import '../../util/common_widgets/CommonGradientBackground.dart';
@@ -37,10 +38,26 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   TabController? tabController;
   String headingText = "Black List App";
   int prevIndex = 0;
+  final appSearch = TextEditingController();
+  final appSearchFocus = FocusNode();
+  String appQuery = "";
+
+  // While the parent types in the app search, the summary card collapses so the list fits above the keyboard.
+  // It comes back as soon as the keyboard closes, even if the field keeps focus (Android's Back key).
+  bool get _searchingApps => appSearchFocus.hasFocus && MediaQuery.of(context).viewInsets.bottom > 0;
+
+  @override
+  void dispose() {
+    appSearch.dispose();
+    appSearchFocus.dispose();
+    tabController?.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    appSearchFocus.addListener(() => setState(() {}));
     // initAPIS updates HomeController (loader state), which is not allowed while this screen is building.
     WidgetsBinding.instance.addPostFrameCallback((_) => initAPIS());
     tabController = TabController(length: 3, vsync: this);
@@ -60,7 +77,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     return GetBuilder<SubscriptionController>(builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
       final kid = homeController.getSelectedKid(widget.kidId);
       return CommonGradientBackground(
-        resizeForKeyboard: false,
+        // Resize only for the app search; the dialogs' fields move above the keyboard on their own.
+        resizeForKeyboard: _searchingApps,
         child: Loader(
           c: homeController,
           child: Column(
@@ -74,9 +92,13 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   padding: const EdgeInsets.all(10.0).copyWith(bottom: 0),
                   child: Column(
                     children: [
-                      headingWidget(homeController),
-                      verticalSpace(15),
+                      if (!_searchingApps) ...[
+                        headingWidget(homeController),
+                        verticalSpace(15),
+                      ],
+                      // Keyed so the tabs and the app search keep their state when the card above collapses.
                       Expanded(
+                        key: const ValueKey("tabs_panel"),
                         child: roundedContainer(
                             borderRadius: 15,
                             borderRadiusWhole: const BorderRadius.only(
@@ -86,7 +108,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                             child: Column(
                               children: [
                                 tabBar(),
-                                if (_tabUnlocked)
+                                if (_tabUnlocked && !_searchingApps)
                                   CustomButton(
                                     text: headingText,
                                     onTap: () {
@@ -209,21 +231,43 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     final apps = kid.installedApps.isNotEmpty
         ? kid.installedApps
         : (kid.deviceDetail?.data?.apps ?? []);
+    final shown = apps.where((a) => appMatchesQuery(a, appQuery)).toList();
+    final filtering = appQuery.trim().isNotEmpty;
     return Expanded(
+      key: const ValueKey("apps_section"),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView(
           padding: const EdgeInsets.only(bottom: adBannerSpace),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          // Keep these children fixed while searching: removing rows above the search field rebuilds it
+          // and closes the keyboard.
           children: [
             comingSoonTile(Icons.location_on_outlined, "Delete apps by location and time"),
             comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
             verticalSpace(10),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16)
-                  .copyWith(bottom: 25, top: 0),
-              child: boldText('All Apps', fontSize: 18),
+              padding: const EdgeInsets.only(bottom: 12),
+              child: boldText(filtering ? 'All Apps · ${shown.length} of ${apps.length}' : 'All Apps',
+                  fontSize: 18),
             ),
-            for (final app in apps)
+            if (apps.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: AppSearchField(
+                  controller: appSearch,
+                  focusNode: appSearchFocus,
+                  onChanged: (value) => setState(() => appQuery = value),
+                ),
+              ),
+            if (filtering && shown.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: regularText('No apps match "${appQuery.trim()}"', color: AppColors.grey, fontSize: 14),
+                ),
+              ),
+            for (final app in shown)
               appItem(app,
                   kidId: widget.kidId,
                   blocked: kid.blockedPackages.contains(app.packageName)),

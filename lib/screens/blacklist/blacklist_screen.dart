@@ -6,6 +6,7 @@ import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
+import 'package:moolah/util/common_widgets/app_search_field.dart';
 import 'package:moolah/util/common_widgets/loader.dart';
 
 class BlackListScreen extends StatefulWidget {
@@ -17,6 +18,15 @@ class BlackListScreen extends StatefulWidget {
 }
 
 class _BlackListScreenState extends State<BlackListScreen> {
+  final search = TextEditingController();
+  String query = "";
+
+  @override
+  void dispose() {
+    search.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +50,7 @@ class _BlackListScreenState extends State<BlackListScreen> {
         }
       }
       apps.sort((a, b) => (a.appName ?? "").toLowerCase().compareTo((b.appName ?? "").toLowerCase()));
+      final shown = apps.where((a) => appMatchesQuery(a, query)).toList();
       return Scaffold(
         appBar: _buildAppBar(),
         backgroundColor: Colors.white,
@@ -52,6 +63,7 @@ class _BlackListScreenState extends State<BlackListScreen> {
                       color: AppColors.grey))
               : ListView(
                   padding: const EdgeInsets.only(top: 10, bottom: adBannerSpace),
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
@@ -60,7 +72,22 @@ class _BlackListScreenState extends State<BlackListScreen> {
                           color: AppColors.grey,
                           fontSize: 13),
                     ),
-                    for (final app in apps)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                      child: AppSearchField(
+                        controller: search,
+                        onChanged: (value) => setState(() => query = value),
+                      ),
+                    ),
+                    if (shown.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: regularText('No apps match "${query.trim()}"',
+                              color: AppColors.grey, fontSize: 14),
+                        ),
+                      ),
+                    for (final app in shown)
                       appItem(app, kid.blockedPackages.contains(app.packageName)),
                   ],
                 ),
