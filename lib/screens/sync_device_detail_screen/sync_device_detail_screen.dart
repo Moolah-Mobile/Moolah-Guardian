@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/homeController.dart';
+import 'package:ironsource_mediation/ironsource_mediation.dart';
 import 'package:moolah/screens/blacklist/blacklist_screen.dart';
 import 'package:moolah/screens/sync_device_detail_screen/screens/live_location.dart';
 import 'package:moolah/util/colors.dart';
@@ -46,8 +47,41 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   // It comes back as soon as the keyboard closes, even if the field keeps focus (Android's Back key).
   bool get _searchingApps => appSearchFocus.hasFocus && MediaQuery.of(context).viewInsets.bottom > 0;
 
+  // The ad banner floats just above the keyboard and would cover the search results, so it is hidden
+  // while searching and shown again when the keyboard closes.
+  bool _bannerHiddenForSearch = false;
+
+  // Once the search keyboard has been shown and is closed again (Android's Back key), the field gives up
+  // focus, so the keyboard doesn't pop up by itself when the parent comes back from another screen.
+  bool _searchKeyboardShown = false;
+
+  void _releaseSearchFocusWhenKeyboardCloses() {
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+    if (appSearchFocus.hasFocus && keyboardOpen) {
+      _searchKeyboardShown = true;
+    } else if (appSearchFocus.hasFocus && !keyboardOpen && _searchKeyboardShown) {
+      _searchKeyboardShown = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) => appSearchFocus.unfocus());
+    } else if (!appSearchFocus.hasFocus) {
+      _searchKeyboardShown = false;
+    }
+  }
+
+  void _syncBannerWithSearch(bool searching) {
+    if (searching == _bannerHiddenForSearch) return;
+    _bannerHiddenForSearch = searching;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (searching) {
+        IronSource.hideBanner();
+      } else {
+        IronSource.displayBanner();
+      }
+    });
+  }
+
   @override
   void dispose() {
+    if (_bannerHiddenForSearch) IronSource.displayBanner();
     appSearch.dispose();
     appSearchFocus.dispose();
     tabController?.dispose();
@@ -74,6 +108,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    _releaseSearchFocusWhenKeyboardCloses();
+    _syncBannerWithSearch(_searchingApps);
     return GetBuilder<SubscriptionController>(builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
       final kid = homeController.getSelectedKid(widget.kidId);
       return CommonGradientBackground(
@@ -254,45 +290,57 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
         : (kid.deviceDetail?.data?.apps ?? []);
     final shown = apps.where((a) => appMatchesQuery(a, appQuery)).toList();
     final filtering = appQuery.trim().isNotEmpty;
+    // While typing, results start right under the search box; with the keyboard closed, Block Apps and the
+    // rest of the tab are back.
+    final compact = _searchingApps;
     return Expanded(
       key: const ValueKey("apps_section"),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: ListView(
-          padding: const EdgeInsets.only(bottom: adBannerSpace),
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          // Keep these children fixed while searching: removing rows above the search field rebuilds it
-          // and closes the keyboard.
+        child: Column(
           children: [
-            _tabActionButton(),
-            comingSoonTile(Icons.location_on_outlined, "Delete apps by location and time"),
-            comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
-            verticalSpace(10),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: boldText(filtering ? 'All Apps · ${shown.length} of ${apps.length}' : 'All Apps',
-                  fontSize: 18),
-            ),
+            // The search box sits above the list, outside it, so rows above the results can come and go
+            // without rebuilding the field and closing the keyboard.
             if (apps.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(top: 6, bottom: 10),
                 child: AppSearchField(
                   controller: appSearch,
                   focusNode: appSearchFocus,
                   onChanged: (value) => setState(() => appQuery = value),
                 ),
               ),
-            if (filtering && shown.isEmpty)
+            Expanded(
+              child: ListView(
+                // No room is needed for the ad banner while it is hidden for the keyboard.
+                padding: EdgeInsets.only(bottom: _searchingApps ? 16 : adBannerSpace),
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                children: [
+                  if (!compact) ...[
+                    _tabActionButton(),
+                    comingSoonTile(Icons.location_on_outlined, "Delete apps by location and time"),
+                    comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
+                    verticalSpace(10),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: boldText(filtering ? 'All Apps · ${shown.length} of ${apps.length}' : 'All Apps',
+                        fontSize: 18),
+                  ),
+                  if (filtering && shown.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: regularText('No apps match "${appQuery.trim()}"', color: AppColors.grey, fontSize: 14),
                 ),
               ),
-            for (final app in shown)
-              appItem(app,
-                  kidId: widget.kidId,
-                  blocked: kid.blockedPackages.contains(app.packageName)),
+                  for (final app in shown)
+                    appItem(app,
+                        kidId: widget.kidId,
+                        blocked: kid.blockedPackages.contains(app.packageName)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
