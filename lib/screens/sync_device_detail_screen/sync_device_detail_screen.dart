@@ -36,7 +36,7 @@ class SyncDeviceDetailScreen extends StatefulWidget {
 class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     with SingleTickerProviderStateMixin {
   TabController? tabController;
-  String headingText = "Black List App";
+  String headingText = "Block Apps";
   int prevIndex = 0;
   final appSearch = TextEditingController();
   final appSearchFocus = FocusNode();
@@ -65,7 +65,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
       final currentIndex = tabController?.index;
       if (currentIndex != prevIndex) {
         setState(() {
-          headingText = currentIndex == 0 ? "Black List App" : "Add Black List URL";
+          headingText = currentIndex == 0 ? "Block Apps" : "Add Black List URL";
         });
         prevIndex = currentIndex ?? 0;
       }
