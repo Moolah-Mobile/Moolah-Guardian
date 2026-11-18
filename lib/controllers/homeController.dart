@@ -61,27 +61,27 @@ class HomeController extends BaseController {
   }
 
   Future<void> getDeviceDetail({required String kidId}) async {
-    if (connectedKids.isEmpty) return;
-    int index = getSelectedKidIndex(kidId);
-    ResponseModel responseModel = await HomeRepo.getSingleDeviceDetail(connectedKids[index].kidId ?? kidId);
+    final kid = findKid(kidId);
+    if (kid == null) return;
+    ResponseModel responseModel = await HomeRepo.getSingleDeviceDetail(kid.kidId ?? kidId);
 
     if (responseModel.isSuccessful && responseModel.data != null) {
       final deviceJson = responseModel.data["data"];
 
       // getSingleDeviceDetail has no apps, usage or location, so it must not replace the getDeviceDetails result.
-      connectedKids[index].deviceDetail ??= DeviceDetail.fromJson(responseModel.data);
-      
+      kid.deviceDetail ??= DeviceDetail.fromJson(responseModel.data);
+
       if (deviceJson != null) {
         if (deviceJson["batteryPct"] != null) {
-          connectedKids[index].batteryStatus = deviceJson["batteryPct"].toString();
+          kid.batteryStatus = deviceJson["batteryPct"].toString();
         }
         if (deviceJson["lastSeenAt"] != null) {
           try {
             DateTime lastSeen = DateTime.parse(deviceJson["lastSeenAt"]);
             Duration diff = DateTime.now().difference(lastSeen);
-            connectedKids[index].lastActive = "${diff.inMinutes}m ago";
+            kid.lastActive = "${diff.inMinutes}m ago";
           } catch (e) {
-            connectedKids[index].lastActive = "Now";
+            kid.lastActive = "Now";
           }
         }
       }
@@ -89,7 +89,11 @@ class HomeController extends BaseController {
     update();
   }
 
-  String connectIdFor(String kidId) => getSelectedKid(kidId).connectId ?? kidId;
+  /// The connect ID of the device for [kidId], or null when that device isn't in the list.
+  String? connectIdFor(String kidId) {
+    final kid = findKid(kidId);
+    return kid == null ? null : _connectIdOf(kid);
+  }
 
   Future<void> blacklistApp({required String kidId, required String appPackage}) =>
       setAppBlocked(kidId: kidId, appPackage: appPackage, blocked: true);
@@ -122,10 +126,12 @@ class HomeController extends BaseController {
   }
 
   Future<void> setAppBlocked({required String kidId, required String appPackage, required bool blocked}) async {
-    if (connectedKids.isEmpty || (blocked && isProtectedApp(appPackage))) return;
+    if (blocked && isProtectedApp(appPackage)) return;
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
-    final connectId = connectIdFor(kidId);
+    final connectId = _connectIdOf(kid);
 
     // setDeviceRestrictions replaces the device's whole rule list, so start from the current rules.
     ResponseModel current = await HomeRepo.getDeviceRestrictions(connectId);
@@ -163,18 +169,18 @@ class HomeController extends BaseController {
 
     apiToast(res);
     if (res.isSuccessful) {
-      connectedKids[getSelectedKidIndex(kidId)].blockedPackages = packages.toSet();
+      kid.blockedPackages = packages.toSet();
     }
     isLoading = false;
     update();
   }
 
   Future<void> getInstalledApps({required String kidId}) async {
-    if (connectedKids.isEmpty) return;
+    final kid = findKid(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
-    final connectId = connectIdFor(kidId);
-    final kid = connectedKids[getSelectedKidIndex(kidId)];
+    final connectId = _connectIdOf(kid);
 
     ResponseModel appsRes = await HomeRepo.getInstalledApps(connectId);
     if (appsRes.isSuccessful) {
@@ -197,21 +203,21 @@ class HomeController extends BaseController {
   }
 
   Future<void> getNetworkHistory({required String kidId}) async {
-    if (connectedKids.isEmpty) return;
-    ResponseModel res = await HomeRepo.getNetworkHistory(connectIdFor(kidId));
+    final kid = findKid(kidId);
+    if (kid == null) return;
+    ResponseModel res = await HomeRepo.getNetworkHistory(_connectIdOf(kid));
     if (res.isSuccessful && res.data?["data"] is Map) {
-      connectedKids[getSelectedKidIndex(kidId)].networkHistory =
-          NetworkHistory.fromJson(Map<String, dynamic>.from(res.data["data"]));
+      kid.networkHistory = NetworkHistory.fromJson(Map<String, dynamic>.from(res.data["data"]));
     }
     update();
   }
 
   Future<void> sendDeviceAction({required String kidId, required String action, required String successMessage}) async {
-    if (connectedKids.isEmpty) return;
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
-    ResponseModel res = await HomeRepo.sendActionToDevice(
-        action: action, deviceId: getSelectedKid(kidId).kidId ?? kidId);
+    ResponseModel res = await HomeRepo.sendActionToDevice(action: action, deviceId: kid.kidId!);
     isLoading = false;
     update();
     if (res.isSuccessful) {
@@ -223,11 +229,12 @@ class HomeController extends BaseController {
 
   /// Asks the MDM to factory reset the child's device. Everything on it is erased once it is online.
   Future<void> wipeDevice({required String kidId}) async {
-    if (connectedKids.isEmpty) return;
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
     ResponseModel res = await HomeRepo.wipeDevice(
-        connectId: connectIdFor(kidId), externalMoolahId: Prefs.userId.get());
+        connectId: _connectIdOf(kid), externalMoolahId: Prefs.userId.get());
     isLoading = false;
     update();
     if (res.isSuccessful) {
@@ -240,20 +247,19 @@ class HomeController extends BaseController {
   }
 
   Future<void> deleteApp({required String kidId, required String appPackage}) async {
-    if (connectedKids.isEmpty ||
-        isProtectedApp(appPackage) ||
-        isSystemApp(App(pkg: appPackage))) return;
+    if (isProtectedApp(appPackage) || isSystemApp(App(pkg: appPackage))) return;
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
 
     ResponseModel res = await HomeRepo.deleteApp(
-      connectId: connectIdFor(kidId),
+      connectId: _connectIdOf(kid),
       packageName: appPackage
     );
 
     if (res.isSuccessful) {
       // The MDM's app reports still list the app until the device reports again, so drop it here.
-      final kid = connectedKids[getSelectedKidIndex(kidId)];
       kid.installedApps.removeWhere((app) => app.pkg == appPackage);
       kid.deviceDetail?.data?.apps?.removeWhere((app) => app.pkg == appPackage);
     }
@@ -267,12 +273,12 @@ class HomeController extends BaseController {
   }
 
   Future<void> getAppUsage({required String kidId}) async {
-    if (connectedKids.isEmpty) return;
+    final kid = findKid(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
-    ResponseModel res = await HomeRepo.getAppUsage(connectIdFor(kidId));
+    ResponseModel res = await HomeRepo.getAppUsage(_connectIdOf(kid));
     if (res.isSuccessful && res.data != null) {
-      final kid = connectedKids[getSelectedKidIndex(kidId)];
       kid.deviceDetail = DeviceDetail.fromJson(res.data);
       for (final app in kid.deviceDetail?.data?.apps ?? <App>[]) {
         if (app.pkg != null && app.name != null) kid.appNames[app.pkg!] = app.name!;
@@ -283,26 +289,28 @@ class HomeController extends BaseController {
   }
 
   Future<void> enableMSMSMonitoring({required String kidId, required bool value}) async {
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
-    ResponseModel res = await SingleKidRepo.enableMSMSMonitoring(kidId: getSelectedKid(kidId).kidUserId ?? kidId, enable: value);
+    ResponseModel res = await SingleKidRepo.enableMSMSMonitoring(kidId: kid.kidUserId ?? kidId, enable: value);
     apiToast(res);
-    if(res.isSuccessful) {
-       int index = getSelectedKidIndex(kidId);
-       connectedKids[index].msmsMonitoringStatus = value;
+    if (res.isSuccessful) {
+      kid.msmsMonitoringStatus = value;
     }
     isLoading = false;
     update();
   }
 
   Future<void> enableWallet({required String kidId, required bool value}) async {
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
-    ResponseModel res = await SingleKidRepo.enableWallet(kidId: getSelectedKid(kidId).kidUserId ?? kidId, enable: value);
+    ResponseModel res = await SingleKidRepo.enableWallet(kidId: kid.kidUserId ?? kidId, enable: value);
     apiToast(res);
-    if(res.isSuccessful) {
-      int index = getSelectedKidIndex(kidId);
-      connectedKids[index].walletEnabled = value;
+    if (res.isSuccessful) {
+      kid.walletEnabled = value;
     }
     isLoading = false;
     update();
@@ -310,39 +318,43 @@ class HomeController extends BaseController {
 
   Future<void> getMSMSMonitoringStatus({required String kidId}) async {
     ResponseModel responseModel = await SingleKidRepo.getMSMSMonitoringStatus(kidId: kidId);
-    if(responseModel.isSuccessful && responseModel.data != null) {
-      int index = getSelectedKidIndex(kidId);
-      connectedKids[index].msmsMonitoringStatus = responseModel.data["msmsMonitoringStatus"];
+    final kid = findKid(kidId);
+    if (kid != null && responseModel.isSuccessful && responseModel.data != null) {
+      kid.msmsMonitoringStatus = responseModel.data["msmsMonitoringStatus"];
     }
     update();
   }
 
   Future<void> getWalletStatus({required String kidId}) async {
     ResponseModel responseModel = await SingleKidRepo.getWalletStatus(kidId: kidId);
-    if(responseModel.isSuccessful && responseModel.data != null) {
-      int index = getSelectedKidIndex(kidId);
-      connectedKids[index].walletEnabled = responseModel.data["walletEnabled"];
+    final kid = findKid(kidId);
+    if (kid != null && responseModel.isSuccessful && responseModel.data != null) {
+      kid.walletEnabled = responseModel.data["walletEnabled"];
     }
     update();
   }
 
   Future<void> getBlacklistUrls({String? kidId}) async {
     if (kidId == null) return;
-    ResponseModel responseModel = await SingleKidRepo.getBlacklistUrls(kidId: getSelectedKid(kidId).kidUserId ?? "");
+    final kid = findKid(kidId);
+    if (kid == null) return;
+    ResponseModel responseModel = await SingleKidRepo.getBlacklistUrls(kidId: kid.kidUserId ?? "");
     if (responseModel.isSuccessful && responseModel.data != null) {
-      connectedKids[getSelectedKidIndex(kidId)].blockedUrls = BlockedUrlModel.fromJson(responseModel.data);
+      kid.blockedUrls = BlockedUrlModel.fromJson(responseModel.data);
     }
     update();
   }
 
   Future<void> addBlacklistUrl({String? kidId, String? url}) async {
-    if(kidId == null || (url ?? "").isEmpty) return;
+    if (kidId == null || (url ?? "").isEmpty) return;
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return;
     isLoading = true;
     update();
-    ResponseModel responseModel = await SingleKidRepo.addBlacklistUrl(kidId: connectedKids[getSelectedKidIndex(kidId)].kidUserId, url: url);
+    ResponseModel responseModel = await SingleKidRepo.addBlacklistUrl(kidId: kid.kidUserId, url: url);
     apiToast(responseModel);
-    if(responseModel.isSuccessful){
-      connectedKids[getSelectedKidIndex(kidId)].blockedUrls?.blockedUrlsData?.blockedUrls?.add(url ?? "");
+    if (responseModel.isSuccessful) {
+      kid.blockedUrls?.blockedUrlsData?.blockedUrls?.add(url ?? "");
     }
     isLoading = false;
     update();
@@ -356,16 +368,31 @@ class HomeController extends BaseController {
     return []; 
   }
 
-  int getSelectedKidIndex(String kidId) {
-    for (int i = 0; i < connectedKids.length; i++) {
-      if (kidId == connectedKids[i].kidId || kidId == connectedKids[i].connectId) {
-        return i;
-      }
-    }
-    return 0;
+  /// Index of the device whose MDM device number or connect ID is [kidId], or -1. This used to fall back to
+  /// the first device, which sent actions (uninstall, block, reboot, wipe) to the wrong child's device.
+  int getSelectedKidIndex(String kidId) => connectedKids
+      .indexWhere((kid) => kid.kidId != null && (kidId == kid.kidId || kidId == kid.connectId));
+
+  /// The device for [kidId], or null. Never another device.
+  Kid? findKid(String kidId) {
+    final index = getSelectedKidIndex(kidId);
+    return index < 0 ? null : connectedKids[index];
   }
 
-  Kid getSelectedKid(String kidId) => connectedKids[getSelectedKidIndex(kidId)];
+  /// For screens: the device, or an empty placeholder, so a screen never shows another device's data.
+  Kid getSelectedKid(String kidId) => findKid(kidId) ?? Kid(kidId: kidId);
+
+  /// For anything that changes a device: the device, or null after telling the parent why nothing was sent.
+  Kid? _deviceForAction(String kidId) {
+    final kid = findKid(kidId);
+    if (kid == null) {
+      errorToast("This device isn't in your device list right now, so nothing was sent. "
+          "Go back to Home and open it again.");
+    }
+    return kid;
+  }
+
+  static String _connectIdOf(Kid kid) => kid.connectId ?? kid.kidId!;
 
   void logout() {
     connectedKids.clear();

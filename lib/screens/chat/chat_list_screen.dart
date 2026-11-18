@@ -22,7 +22,7 @@ class ChatListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(
       builder: (homeController) {
-        List<ThreadModel> threads = homeController.connectedKids[homeController.getSelectedKidIndex(kidId)].threads;
+        List<ThreadModel> threads = homeController.getSelectedKid(kidId).threads;
         return SingleChildScrollView(
           child: Column(
             children: [
@@ -36,7 +36,7 @@ class ChatListScreen extends StatelessWidget {
                       // homeController.connectedKids[homeController.getSelectedKidIndex(kidId)].msmsMonitoringStatus = false;
                       homeController.update();
                     },
-                      child: customSwitchSMS(value: homeController.connectedKids[homeController.getSelectedKidIndex(kidId)].msmsMonitoringStatus ?? false, showM: false))
+                      child: customSwitchSMS(value: homeController.getSelectedKid(kidId).msmsMonitoringStatus ?? false, showM: false))
                 ],
               ),
               for(int i =0;i<threads.length;i++)
