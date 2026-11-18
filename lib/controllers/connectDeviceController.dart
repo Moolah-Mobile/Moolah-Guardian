@@ -37,6 +37,19 @@ class ConnectDeviceController extends BaseController {
     // The MDM knows the device by its connect ID, never by the code.
     final connectId = _findKey(api2Res.data, "kidDeviceAccountConnectID") ??
         await _connectIdFromParentDevices(api2Res.data, knownIds);
+
+    // api2 links a parent to a child account, not to each tablet, so a second tablet signed in
+    // with the same child account gets "Connection already exists" and nothing new is added.
+    final alreadyLinked =
+        (api2Res.message ?? "").toLowerCase().contains("already exists") ||
+            (connectId != null && knownIds.contains(connectId));
+    if (alreadyLinked) {
+      isLoading = false;
+      update();
+      errorToast("This child is already linked to your account. To add another device, sign in to "
+          "Moolah Wallet on it with a different child account.");
+      return false;
+    }
     if (connectId == null) {
       isLoading = false;
       update();
@@ -86,8 +99,8 @@ class ConnectDeviceController extends BaseController {
   }
 
   // api2's link response may not carry the connect ID, so find the device in the parent's list:
-  // by the child's user ID if the response has one, else the device that wasn't there before,
-  // else the only device.
+  // by the child's user ID if the response has one, else the one device that wasn't there before.
+  // Never fall back to an existing device: that would re-link the old tablet and report success.
   Future<String?> _connectIdFromParentDevices(dynamic linkData, Set<String?> knownIds) async {
     final devices = await _parentDevices();
     if (devices == null || devices.isEmpty) return null;
@@ -100,9 +113,7 @@ class ConnectDeviceController extends BaseController {
     }
 
     final added = devices.where((d) => !knownIds.contains(idOf(d))).toList();
-    if (added.length == 1) return idOf(added.first);
-
-    return devices.length == 1 ? idOf(devices.first) : null;
+    return added.length == 1 ? idOf(added.first) : null;
   }
 
   // The api2 link response format is not documented, so look for the key at any depth.
