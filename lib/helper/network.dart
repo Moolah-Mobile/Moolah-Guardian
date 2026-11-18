@@ -27,6 +27,7 @@ class Network {
       print("\n✅ GET RESPONSE (${duration.inMilliseconds}ms)");
       print("🔢 Status Code: ${res.statusCode}");
       log("📦 Response Body:\n${_formatJson(res.body)}");
+      _printMdmBody(url, "📦 MDM Response Body:", res.body);
       print("$_logHeader\n");
 
       return responseHandler(res: res);
@@ -46,6 +47,7 @@ class Network {
     final headers = getHeaders(url);
     print("📋 Headers: $headers");
     log("📤 Request Body:\n${_formatJson(jsonEncode(body))}");
+    _printMdmBody(url, "📤 MDM Request Body:", jsonEncode(body));
     print("$_logHeader");
 
     try {
@@ -59,6 +61,7 @@ class Network {
       print("\n✅ POST RESPONSE (${duration.inMilliseconds}ms)");
       print("🔢 Status Code: ${res.statusCode}");
       log("📥 Response Body:\n${_formatJson(res.body)}");
+      _printMdmBody(url, "📥 MDM Response Body:", res.body);
       print("$_logHeader\n");
 
       return responseHandler(res: res);
@@ -67,6 +70,19 @@ class Network {
       print("$_logHeader\n");
       return responseHandler(empty: true);
     }
+  }
+
+  // `log()` only reaches DevTools. In debug builds, also print MDM request and response bodies to the
+  // console (logcat) so a device action can be checked. MDM bodies carry no keys or tokens; those are in
+  // the headers. api2 bodies can carry tokens and keys, so they are not printed here.
+  static const int _maxPrintedBody = 3000;
+
+  static void _printMdmBody(String url, String label, String body) {
+    if (!kDebugMode || !url.contains(EndPoints.mdmBaseUrl)) return;
+    final text = body.length > _maxPrintedBody
+        ? "${body.substring(0, _maxPrintedBody)}… (${body.length - _maxPrintedBody} more characters)"
+        : body;
+    debugPrint("$label $text", wrapWidth: 900);
   }
 
   static String _formatJson(String jsonString) {
