@@ -31,6 +31,13 @@ class HomeRepo {
     'deviceId': deviceId
   });
 
+  // Factory reset of the child's device; the server checks the device belongs to this parent.
+  static Future<ResponseModel> wipeDevice({required String connectId, required String externalMoolahId}) async =>
+      await Network.post(EndPoints.wipeDeviceUrl, body: {
+    'kidDeviceAccountConnectID': connectId,
+    'externalMoolahId': externalMoolahId,
+  });
+
   // 4. List installed apps
   static Future<ResponseModel> getInstalledApps(String connectId) async =>
       await Network.get("${EndPoints.getInstalledAppsUrl}?kidDeviceAccountConnectID=$connectId");

@@ -221,6 +221,24 @@ class HomeController extends BaseController {
     }
   }
 
+  /// Asks the MDM to factory reset the child's device. Everything on it is erased once it is online.
+  Future<void> wipeDevice({required String kidId}) async {
+    if (connectedKids.isEmpty) return;
+    isLoading = true;
+    update();
+    ResponseModel res = await HomeRepo.wipeDevice(
+        connectId: connectIdFor(kidId), externalMoolahId: Prefs.userId.get());
+    isLoading = false;
+    update();
+    if (res.isSuccessful) {
+      successToast("Wipe sent. The device will be erased as soon as it is online.");
+    } else if ((res.message ?? "").contains("404")) {
+      errorToast("Device wipe isn't available on the server yet.");
+    } else {
+      apiToast(res);
+    }
+  }
+
   Future<void> deleteApp({required String kidId, required String appPackage}) async {
     if (connectedKids.isEmpty ||
         isProtectedApp(appPackage) ||

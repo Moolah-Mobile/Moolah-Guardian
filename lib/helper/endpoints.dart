@@ -25,6 +25,9 @@ class EndPoints {
   static String getNetworkHistoryUrl = "$mdmBaseUrl/getNetworkHistory";
   static String getDeviceLocation = "$mdmBaseUrl/getDeviceLocation";
   static String sendActionToDevice = "$mdmBaseUrl/sendActionToDevice";
+  // Factory reset. Not on the MDM yet: the server needs a Guardian endpoint that sets the device's
+  // factoryReset flag (as the web panel's /private/devices/{id}/factoryReset does) and pushes configUpdated.
+  static String wipeDeviceUrl = "$mdmBaseUrl/wipeDevice";
   
   // Device Connection Flow (moolahmdm)
   static String provisionDevice = "$mdmBaseUrl/guardian/provision";

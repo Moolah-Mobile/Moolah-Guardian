@@ -60,6 +60,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     return GetBuilder<SubscriptionController>(builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
       final kid = homeController.getSelectedKid(widget.kidId);
       return CommonGradientBackground(
+        resizeForKeyboard: false,
         child: Loader(
           c: homeController,
           child: Column(
@@ -394,7 +395,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     );
   }
 
-  Widget actionButton(IconData icon, String text, VoidCallback onTap, {bool locked = false}) {
+  Widget actionButton(IconData icon, String text, VoidCallback onTap, {bool locked = false, bool danger = false}) {
+    final color = danger && !locked ? AppColors.red : null;
     return Expanded(
       child: customGestureDetecter(
         onTap: onTap,
@@ -404,12 +406,22 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(locked ? Icons.lock_outline : icon, size: 18),
+              Icon(locked ? Icons.lock_outline : icon, size: 18, color: color),
               horizontalSpace(6),
-              regularText(text, fontSize: 14, fontWeight: FontWeight.w600),
+              regularText(text, fontSize: 14, fontWeight: FontWeight.w600, color: color),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Erasing a child's device cannot be undone, so the parent has to type WIPE to confirm.
+  void _confirmWipe() {
+    showDialog(
+      context: context,
+      builder: (_) => _WipeConfirmDialog(
+        onConfirm: () => Get.find<HomeController>().wipeDevice(kidId: widget.kidId),
       ),
     );
   }
@@ -648,6 +660,14 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   locked: !planAllows(Feature.deviceActions)),
             ],
           ),
+          verticalSpace(10),
+          Row(
+            children: [
+              actionButton(Icons.phonelink_erase, "Wipe device",
+                  () => withFeature(Feature.deviceActions, "Wiping the device", _confirmWipe),
+                  locked: !planAllows(Feature.deviceActions), danger: true),
+            ],
+          ),
         ],
       ),
     );
@@ -796,6 +816,69 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           SvgPicture.asset(AppImages.comingSoon),
         ],
       ),
+    );
+  }
+}
+
+/// Asks the parent to type WIPE before a factory reset. The dialog owns its text controller and disposes it
+/// in [dispose], after the closing animation; disposing it when the route pops crashes the fading dialog.
+class _WipeConfirmDialog extends StatefulWidget {
+  const _WipeConfirmDialog({required this.onConfirm});
+
+  final VoidCallback onConfirm;
+
+  @override
+  State<_WipeConfirmDialog> createState() => _WipeConfirmDialogState();
+}
+
+class _WipeConfirmDialogState extends State<_WipeConfirmDialog> {
+  final typed = TextEditingController();
+
+  @override
+  void dispose() {
+    typed.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final confirmed = typed.text.trim().toUpperCase() == "WIPE";
+    return AlertDialog(
+      title: boldText("Wipe this device?", fontSize: 18, color: AppColors.red),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          regularText(
+              "This factory resets the child's device as soon as it is online. All apps, photos and "
+              "data on it are erased and cannot be recovered, and it will need to be set up and linked again.",
+              fontSize: 14,
+              height: 1.4),
+          verticalSpace(14),
+          regularText("Type WIPE to confirm.", fontSize: 14, fontWeight: FontWeight.w600),
+          verticalSpace(6),
+          TextField(
+            key: const ValueKey("wipe_confirm"),
+            controller: typed,
+            autofocus: true,
+            textCapitalization: TextCapitalization.characters,
+            decoration: const InputDecoration(hintText: "WIPE", isDense: true),
+            onChanged: (_) => setState(() {}),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: regularText("Cancel", fontSize: 14)),
+        TextButton(
+            onPressed: confirmed
+                ? () {
+                    Navigator.pop(context);
+                    widget.onConfirm();
+                  }
+                : null,
+            child: regularText("Wipe device",
+                color: confirmed ? AppColors.red : AppColors.grey, fontSize: 14, fontWeight: FontWeight.w700)),
+      ],
     );
   }
 }

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../colors.dart';
 
 class CommonGradientBackground extends StatefulWidget {
-  CommonGradientBackground({required this.child, this.otherOne = false});
+  CommonGradientBackground({required this.child, this.otherOne = false, this.resizeForKeyboard = true});
 
   Widget child;
   bool otherOne;
+  // False for screens whose only text fields are in dialogs, so the keyboard doesn't squeeze the page.
+  bool resizeForKeyboard;
 
   @override
   State<CommonGradientBackground> createState() => _CommonGradientBackgroundState();
@@ -49,7 +51,7 @@ class _CommonGradientBackgroundState extends State<CommonGradientBackground> {
     /// FOR THE GRADIENT BACKGROUND ON ALL THE SCREENS
 
       return Scaffold(
-        // resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: widget.resizeForKeyboard,
         body: Stack(
           children: [
             Container(
