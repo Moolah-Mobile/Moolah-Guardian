@@ -70,26 +70,40 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              height: 60,
-                              width: 60,
-                              decoration: BoxDecoration(
-                                color: AppColors.veryVeryLightGreen,
-                                borderRadius: BorderRadius.circular(18),
+                            gradientCard(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        boldText("Link a new device", fontSize: 20, color: AppColors.white),
+                                        verticalSpace(6),
+                                        regularText("Enter the connect code shown on your child's device.",
+                                            fontSize: 13, color: AppColors.white.withValues(alpha: 0.9), height: 1.4),
+                                      ],
+                                    ),
+                                  ),
+                                  horizontalSpace(12),
+                                  glassTile(child: const Icon(Icons.link_rounded, color: Colors.white, size: 28)),
+                                ],
                               ),
-                              child: Icon(Icons.link_rounded, size: 30, color: AppColors.normalGreen),
                             ),
-                            verticalSpace(18),
-                            bigHeadingText(
-                              "Link New Device",
-                              fontSize: 26,
-                              height: 1.2,
-                            ),
-                            verticalSpace(8),
-                            subHeadingText(
-                              "Enter the connect code shown on the kid's device to link it.",
-                              height: 1.4,
-                              color: AppColors.grey,
+                            verticalSpace(14),
+                            roundedContainer(
+                              color: AppColors.lightGrey,
+                              borderRadius: 18,
+                              padding: const EdgeInsets.all(14),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  regularText("How to find the code", fontSize: 14, fontWeight: FontWeight.w700),
+                                  verticalSpace(10),
+                                  _step(1, "Open Moolah on your child's device."),
+                                  _step(2, "Find the connect code it shows on screen."),
+                                  _step(3, "Type the code below and give the device a name.", last: true),
+                                ],
+                              ),
                             ),
                             verticalSpace(14),
                             CustomTextField(
@@ -133,6 +147,27 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  /// A numbered line in the "How to find the code" card.
+  Widget _step(int number, String text, {bool last = false}) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: last ? 0 : 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 22,
+            width: 22,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: AppColors.normalGreen, shape: BoxShape.circle),
+            child: regularText("$number", fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.white),
+          ),
+          horizontalSpace(10),
+          Expanded(child: regularText(text, fontSize: 13, height: 1.4)),
+        ],
       ),
     );
   }

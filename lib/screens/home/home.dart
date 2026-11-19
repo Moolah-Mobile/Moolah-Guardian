@@ -140,19 +140,7 @@ class _HomeState extends State<Home> {
 
   /// The call to action for linking a child's device.
   Widget _connectCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.normalGreen, AppColors.onBoard1, AppColors.lightGreen],
-        ),
-        boxShadow: [
-          BoxShadow(color: AppColors.normalGreen.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8)),
-        ],
-      ),
+    return gradientCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -170,11 +158,7 @@ class _HomeState extends State<Home> {
                 ),
               ),
               horizontalSpace(12),
-              Container(
-                height: 52,
-                width: 52,
-                decoration: BoxDecoration(
-                    color: AppColors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
+              glassTile(
                 child: const Icon(Icons.shield_outlined, color: Colors.white, size: 28),
               ),
             ],

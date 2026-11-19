@@ -93,6 +93,36 @@ Widget pageSheet({required Widget child, EdgeInsets? padding}) {
   );
 }
 
+/// The green gradient card that leads a screen, as "Add a device" on Home. Text and icons on it are white.
+Widget gradientCard({required Widget child, EdgeInsets padding = const EdgeInsets.all(20), EdgeInsets? margin}) {
+  return Container(
+    margin: margin,
+    padding: padding,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(24),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [AppColors.normalGreen, AppColors.onBoard1, AppColors.lightGreen],
+      ),
+      boxShadow: [
+        BoxShadow(color: AppColors.normalGreen.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8)),
+      ],
+    ),
+    child: child,
+  );
+}
+
+/// A translucent white tile for an icon or a figure on a [gradientCard].
+Widget glassTile({required Widget child, EdgeInsets padding = const EdgeInsets.all(12), double borderRadius = 16}) {
+  return Container(
+    padding: padding,
+    decoration: BoxDecoration(
+        color: AppColors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(borderRadius)),
+    child: child,
+  );
+}
+
 /// A Material icon on a soft green rounded square, used to head cards and list rows.
 Widget iconBadge(IconData icon, {double size = 44, Color? color, Color? background}) {
   return Container(

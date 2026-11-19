@@ -121,25 +121,25 @@ class _BlackListScreenState extends State<BlackListScreen> {
 
   /// How many apps are blocked, and what blocking does.
   Widget _summary(String childName, int blocked, int total) {
-    return roundedContainer(
-      borderRadius: 20,
-      padding: const EdgeInsets.all(16),
-      color: blocked > 0 ? AppColors.lightRed.withValues(alpha: 0.07) : AppColors.veryVeryLightGreen,
+    return gradientCard(
       child: Row(
         children: [
-          iconBadge(blocked > 0 ? Icons.block_rounded : Icons.verified_user_outlined,
-              color: blocked > 0 ? AppColors.lightRed : AppColors.normalGreen, background: AppColors.white),
-          horizontalSpace(14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                boldText(blocked == 0 ? "No apps blocked" : "$blocked of $total apps blocked", fontSize: 16),
-                verticalSpace(3),
+                boldText(blocked == 0 ? "No apps blocked" : "$blocked of $total apps blocked",
+                    fontSize: 20, color: AppColors.white),
+                verticalSpace(6),
                 regularText("Blocked apps are turned off on $childName's device at all times.",
-                    fontSize: 12, color: AppColors.grey, height: 1.35),
+                    fontSize: 13, color: AppColors.white.withValues(alpha: 0.9), height: 1.4),
               ],
             ),
+          ),
+          horizontalSpace(12),
+          glassTile(
+            child: Icon(blocked > 0 ? Icons.block_rounded : Icons.verified_user_outlined,
+                color: Colors.white, size: 28),
           ),
         ],
       ),

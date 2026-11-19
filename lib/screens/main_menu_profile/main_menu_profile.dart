@@ -18,7 +18,9 @@ import 'package:moolah/util/common_widgets/common_appbar.dart';
 import 'package:moolah/util/common_widgets/common_button.dart';
 import 'package:moolah/util/images.dart';
 
+import '../../controllers/subscription_controller.dart';
 import '../../helper/sharedHelper.dart';
+import '../subscription_screen/subscription_screen.dart';
 import '../../util/common_widgets/common_widgets.dart';
 import '../onboard/onboard.dart';
 
@@ -47,33 +49,60 @@ class _MainMenuProfileState extends State<MainMenuProfile> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
                   children: [
-                    // Who is signed in.
-                    roundedContainer(
-                      borderRadius: 24,
-                      padding: const EdgeInsets.all(18),
-                      shadow: softShadow,
-                      child: Row(
+                    // Who is signed in, and their plan (tap to manage it).
+                    gradientCard(
+                      child: Column(
                         children: [
-                          Container(
-                            height: 64,
-                            width: 64,
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.veryVeryLightGreen),
-                            child: ClipOval(child: SvgPicture.asset(AppImages.person)),
+                          Row(
+                            children: [
+                              Container(
+                                height: 64,
+                                width: 64,
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle, color: AppColors.white.withValues(alpha: 0.35)),
+                                child: ClipOval(
+                                    child: ColoredBox(color: AppColors.white, child: SvgPicture.asset(AppImages.person))),
+                              ),
+                              horizontalSpace(14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    boldText(fullName.isEmpty ? "Your Name" : fullName,
+                                        fontSize: 20, color: AppColors.white,
+                                        maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                                    if (email.isNotEmpty) ...[
+                                      verticalSpace(3),
+                                      regularText(email,
+                                          fontSize: 13, color: AppColors.white.withValues(alpha: 0.9),
+                                          maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          horizontalSpace(14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                boldText(fullName.isEmpty ? "Your Name" : fullName,
-                                    fontSize: 18, maxLines: 1, textOverflow: TextOverflow.ellipsis),
-                                if (email.isNotEmpty) ...[
-                                  verticalSpace(3),
-                                  regularText(email,
-                                      fontSize: 13, color: AppColors.grey, maxLines: 1, textOverflow: TextOverflow.ellipsis),
-                                ],
-                              ],
+                          verticalSpace(16),
+                          GetBuilder<SubscriptionController>(
+                            builder: (sub) => customGestureDetecter(
+                              onTap: () => Get.toNamed(SubscriptionScreen.screenName),
+                              child: glassTile(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.workspace_premium_outlined, size: 20, color: Colors.white),
+                                    horizontalSpace(10),
+                                    Expanded(
+                                      child: regularText("${sub.currentPlan.title} plan",
+                                          fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.white),
+                                    ),
+                                    regularText(sub.currentPlan.isPaid ? "Manage" : "Upgrade",
+                                        fontSize: 13, color: AppColors.white.withValues(alpha: 0.9)),
+                                    const Icon(Icons.chevron_right_rounded, size: 22, color: Colors.white),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ],

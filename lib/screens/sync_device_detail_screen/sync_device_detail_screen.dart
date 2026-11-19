@@ -34,8 +34,7 @@ class SyncDeviceDetailScreen extends StatefulWidget {
   State<SyncDeviceDetailScreen> createState() => _SyncDeviceDetailScreenState();
 }
 
-class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
-    with SingleTickerProviderStateMixin {
+class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with SingleTickerProviderStateMixin {
   TabController? tabController;
   String headingText = "Block Apps";
   int prevIndex = 0;
@@ -110,82 +109,84 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   Widget build(BuildContext context) {
     _releaseSearchFocusWhenKeyboardCloses();
     _syncBannerWithSearch(_searchingApps);
-    return GetBuilder<SubscriptionController>(builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
-      if (homeController.findKid(widget.kidId) == null) {
-        return deviceUnavailable(context, homeController);
-      }
-      final kid = homeController.getSelectedKid(widget.kidId);
-      return CommonGradientBackground(
-        // Resize only for the app search; the dialogs' fields move above the keyboard on their own.
-        resizeForKeyboard: _searchingApps,
-        child: Loader(
-          c: homeController,
-          child: Column(
-            children: [
-              verticalSpace(20),
-              commonAppBar(
-                  heading:
-                      "${kid.name?.split(" ")[0] ?? "Kid"}'s Summary"),
-              // The summary card scrolls away as the tab's list scrolls up, the tabs stay pinned, and the
-              // card comes back when the list is scrolled back to the top.
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0).copyWith(bottom: 0),
-                  child: NestedScrollView(
-                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                      SliverToBoxAdapter(
-                        child: _searchingApps
-                            ? const SizedBox.shrink()
-                            : Padding(
-                                padding: const EdgeInsets.only(bottom: 15),
-                                child: headingWidget(homeController),
+    return GetBuilder<SubscriptionController>(
+        builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
+              if (homeController.findKid(widget.kidId) == null) {
+                return deviceUnavailable(context, homeController);
+              }
+              final kid = homeController.getSelectedKid(widget.kidId);
+              return CommonGradientBackground(
+                // Resize only for the app search; the dialogs' fields move above the keyboard on their own.
+                resizeForKeyboard: _searchingApps,
+                child: Loader(
+                  c: homeController,
+                  child: Column(
+                    children: [
+                      verticalSpace(20),
+                      commonAppBar(heading: "${kid.name?.split(" ")[0] ?? "Kid"}'s Summary"),
+                      // The summary card scrolls away as the tab's list scrolls up, the tabs stay pinned, and the
+                      // card comes back when the list is scrolled back to the top.
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0).copyWith(bottom: 0),
+                          child: NestedScrollView(
+                            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                              SliverToBoxAdapter(
+                                child: _searchingApps
+                                    ? const SizedBox.shrink()
+                                    : Padding(
+                                        padding: const EdgeInsets.only(bottom: 15),
+                                        child: headingWidget(homeController),
+                                      ),
                               ),
-                      ),
-                      SliverPersistentHeader(
-                        pinned: true,
-                        delegate: _PinnedTabBar(
-                          height: _tabBarExtent,
-                          child: Container(
-                            decoration: const BoxDecoration(
+                              SliverPersistentHeader(
+                                pinned: true,
+                                delegate: _PinnedTabBar(
+                                  height: _tabBarExtent,
+                                  child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+                                    ),
+                                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+                                    alignment: Alignment.topCenter,
+                                    child: tabBar(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            // Keyed so the tabs' lists and the app search keep their state when the card collapses.
+                            body: Container(
+                              key: const ValueKey("tabs_panel"),
                               color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                children: [
+                                  if (tabController?.index == 0)
+                                    planAllows(Feature.deleteApps)
+                                        ? appSection(homeController)
+                                        : Expanded(
+                                            child: lockedFeaturePanel(Feature.deleteApps, "Deleting and blocking apps"))
+                                  else if (tabController?.index == 1)
+                                    planAllows(Feature.browserHistory)
+                                        ? urlSection(homeController)
+                                        : Expanded(
+                                            child: lockedFeaturePanel(
+                                                Feature.browserHistory, "Browser history and URL blocking"))
+                                  else if (tabController?.index == 2)
+                                    messagesSection(homeController),
+                                ],
+                              ),
                             ),
-                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-                            alignment: Alignment.topCenter,
-                            child: tabBar(),
                           ),
                         ),
                       ),
                     ],
-                    // Keyed so the tabs' lists and the app search keep their state when the card collapses.
-                    body: Container(
-                      key: const ValueKey("tabs_panel"),
-                      color: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Column(
-                        children: [
-                          if (tabController?.index == 0)
-                            planAllows(Feature.deleteApps)
-                                ? appSection(homeController)
-                                : Expanded(child: lockedFeaturePanel(Feature.deleteApps, "Deleting and blocking apps"))
-                          else if (tabController?.index == 1)
-                            planAllows(Feature.browserHistory)
-                                ? urlSection(homeController)
-                                : Expanded(child: lockedFeaturePanel(Feature.browserHistory, "Browser history and URL blocking"))
-                          else if (tabController?.index == 2)
-                            messagesSection(homeController),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }));
+              );
+            }));
   }
 
   // Height of the pinned bar: 10 top padding plus the tab bar (5 padding each side around a 46 tall TabBar).
@@ -335,9 +336,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   Widget appSection(HomeController homeController) {
     final kid = homeController.getSelectedKid(widget.kidId);
     // getInstalledApps lists every app; getDeviceDetails may report only some of them.
-    final apps = (kid.installedApps.isNotEmpty
-            ? kid.installedApps
-            : (kid.deviceDetail?.data?.apps ?? <App>[]))
+    final apps = (kid.installedApps.isNotEmpty ? kid.installedApps : (kid.deviceDetail?.data?.apps ?? <App>[]))
         .where(HomeController.isUserApp)
         .toList();
     final shown = apps.where((a) => appMatchesQuery(a, appQuery)).toList();
@@ -376,20 +375,18 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   ],
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: boldText(filtering ? 'All Apps · ${shown.length} of ${apps.length}' : 'All Apps',
-                        fontSize: 18),
+                    child:
+                        boldText(filtering ? 'All Apps · ${shown.length} of ${apps.length}' : 'All Apps', fontSize: 18),
                   ),
                   if (filtering && shown.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: regularText('No apps match "${appQuery.trim()}"', color: AppColors.grey, fontSize: 14),
-                ),
-              ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Center(
+                        child: regularText('No apps match "${appQuery.trim()}"', color: AppColors.grey, fontSize: 14),
+                      ),
+                    ),
                   for (final app in shown)
-                    appItem(app,
-                        kidId: widget.kidId,
-                        blocked: kid.blockedPackages.contains(app.packageName)),
+                    appItem(app, kidId: widget.kidId, blocked: kid.blockedPackages.contains(app.packageName)),
                 ],
               ),
             ),
@@ -415,7 +412,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               borderRadius: 20,
               color: AppColors.veryVeryLightGreen,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              child: regularText("Coming soon", fontSize: 10, color: AppColors.normalGreen, fontWeight: FontWeight.w700),
+              child:
+                  regularText("Coming soon", fontSize: 10, color: AppColors.normalGreen, fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -462,58 +460,54 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 boldText(appName, fontSize: 14, color: blocked ? AppColors.red : Colors.black),
-                regularText(
-                    "${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
-                    color: AppColors.grey,
-                    fontSize: 11),
+                regularText("${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
+                    color: AppColors.grey, fontSize: 11),
               ],
             ),
           ),
           if (!HomeController.isProtectedApp(pkg))
-          PopupMenuButton<int>(
-            icon: SvgPicture.asset('assets/images/home/more.svg'),
-            onSelected: (value) {
-              if (value == 1) {
-                _confirmUninstall(appName, pkg);
-              } else {
-                Get.find<HomeController>()
-                    .setAppBlocked(kidId: kidId, appPackage: pkg, blocked: !blocked);
-              }
-            },
-            itemBuilder: (context) => [
-              // System apps cannot be uninstalled; they can only be disabled.
-              if (listOfInstalledApp.removable ?? !systemApp)
+            PopupMenuButton<int>(
+              icon: SvgPicture.asset('assets/images/home/more.svg'),
+              onSelected: (value) {
+                if (value == 1) {
+                  _confirmUninstall(appName, pkg);
+                } else {
+                  Get.find<HomeController>().setAppBlocked(kidId: kidId, appPackage: pkg, blocked: !blocked);
+                }
+              },
+              itemBuilder: (context) => [
+                // System apps cannot be uninstalled; they can only be disabled.
+                if (listOfInstalledApp.removable ?? !systemApp)
+                  PopupMenuItem<int>(
+                    padding: const EdgeInsets.only(left: 5),
+                    height: 30,
+                    value: 1,
+                    child: Row(
+                      children: [
+                        SvgPicture.asset('assets/images/home/trash.svg'),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        regularText("Uninstall App", color: AppColors.red, fontSize: 13)
+                      ],
+                    ),
+                  ),
                 PopupMenuItem<int>(
                   padding: const EdgeInsets.only(left: 5),
                   height: 30,
-                  value: 1,
+                  value: 2,
                   child: Row(
                     children: [
-                      SvgPicture.asset('assets/images/home/trash.svg'),
+                      SvgPicture.asset('assets/images/home/slash.svg'),
                       const SizedBox(
                         width: 10,
                       ),
-                      regularText("Uninstall App",
-                          color: AppColors.red, fontSize: 13)
+                      regularText(blocked ? "Enable App" : "Disable App", fontSize: 13)
                     ],
                   ),
                 ),
-              PopupMenuItem<int>(
-                padding: const EdgeInsets.only(left: 5),
-                height: 30,
-                value: 2,
-                child: Row(
-                  children: [
-                    SvgPicture.asset('assets/images/home/slash.svg'),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    regularText(blocked ? "Enable App" : "Disable App", fontSize: 13)
-                  ],
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );
@@ -524,13 +518,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: boldText("Uninstall $appName?", fontSize: 18),
-        content: regularText(
-            "$appName will be removed from the child's device as soon as it is online.",
-            fontSize: 14),
+        content: regularText("$appName will be removed from the child's device as soon as it is online.", fontSize: 14),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: regularText("Cancel", fontSize: 14)),
+          TextButton(onPressed: () => Navigator.pop(context), child: regularText("Cancel", fontSize: 14)),
           TextButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -554,8 +544,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           children: [
             _tabActionButton(),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16)
-                  .copyWith(bottom: 15, top: 0),
+              padding: const EdgeInsets.symmetric(vertical: 16).copyWith(bottom: 15, top: 0),
               child: boldText('Websites (last 7 days)', fontSize: 18),
             ),
             Padding(
@@ -565,10 +554,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   Icon(Icons.info_outline, size: 16, color: AppColors.grey),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: regularText(
-                        "There is a 30 min - 90 min delay in receiving browser data",
-                        color: AppColors.grey,
-                        fontSize: 12),
+                    child: regularText("There is a 30 min - 90 min delay in receiving browser data",
+                        color: AppColors.grey, fontSize: 12),
                   ),
                 ],
               ),
@@ -598,18 +585,15 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                           ],
                         ),
                       ),
-                      if (site.visits > 1)
-                        regularText("${site.visits}×", color: AppColors.grey, fontSize: 12),
+                      if (site.visits > 1) regularText("${site.visits}×", color: AppColors.grey, fontSize: 12),
                     ],
                   ),
                 ),
             if (history != null && hidden > 0)
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 12, 10, 0),
-                child: regularText(
-                    "$hidden background lookups by the phone's system apps and Moolah are hidden.",
-                    color: AppColors.grey,
-                    fontSize: 11),
+                child: regularText("$hidden background lookups by the phone's system apps and Moolah are hidden.",
+                    color: AppColors.grey, fontSize: 11),
               ),
           ],
         ),
@@ -648,20 +632,14 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: boldText("Reboot device?", fontSize: 18),
-        content: regularText(
-            "The child's device will restart as soon as it is online.",
-            fontSize: 14),
+        content: regularText("The child's device will restart as soon as it is online.", fontSize: 14),
         actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: regularText("Cancel", fontSize: 14)),
+          TextButton(onPressed: () => Navigator.pop(context), child: regularText("Cancel", fontSize: 14)),
           TextButton(
               onPressed: () {
                 Navigator.pop(context);
                 Get.find<HomeController>().sendDeviceAction(
-                    kidId: widget.kidId,
-                    action: "reboot",
-                    successMessage: "Reboot sent to the device");
+                    kidId: widget.kidId, action: "reboot", successMessage: "Reboot sent to the device");
               },
               child: regularText("Reboot", color: AppColors.red, fontSize: 14)),
         ],
@@ -698,64 +676,44 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     );
   }
 
-  Widget percentageContainer(
-      Color color, String icon, String text, String value, String t,
-      {bool otherOne = false, Feature? feature}) {
-    final locked = feature != null && !planAllows(feature);
-    final iconBubble = Container(
-      height: 42,
-      width: 42,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
-      ),
-      child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(AppColors.white, BlendMode.srcIn)),
-    );
+  /// Battery or data on the summary's gradient card. A figure the plan doesn't include shows a lock and
+  /// opens the upgrade prompt when tapped.
+  Widget _heroStat(IconData icon, String label, String value, String unit, Feature feature) {
+    final locked = !planAllows(feature);
     return Expanded(
       child: customGestureDetecter(
-        onTap: locked ? () => withFeature(feature, text, () {}) : null,
-        child: roundedContainer(
-          padding: const EdgeInsets.all(12),
-          borderRadius: 18,
-          color: AppColors.lightGrey,
-          child: otherOne
-              ? Row(
+        onTap: locked ? () => withFeature(feature, label, () {}) : null,
+        child: glassTile(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 18, color: Colors.white),
+                  horizontalSpace(6),
+                  Expanded(
+                    child: regularText(label, fontSize: 12, color: AppColors.white.withValues(alpha: 0.9)),
+                  ),
+                  if (locked) const Icon(Icons.lock_outline, size: 16, color: Colors.white),
+                ],
+              ),
+              verticalSpace(8),
+              if (locked)
+                regularText("Upgrade to see", fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.white)
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
-                    iconBubble,
-                    horizontalSpace(14),
-                    Expanded(child: regularText(text, fontSize: 15, fontWeight: FontWeight.w600)),
-                    Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.black),
+                    boldText(value, fontSize: 24, color: AppColors.white),
+                    horizontalSpace(3),
+                    regularText(unit, fontSize: 13, color: AppColors.white.withValues(alpha: 0.85)),
                   ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        iconBubble,
-                        const Spacer(),
-                        if (locked) Icon(Icons.lock_outline, size: 18, color: AppColors.grey),
-                      ],
-                    ),
-                    verticalSpace(12),
-                    subHeadingText(text, fontSize: 12, color: AppColors.grey),
-                    verticalSpace(2),
-                    if (locked)
-                      regularText("Upgrade to see", fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey)
-                    else
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          bigHeadingText(value, fontSize: 24),
-                          horizontalSpace(2),
-                          bigHeadingText(t, fontSize: 13, color: AppColors.grey),
-                        ],
-                      ),
-                  ],
-                )),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -765,125 +723,147 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     final stats = kid.deviceDetail?.data?.realTimeStats;
 
     final walletOn = kid.walletEnabled ?? false;
-    return roundedContainer(
-      borderRadius: 24,
-      padding: const EdgeInsets.all(18),
-      shadow: softShadow,
-      child: Column(
-        children: [
-          Row(
+    return Column(
+      children: [
+        gradientCard(
+          child: Column(
             children: [
-              Container(
-                height: 56,
-                width: 56,
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.veryVeryLightGreen),
-                child: ClipOval(
-                  child: kid.kidPic == null
-                      ? SvgPicture.asset(AppImages.person)
-                      : Image.network(kid.kidPic!,
-                          fit: BoxFit.cover, errorBuilder: (c, e, v) => SvgPicture.asset(AppImages.person)),
+              Row(
+                children: [
+                  Container(
+                    height: 56,
+                    width: 56,
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.white.withValues(alpha: 0.35)),
+                    child: ClipOval(
+                      child: ColoredBox(
+                        color: AppColors.white,
+                        child: kid.kidPic == null
+                            ? SvgPicture.asset(AppImages.person)
+                            : Image.network(kid.kidPic!,
+                                fit: BoxFit.cover, errorBuilder: (c, e, v) => SvgPicture.asset(AppImages.person)),
+                      ),
+                    ),
+                  ),
+                  horizontalSpace(12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        boldText(kid.name ?? "",
+                            fontSize: 20, color: AppColors.white, maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                        verticalSpace(4),
+                        Row(
+                          children: [
+                            Icon(Icons.access_time, size: 14, color: AppColors.white.withValues(alpha: 0.9)),
+                            horizontalSpace(5),
+                            Flexible(
+                              child: regularText("Active ${kid.lastActive ?? "N/A"}",
+                                  fontSize: 12,
+                                  color: AppColors.white.withValues(alpha: 0.9),
+                                  maxLines: 1,
+                                  textOverflow: TextOverflow.ellipsis),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              verticalSpace(16),
+              Row(
+                children: [
+                  _heroStat(Icons.battery_charging_full_rounded, "Battery", stats?.batteryLevel?.toString() ?? "0", "%",
+                      Feature.battery),
+                  horizontalSpace(10),
+                  _heroStat(
+                      Icons.public,
+                      "Data used",
+                      kid.networkHistory?.dataUsageGb ?? stats?.deviceDataUsage?.toString() ?? "0",
+                      "GB",
+                      Feature.appUsage),
+                ],
+              ),
+              verticalSpace(10),
+              customGestureDetecter(
+                onTap: () {
+                  Get.toNamed(LiveLocation.screenName, arguments: {
+                    "lat": stats?.currentLatitude,
+                    "long": stats?.currentLongitude,
+                    "deviceId": kid.kidId ?? widget.kidId,
+                  });
+                },
+                child: glassTile(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 20, color: Colors.white),
+                      horizontalSpace(10),
+                      Expanded(
+                        child: regularText("View last location",
+                            fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.white),
+                      ),
+                      const Icon(Icons.chevron_right_rounded, size: 22, color: Colors.white),
+                    ],
+                  ),
                 ),
               ),
-              horizontalSpace(12),
+            ],
+          ),
+        ),
+        verticalSpace(12),
+        // M! wallet: the info button explains it, the switch turns it on or off.
+        roundedContainer(
+          borderRadius: 18,
+          shadow: softShadow,
+          padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+          child: Row(
+            children: [
+              regularText("M!",
+                  customFontFamily: fontFamilyPraise,
+                  fontSize: 20,
+                  color: walletOn ? AppColors.normalGreen : AppColors.grey),
+              horizontalSpace(10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    boldText(kid.name ?? "", fontSize: 18, maxLines: 1, textOverflow: TextOverflow.ellipsis),
-                    verticalSpace(4),
-                    iconText(AppImages.clock, "Active ${kid.lastActive}"),
+                    regularText("M! Wallet", fontSize: 14, fontWeight: FontWeight.w600),
+                    regularText(walletOn ? "Wallet Enabled" : "Wallet Disabled",
+                        color: walletOn ? AppColors.normalGreen : AppColors.grey, fontSize: 12),
                   ],
                 ),
               ),
+              customGestureDetecter(
+                  onTap: () {
+                    withFeature(Feature.wallet, "The M! wallet", _showAdDialog);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: SvgPicture.asset(AppImages.information),
+                  )),
+              horizontalSpace(8),
+              customSwitch(value: walletOn),
             ],
           ),
-          verticalSpace(14),
-          // M! wallet: the info button explains it, the switch turns it on or off.
-          roundedContainer(
-            color: walletOn ? AppColors.veryVeryLightGreen : AppColors.lightGrey,
-            borderRadius: 16,
-            padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
-            child: Row(
-              children: [
-                regularText("M!", customFontFamily: fontFamilyPraise, fontSize: 20,
-                    color: walletOn ? AppColors.normalGreen : AppColors.grey),
-                horizontalSpace(10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      regularText("M! Wallet", fontSize: 14, fontWeight: FontWeight.w600),
-                      regularText(walletOn ? "Wallet Enabled" : "Wallet Disabled",
-                          color: walletOn ? AppColors.normalGreen : AppColors.grey, fontSize: 12),
-                    ],
-                  ),
-                ),
-                customGestureDetecter(
-                    onTap: () {
-                      withFeature(Feature.wallet, "The M! wallet", _showAdDialog);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(6),
-                      child: SvgPicture.asset(AppImages.information),
-                    )),
-                horizontalSpace(8),
-                customSwitch(value: walletOn),
-              ],
-            ),
-          ),
-          verticalSpace(12),
-          Row(
-            children: [
-              percentageContainer(
-                  AppColors.yellow,
-                  AppImages.emptyBattery,
-                  "Battery %",
-                  stats?.batteryLevel?.toString() ?? "0",
-                  "%",
-                  feature: Feature.battery),
-              horizontalSpace(10),
-              percentageContainer(AppColors.blue, AppImages.global, "Data Used",
-                  kid.networkHistory?.dataUsageGb ?? stats?.deviceDataUsage?.toString() ?? "0", "GB",
-                  feature: Feature.appUsage)
-            ],
-          ),
-          verticalSpace(10),
-          customGestureDetecter(
-            onTap: () {
-              Get.toNamed(LiveLocation.screenName, arguments: {
-                "lat": stats?.currentLatitude,
-                "long": stats?.currentLongitude,
-                "deviceId": kid.kidId ?? widget.kidId,
+        ),
+        verticalSpace(12),
+        Row(
+          children: [
+            actionButton(Icons.sync, "Sync now", () {
+              withFeature(Feature.deviceActions, "Sync now", () {
+                Get.find<HomeController>().sendDeviceAction(
+                    kidId: widget.kidId, action: "configUpdated", successMessage: "Sync sent to the device");
               });
-            },
-            child: Row(
-              children: [
-                percentageContainer(AppColors.purple, AppImages.location,
-                    "View Last Location", kid.batteryStatus ?? "", "%",
-                    otherOne: true),
-              ],
-            ),
-          ),
-          verticalSpace(10),
-          Row(
-            children: [
-              actionButton(Icons.sync, "Sync now", () {
-                withFeature(Feature.deviceActions, "Sync now", () {
-                  Get.find<HomeController>().sendDeviceAction(
-                      kidId: widget.kidId,
-                      action: "configUpdated",
-                      successMessage: "Sync sent to the device");
-                });
-              }, locked: !planAllows(Feature.deviceActions)),
-              horizontalSpace(10),
-              actionButton(Icons.restart_alt, "Reboot",
-                  () => withFeature(Feature.deviceActions, "Reboot", _confirmReboot),
-                  locked: !planAllows(Feature.deviceActions)),
-            ],
-          ),
-        ],
-      ),
+            }, locked: !planAllows(Feature.deviceActions)),
+            horizontalSpace(10),
+            actionButton(
+                Icons.restart_alt, "Reboot", () => withFeature(Feature.deviceActions, "Reboot", _confirmReboot),
+                locked: !planAllows(Feature.deviceActions)),
+          ],
+        ),
+      ],
     );
   }
 
@@ -893,18 +873,14 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
       borderRadius: 16,
       color: AppColors.veryVeryLightGreen,
       child: Theme(
-        data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                surfaceContainerHighest: Colors.transparent)),
+        data: Theme.of(context)
+            .copyWith(colorScheme: Theme.of(context).colorScheme.copyWith(surfaceContainerHighest: Colors.transparent)),
         child: TabBar(
             overlayColor: WidgetStateProperty.all(Colors.transparent),
             splashFactory: NoSplash.splashFactory,
-            indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: AppColors.normalGreen,
-                boxShadow: [
-                  BoxShadow(color: AppColors.normalGreen.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3)),
-                ]),
+            indicator: BoxDecoration(borderRadius: BorderRadius.circular(12), color: AppColors.normalGreen, boxShadow: [
+              BoxShadow(color: AppColors.normalGreen.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3)),
+            ]),
             indicatorSize: TabBarIndicatorSize.tab,
             labelPadding: const EdgeInsets.symmetric(horizontal: 6),
             dividerColor: Colors.transparent,
@@ -930,8 +906,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           setState(() {
             switchButton = !switchButton;
           });
-          Get.find<HomeController>()
-              .enableWallet(value: switchButton, kidId: widget.kidId);
+          Get.find<HomeController>().enableWallet(value: switchButton, kidId: widget.kidId);
         });
       },
       child: Stack(
@@ -939,8 +914,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
         children: [
           roundedContainer(
               borderRadius: 30,
-              color:
-                  switchButton ? AppColors.lightGreen : AppColors.darkLightGrey,
+              color: switchButton ? AppColors.lightGreen : AppColors.darkLightGrey,
               height: size * 0.65,
               width: size * 1.2),
           Stack(
@@ -956,9 +930,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
               if (showM)
                 regularText("M!",
                     customFontFamily: fontFamilyPraise,
-                    color: switchButton
-                        ? AppColors.lightGreen
-                        : AppColors.darkLightGrey,
+                    color: switchButton ? AppColors.lightGreen : AppColors.darkLightGrey,
                     fontSize: 11)
             ],
           ),
@@ -976,8 +948,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             child: Center(
               child: roundedContainer(
                   margin: const EdgeInsets.all(30),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
                   color: Colors.white,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -988,8 +959,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           bigHeadingText("Enable Earning "),
-                          bigHeadingText("M!",
-                              customFontFamily: fontFamilyPraise),
+                          bigHeadingText("M!", customFontFamily: fontFamilyPraise),
                         ],
                       ),
                       verticalSpace(20),
@@ -1003,10 +973,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                       verticalSpace(20),
                       customSwitch(
                           showM: false,
-                          value: Get.find<HomeController>()
-                                  .getSelectedKid(widget.kidId)
-                                  .walletEnabled ??
-                              false),
+                          value: Get.find<HomeController>().getSelectedKid(widget.kidId).walletEnabled ?? false),
                     ],
                   )),
             ),
@@ -1055,8 +1022,7 @@ class _PinnedTabBar extends SliverPersistentHeaderDelegate {
   double get maxExtent => height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) =>
-      SizedBox.expand(child: child);
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => SizedBox.expand(child: child);
 
   // The tab bar's labels and selection change with the screen's state, so always rebuild it.
   @override
