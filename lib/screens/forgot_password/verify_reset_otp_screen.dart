@@ -51,7 +51,7 @@ class _VerifyResetOTPScreenState extends State<VerifyResetOTPScreen> {
                   Expanded(
                     child: roundedContainer(
                       width: Get.width,
-                      borderRadiusWhole: BorderRadius.circular(13)
+                      borderRadiusWhole: BorderRadius.circular(28)
                           .copyWith(bottomRight: Radius.zero, bottomLeft: Radius.zero),
                       padding: const EdgeInsets.all(20).copyWith(bottom: 0, left: 15, right: 15),
                       margin: const EdgeInsets.all(10).copyWith(bottom: 0),

@@ -15,6 +15,7 @@ import 'package:moolah/screens/main_menu_profile/main_menu_profile.dart';
 import 'package:moolah/screens/splash/splash.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/mixpanel_events.dart';
+import 'package:moolah/util/theme/app_theme.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import './helper/get_di/get_di.dart' as get_di;
 
@@ -49,6 +50,7 @@ class _MyAppState extends State<MyApp> {
           children: [
             GetMaterialApp(
               debugShowCheckedModeBanner: false,
+              theme: AppTheme.light,
               routes: RouteHelper.routes,
               initialRoute: Splash.screenName,
               // Debug builds print GetX's route and controller create/delete messages to logcat.

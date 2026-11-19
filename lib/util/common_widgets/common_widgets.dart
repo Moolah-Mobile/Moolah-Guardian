@@ -37,16 +37,24 @@ Widget commonBackButton({void Function()? onTap}){
       Get.back();
     },
     child: roundedContainer(
-      height: 30,
-      width: 30,
-      padding: const EdgeInsets.all(7.0),
-      margin: const EdgeInsets.all(7.0),
+      height: 40,
+      width: 40,
+      borderRadius: 12,
+      padding: const EdgeInsets.all(12.0),
+      margin: const EdgeInsets.all(4.0),
+      shadow: softShadow,
       child: SvgPicture.asset(AppImages.backButtonIcon)
     ),
   );
 }
 
-Widget roundedContainer({double borderRadius = 7, Color? color, Widget? child, double? height, double? width, EdgeInsets? padding, EdgeInsets? margin, BorderRadius? borderRadiusWhole, BoxBorder? border}){
+/// The light, diffuse shadow cards and floating controls use across the app.
+List<BoxShadow> get softShadow => [
+      BoxShadow(color: AppColors.black.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 4)),
+      BoxShadow(color: AppColors.black.withValues(alpha: 0.03), blurRadius: 2, offset: const Offset(0, 1)),
+    ];
+
+Widget roundedContainer({double borderRadius = 12, Color? color, Widget? child, double? height, double? width, EdgeInsets? padding, EdgeInsets? margin, BorderRadius? borderRadiusWhole, BoxBorder? border, List<BoxShadow>? shadow}){
   return Container(
     height: height,
     width: width,
@@ -55,8 +63,18 @@ Widget roundedContainer({double borderRadius = 7, Color? color, Widget? child, d
     decoration: BoxDecoration(
       border: border,
       borderRadius: borderRadiusWhole ?? BorderRadius.circular(borderRadius),
-      color: color ?? AppColors.white
+      color: color ?? AppColors.white,
+      boxShadow: shadow,
     ),
+    child: child,
+  );
+}
+
+/// A small rounded label, such as a device stat or a status.
+Widget pill({required Widget child, Color? color, EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4)}) {
+  return Container(
+    padding: padding,
+    decoration: BoxDecoration(color: color ?? AppColors.veryVeryLightGreen, borderRadius: BorderRadius.circular(100)),
     child: child,
   );
 }
@@ -103,7 +121,7 @@ Widget iconText(String icon, String s, {bool isItalic = false}) {
     children: [
       SvgPicture.asset(icon, width: size, height: size,),
       horizontalSpace(5),
-      regularText(s, color: AppColors.grey, fontSize: 10, italic: isItalic)
+      regularText(s, color: AppColors.grey, fontSize: 12, italic: isItalic)
     ],
   );
 }
@@ -127,24 +145,16 @@ String? getSortedTime(DateTime? messageTimeStamp) {
 }
 
 textForTab(String s, bool condition, {Color? unselectedTextColor}) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      condition
-          ? Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: regularText(s,
-            color: AppColors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 10),
-      )
-          : Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: regularText(s,
-            color: unselectedTextColor ?? AppColors.normalGreen,
-            fontWeight: FontWeight.w500,
-            fontSize: 10),
-      ),
-    ],
+  // Scales down rather than overflowing when a long label meets a narrow tab.
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10.0),
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      child: regularText(s,
+          color: condition ? AppColors.white : (unselectedTextColor ?? AppColors.normalGreen),
+          fontWeight: condition ? FontWeight.w600 : FontWeight.w500,
+          fontSize: 13,
+          maxLines: 1),
+    ),
   );
 }

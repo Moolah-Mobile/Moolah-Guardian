@@ -42,97 +42,110 @@ class SyncDevice extends StatefulWidget {
 class _SyncDeviceState extends State<SyncDevice> {
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
     return customGestureDetecter(
       onTap: (){
 
         Get.toNamed(SyncDeviceDetailScreen.screenName, arguments: {"kidId": widget.kidId});
       },
       child: roundedContainer(
-        width: width,
-        color: AppColors.lightGrey,
-        padding: const EdgeInsets.all(10),
-        margin: const EdgeInsets.only(top: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        borderRadius: 20,
+        padding: const EdgeInsets.all(14),
+        margin: const EdgeInsets.only(top: 12),
+        border: Border.all(color: AppColors.greyF0F0),
+        shadow: softShadow,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 55,
-              width: 55,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(1000),
-                child: widget.image == null ? ClipRRect(
-                    borderRadius: BorderRadius.circular(1000),
-                    child: SvgPicture.asset(AppImages.person)) : Image.network(widget.image!,  errorBuilder: (c, e, v) => SvgPicture.asset(AppImages.person)),
-              ),
-            ),
-            horizontalSpace(10),
-            Expanded(
-              child: Column(
-                children: [
-                  Row(
+            Row(
+              children: [
+                Container(
+                  height: 52,
+                  width: 52,
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.veryVeryLightGreen),
+                  child: ClipOval(
+                    child: widget.image == null
+                        ? SvgPicture.asset(AppImages.person)
+                        : Image.network(widget.image!,
+                            fit: BoxFit.cover, errorBuilder: (c, e, v) => SvgPicture.asset(AppImages.person)),
+                  ),
+                ),
+                horizontalSpace(12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Text(
-                          widget.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: textStyle.copyWith(
-                              fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.black),
-                        ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              widget.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: textStyle.copyWith(
+                                  fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.black),
+                            ),
+                          ),
+                          horizontalSpace(6),
+                          SvgPicture.asset(widget.isIPad ? AppImages.iPad : AppImages.mobile, height: 14),
+                        ],
                       ),
-                      horizontalSpace(10),
-                      SvgPicture.asset(widget.isIPad ? AppImages.iPad : AppImages.mobile),
-                      const Spacer(),
-                      horizontalSpace(8),
-                      regularText("View", color: AppColors.normalGreen, underline: true)
+                      verticalSpace(4),
+                      Row(
+                        children: [
+                          SvgPicture.asset(AppImages.clock, width: 12, height: 12),
+                          horizontalSpace(5),
+                          Flexible(
+                            child: regularText("Active ${widget.active}",
+                                color: AppColors.grey, fontSize: 12, maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  verticalSpace(10),
-                  // The three stats share the row and shorten with an ellipsis on narrow screens.
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _stat(AppImages.emptyBattery, "${widget.battery}%", shrink: false, locked: widget.batteryLocked),
-                      horizontalSpace(6),
-                      _stat(AppImages.global, "${widget.mbps} Mb per sec", locked: widget.usageLocked),
-                      horizontalSpace(6),
-                      _stat(AppImages.clock, "Active ${widget.active}", italic: true),
-                    ],
-                  )
-                ],
-              ),
+                ),
+                Container(
+                  height: 32,
+                  width: 32,
+                  decoration: BoxDecoration(color: AppColors.lightGrey, shape: BoxShape.circle),
+                  child: Icon(Icons.chevron_right_rounded, size: 22, color: AppColors.black),
+                ),
+              ],
             ),
-
+            verticalSpace(12),
+            Row(
+              children: [
+                _stat(AppImages.emptyBattery, "${widget.battery}%", locked: widget.batteryLocked),
+                horizontalSpace(8),
+                Flexible(child: _stat(AppImages.global, "${widget.mbps} Mb/s", locked: widget.usageLocked)),
+              ],
+            ),
           ],
-        )
+        ),
       ),
     );
   }
 
-  // A stat with shrink: false (the short battery figure) keeps its full width; the others share the rest.
-  Widget _stat(String icon, String text, {bool italic = false, bool shrink = true, bool locked = false}) {
-    if (locked) {
-      return Row(
+  // A stat the parent's plan doesn't include shows a padlock instead of its value.
+  Widget _stat(String icon, String text, {bool locked = false}) {
+    return pill(
+      color: AppColors.lightGrey,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SvgPicture.asset(icon, width: 15, height: 15),
-          horizontalSpace(5),
-          Icon(Icons.lock_outline, size: 13, color: AppColors.grey),
+          SvgPicture.asset(icon, width: 14, height: 14),
+          horizontalSpace(6),
+          if (locked)
+            Icon(Icons.lock_outline, size: 13, color: AppColors.grey)
+          else
+            Flexible(
+              child: regularText(text,
+                  color: AppColors.black, fontSize: 12, fontWeight: FontWeight.w500,
+                  maxLines: 1, textOverflow: TextOverflow.ellipsis),
+            ),
         ],
-      );
-    }
-    final label = regularText(text,
-        color: AppColors.grey, fontSize: 10, italic: italic, maxLines: 1, textOverflow: TextOverflow.ellipsis);
-    final stat = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SvgPicture.asset(icon, width: 15, height: 15),
-        horizontalSpace(5),
-        shrink ? Flexible(child: label) : label,
-      ],
+      ),
     );
-    return shrink ? Flexible(child: stat) : stat;
   }
 }

@@ -18,9 +18,12 @@ class CustomTextField extends StatefulWidget {
         this.onChange,
         this.otherOne = false,
         this.prefixIcon,
+        this.placeholder,
         this.maxLines = 1
       });
   final String hintText;
+  // Example text shown inside the empty field; hintText is the label above it.
+  final String? placeholder;
   final String? prefixIcon;
   final bool required;
   final bool otherOne;
@@ -105,11 +108,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
         if(widget.hintText.isNotEmpty)
         Wrap(
           children: [
-            subHeadingText(widget.hintText, fontWeight: FontWeight.w500, color: error ? Colors.red : Colors.grey, height: 1.2),
+            subHeadingText(widget.hintText, fontSize: 13, fontWeight: FontWeight.w600, color: error ? AppColors.lightRed : AppColors.black.withValues(alpha: 0.75), height: 1.2),
             if (widget.required) boldText("*", color: Colors.red, fontSize: 13)
           ],
         ),
-        verticalSpace(10),
+        verticalSpace(8),
         TextFormField(
           controller: textEditingController,
           focusNode: focusNode,
@@ -131,15 +134,17 @@ class _CustomTextFieldState extends State<CustomTextField> {
           maxLines: widget.maxLines,
           decoration: InputDecoration(
               errorText: null,
+              hintText: widget.placeholder,
               errorStyle: const TextStyle(height: 0),
               border: error ? errorBorder : border,
               enabledBorder: error ? errorBorder : border,
-              focusedBorder: error ? errorBorder : border,
+              focusedBorder: error ? errorBorder : focusedBorder,
               disabledBorder: error ? errorBorder : border,
               errorBorder: error ? errorBorder : border,
               focusedErrorBorder: error ? errorBorder : border,
               fillColor: AppColors.lightGrey,
               filled: true,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               suffixIcon: widget.textInputType == TextInputType.visiblePassword
                   ? customGestureDetecter(
                 onTap: () {
@@ -159,7 +164,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         if (error)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5).copyWith(bottom: 0),
-          child: regularText(errorText, color: AppColors.red, fontSize: 12),
+          child: regularText(errorText, color: AppColors.lightRed, fontSize: 12, fontWeight: FontWeight.w500),
         )
       ],
     );
@@ -193,7 +198,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               hintStyle: textStyle.copyWith(fontWeight: FontWeight.w500, color: AppColors.grey9494),
               border: error ? otherErrorBorder : otherBorder,
               enabledBorder: error ? otherErrorBorder : otherBorder,
-              focusedBorder: error ? otherErrorBorder : otherBorder,
+              focusedBorder: error ? otherErrorBorder : focusedBorder,
               disabledBorder: error ? otherErrorBorder : otherBorder,
               errorBorder: error ? otherErrorBorder : otherBorder,
               focusedErrorBorder: error ? otherErrorBorder : otherBorder,
@@ -226,7 +231,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         if (error)
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5).copyWith(bottom: 0),
-          child: regularText(errorText, color: AppColors.red, fontSize: 12),
+          child: regularText(errorText, color: AppColors.lightRed, fontSize: 12, fontWeight: FontWeight.w500),
         )
       ],
     );
@@ -273,16 +278,19 @@ class _CustomTextFieldState extends State<CustomTextField> {
 }
 
 OutlineInputBorder border = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
+    borderRadius: BorderRadius.circular(14),
     borderSide: const BorderSide(width: 0, color: Colors.transparent));
+OutlineInputBorder focusedBorder = OutlineInputBorder(
+    borderRadius: BorderRadius.circular(14),
+    borderSide: BorderSide(width: 1.5, color: AppColors.normalGreen));
 OutlineInputBorder otherBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
+    borderRadius: BorderRadius.circular(16),
     borderSide: const BorderSide(width: 0, color: Colors.transparent));
 OutlineInputBorder errorBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(10),
-    borderSide: const BorderSide(width: 1, color: Colors.red));
+    borderRadius: BorderRadius.circular(14),
+    borderSide: BorderSide(width: 1.5, color: AppColors.lightRed));
 OutlineInputBorder otherErrorBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-    borderSide: const BorderSide(width: 1, color: Colors.red));
+    borderRadius: BorderRadius.circular(16),
+    borderSide: BorderSide(width: 1.5, color: AppColors.lightRed));
 
 enum Validators {notEmpty, email, password, confirmPassword, passwordForSignup}

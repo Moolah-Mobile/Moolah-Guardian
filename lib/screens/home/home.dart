@@ -9,6 +9,7 @@ import 'package:moolah/screens/subscription_screen/subscription_screen.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/common_widgets/common_button.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
+import 'package:moolah/util/colors.dart';
 import 'package:moolah/util/images.dart';
 
 import '../../controllers/authController.dart';
@@ -37,115 +38,179 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.height;
     return CommonGradientBackground(
         child: GetBuilder<SubscriptionController>(builder: (subscription) => GetBuilder<HomeController>(builder: (homeController) {
       return GetBuilder<AuthController>(builder: (con) {
-        return Column(
-          children: [
-            verticalSpace(40),
-            verticalSpace(height * 0.03),
-            Expanded(
-              child: roundedContainer(
-                  borderRadiusWhole: BorderRadius.circular(13).copyWith(
-                      bottomRight: Radius.zero, bottomLeft: Radius.zero),
-                  padding: const EdgeInsets.all(25)
-                      .copyWith(bottom: 0, left: 20, right: 20),
-                  margin: const EdgeInsets.all(10).copyWith(bottom: 0),
-                  width: width,
-                  child: Column(
+        final kids = homeController.connectedKids;
+        final firstName = Prefs.firstName.get().trim();
+        return SafeArea(
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top bar: menu on the left, the parent's avatar (opens their plan) on the right.
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: Row(
+                  children: [
+                    customGestureDetecter(
+                      onTap: () => Get.toNamed(MainMenuProfile.screenName),
+                      child: roundedContainer(
+                        height: 44,
+                        width: 44,
+                        shadow: softShadow,
+                        padding: const EdgeInsets.all(12),
+                        child: SvgPicture.asset(AppImages.menu),
+                      ),
+                    ),
+                    const Spacer(),
+                    customGestureDetecter(
+                      onTap: () => Get.toNamed(SubscriptionScreen.screenName),
+                      child: Container(
+                        height: 44,
+                        width: 44,
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle, color: AppColors.white, boxShadow: softShadow),
+                        child: ClipOval(child: SvgPicture.asset(AppImages.person)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 22, 20, 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    regularText("Welcome back,", fontSize: 15, color: AppColors.black.withValues(alpha: 0.6)),
+                    verticalSpace(2),
+                    boldText(firstName.isEmpty ? "Your Name" : firstName,
+                        fontSize: 28, maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                    boxShadow: softShadow,
+                  ),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, adBannerSpace),
                     children: [
-                      SizedBox(
-                        height: 30,
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              top: 0,
-                                left: 0,
-                                child: customGestureDetecter(
-                                  onTap: (){
-                                     Get.toNamed(MainMenuProfile.screenName);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
-                                    child: SvgPicture.asset(AppImages.menu),
-                                  ),
-                                ))
-                          ],
-                        ),
-                      ),
-                      verticalSpace(30),
-                      customGestureDetecter(
-                        onTap: () {
-                          Get.toNamed(SubscriptionScreen.screenName);
-                        },
-                        child: Column(
-                          children: [
-                            ClipRRect(
-                                borderRadius: BorderRadius.circular(1000),
-                                child: SvgPicture.asset(AppImages.person)),
-                            verticalSpace(15),
-                            bigSubHeading(
-                                Prefs.firstName.get().trim().isEmpty
-                                    ? "Your Name"
-                                    : Prefs.firstName.get()),
-                          ],
-                        ),
-                      ),
-                      verticalSpace(15),
-                      CustomButton(
-                          text: "Connect a Device",
-                          notExpanded: true,
-                          icon: AppImages.scanBarcode,
-                          onTap: () {
-                            if (!requireDeviceSlot()) return;
-                            Get.find<AuthController>().refreshToken();
-                            Get.toNamed(ConnectDeviceScreen.screenName);
-                          }),
-                      verticalSpace(height * 0.07),
-                      Align(
-                          alignment: Alignment.centerLeft,
-                          child: bigSubHeading(
-                              "Synced Devices (${homeController.connectedKids.length})")),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              for (int i = 0;
-                                  i < homeController.connectedKids.length;
-                                  i++)
-                                SyncDevice(
-                                    kidId:
-                                    homeController.connectedKids[i].connectId ??
-                                    homeController.connectedKids[i].kidId ??
-                                    "",
-                                    name: homeController.connectedKids[i].name ?? "Unknown",
-                                    image:
-                                        homeController.connectedKids[i].kidPic,
-                                    active: homeController
-                                        .connectedKids[i].lastActive ?? "N/A",
-                                    battery: homeController
-                                        .connectedKids[i].batteryStatus ?? "0",
-                                    mbps: homeController
-                                        .connectedKids[i].dataUsageStatus ?? "0",
-                                    batteryLocked: !subscription.allows(Feature.battery),
-                                    usageLocked: !subscription.allows(Feature.appUsage),
-                                    isIPad: (homeController
-                                        .connectedKids[i].deviceType ?? "")
-                                        .toLowerCase()
-                                        .contains("tab"))
-                            ],
+                      _connectCard(),
+                      verticalSpace(26),
+                      Row(
+                        children: [
+                          boldText("Synced Devices", fontSize: 18),
+                          horizontalSpace(8),
+                          pill(
+                            child: regularText("${kids.length}",
+                                fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.normalGreen),
                           ),
-                        ),
-                      )
+                        ],
+                      ),
+                      verticalSpace(6),
+                      if (kids.isEmpty)
+                        _noDevices()
+                      else
+                        for (final kid in kids)
+                          SyncDevice(
+                              kidId: kid.connectId ?? kid.kidId ?? "",
+                              name: kid.name ?? "Unknown",
+                              image: kid.kidPic,
+                              active: kid.lastActive ?? "N/A",
+                              battery: kid.batteryStatus ?? "0",
+                              mbps: kid.dataUsageStatus ?? "0",
+                              batteryLocked: !subscription.allows(Feature.battery),
+                              usageLocked: !subscription.allows(Feature.appUsage),
+                              isIPad: (kid.deviceType ?? "").toLowerCase().contains("tab")),
                     ],
-                  )),
-            ),
-          ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       });
     })));
+  }
+
+  /// The call to action for linking a child's device.
+  Widget _connectCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.normalGreen, AppColors.onBoard1, AppColors.lightGreen],
+        ),
+        boxShadow: [
+          BoxShadow(color: AppColors.normalGreen.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    boldText("Add a device", fontSize: 20, color: AppColors.white),
+                    verticalSpace(6),
+                    regularText("Enter the code from your child's phone to start protecting it.",
+                        fontSize: 13, color: AppColors.white.withValues(alpha: 0.9), height: 1.4),
+                  ],
+                ),
+              ),
+              horizontalSpace(12),
+              Container(
+                height: 52,
+                width: 52,
+                decoration: BoxDecoration(
+                    color: AppColors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
+                child: const Icon(Icons.shield_outlined, color: Colors.white, size: 28),
+              ),
+            ],
+          ),
+          CustomButton(
+              text: "Connect a Device",
+              margin: const EdgeInsets.only(top: 18),
+              icon: AppImages.scanBarcode,
+              onTap: () {
+                if (!requireDeviceSlot()) return;
+                Get.find<AuthController>().refreshToken();
+                Get.toNamed(ConnectDeviceScreen.screenName);
+              }),
+        ],
+      ),
+    );
+  }
+
+  Widget _noDevices() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 36),
+      child: Column(
+        children: [
+          Container(
+            height: 72,
+            width: 72,
+            decoration: BoxDecoration(color: AppColors.veryVeryLightGreen, shape: BoxShape.circle),
+            child: Icon(Icons.devices_other_outlined, size: 34, color: AppColors.normalGreen),
+          ),
+          verticalSpace(14),
+          boldText("No devices yet", fontSize: 16),
+          verticalSpace(6),
+          subHeadingText("Connect your child's phone to see it here.", textAlign: TextAlign.center),
+        ],
+      ),
+    );
   }
 
   void setController() async {

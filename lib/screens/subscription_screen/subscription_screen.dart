@@ -56,7 +56,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         final choice = selected ?? _defaultChoice(c.currentPlan);
         return Loader(
           c: c,
-          child: SafeArea(
+          child: Container(
+           decoration: BoxDecoration(
+             gradient: LinearGradient(
+               begin: Alignment.topCenter,
+               end: Alignment.bottomCenter,
+               colors: [AppColors.onBoard1, AppColors.normalGreen],
+             ),
+           ),
+           child: SafeArea(
             child: Column(
               children: [
                 verticalSpace(10),
@@ -70,8 +78,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            regularText("Current plan: ${c.currentPlan.title}",
-                                color: Colors.white, fontWeight: FontWeight.w500),
+                            pill(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              child: regularText("Current plan: ${c.currentPlan.title}",
+                                  color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
+                            ),
+                            verticalSpace(4),
                             if (_renewalText(c) != null)
                               regularText(_renewalText(c)!,
                                   color: Colors.white, fontWeight: FontWeight.w300, fontSize: 12),
@@ -87,16 +100,26 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     children: [
                       verticalSpace(6),
                       Center(
-                        child: roundedContainer(
-                            borderRadius: 100,
-                            child: Padding(
-                              padding: const EdgeInsets.all(13.0),
-                              child: SvgPicture.asset(AppImages.crown),
-                            )),
+                        child: Container(
+                          height: 72,
+                          width: 72,
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 8))],
+                          ),
+                          child: SvgPicture.asset(AppImages.crown),
+                        ),
                       ),
-                      verticalSpace(12),
-                      Center(child: bigHeadingText("Choose your plan", color: Colors.white)),
-                      verticalSpace(14),
+                      verticalSpace(16),
+                      Center(child: bigHeadingText("Choose your plan", color: Colors.white, fontSize: 28)),
+                      verticalSpace(6),
+                      Center(
+                        child: regularText("Upgrade any time. Plans renew monthly.",
+                            color: Colors.white.withValues(alpha: 0.85), fontSize: 14),
+                      ),
+                      verticalSpace(20),
                       if (c.isPastDue) ...[
                         pastDueBanner(),
                         verticalSpace(12),
@@ -133,6 +156,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 verticalSpace(16),
               ],
             ),
+          ),
           ),
         );
       }),
@@ -219,26 +243,26 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Widget couponField() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 4, top: 4),
       child: TextField(
         key: const ValueKey("coupon_code"),
         controller: couponController,
         textCapitalization: TextCapitalization.characters,
         textInputAction: TextInputAction.done,
-        style: const TextStyle(color: Colors.white),
-        cursorColor: Colors.white,
+        style: TextStyle(color: AppColors.black, fontFamily: fontFamily, fontWeight: FontWeight.w600),
         decoration: InputDecoration(
           hintText: "Coupon code (optional)",
-          hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-          prefixIcon: Icon(Icons.local_offer_outlined, color: Colors.white.withValues(alpha: 0.8), size: 20),
-          isDense: true,
+          filled: true,
+          fillColor: Colors.white,
+          prefixIcon: Icon(Icons.local_offer_outlined, color: AppColors.normalGreen, size: 20),
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Colors.white, width: 1.5),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: AppColors.lightGreen, width: 2),
           ),
         ),
       ),
@@ -248,71 +272,110 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Widget linkText(String text, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
-      child: regularText(text,
-          underline: true, fontSize: 12, color: Colors.white, decorationColor: Colors.white),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        child: regularText(text,
+            fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+      ),
     );
   }
 
   Widget planCard(SubscriptionController c, Plan plan, {required bool current, required bool selected}) {
     return GestureDetector(
       onTap: () => setState(() => this.selected = plan),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: selected ? AppColors.lightGreen : AppColors.lightGreen.withValues(alpha: 0.45),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: selected ? Colors.white : Colors.transparent, width: 2),
+          color: selected ? Colors.white : Colors.white.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+              color: selected ? AppColors.lightGreen : Colors.white.withValues(alpha: 0.25), width: selected ? 2.5 : 1),
+          boxShadow: selected
+              ? [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 24, offset: const Offset(0, 10))]
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 18, 16),
               child: Row(
                 children: [
-                  Icon(selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                      color: Colors.white, size: 20),
-                  horizontalSpace(10),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 24,
+                    width: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: selected ? AppColors.normalGreen : Colors.transparent,
+                      border: Border.all(color: selected ? AppColors.normalGreen : Colors.white, width: 2),
+                    ),
+                    child: selected ? const Icon(Icons.check_rounded, size: 16, color: Colors.white) : null,
+                  ),
+                  horizontalSpace(12),
                   Expanded(
                     child: Row(
                       children: [
-                        Flexible(child: bigHeadingText(plan.title, color: Colors.white, fontSize: 18)),
+                        Flexible(
+                            child: bigHeadingText(plan.title,
+                                color: selected ? AppColors.black : Colors.white, fontSize: 19)),
                         if (current) ...[
                           horizontalSpace(8),
-                          roundedContainer(
-                            borderRadius: 20,
-                            color: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            child: regularText("Current", fontSize: 10, color: AppColors.normalGreen,
+                          pill(
+                            color: selected ? AppColors.veryVeryLightGreen : Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            child: regularText("Current", fontSize: 11, color: AppColors.normalGreen,
                                 fontWeight: FontWeight.w700),
                           ),
                         ],
                       ],
                     ),
                   ),
-                  bigHeadingText(plan.isPaid ? "\$${c.priceOf(plan).toStringAsFixed(2)}" : "\$0",
-                      color: Colors.white, fontSize: 18),
-                  regularText("/mo", color: Colors.white, fontSize: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      bigHeadingText(plan.isPaid ? "\$${c.priceOf(plan).toStringAsFixed(2)}" : "\$0",
+                          color: selected ? AppColors.normalGreen : Colors.white, fontSize: 22),
+                      regularText("/mo",
+                          color: selected ? AppColors.grey : Colors.white.withValues(alpha: 0.8), fontSize: 13),
+                    ],
+                  ),
                 ],
               ),
             ),
             if (selected)
-              roundedContainer(
-                margin: const EdgeInsets.symmetric(horizontal: 7).copyWith(bottom: 7),
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.veryVeryLightGreen,
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     for (final h in plan.highlights)
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        padding: const EdgeInsets.symmetric(vertical: 5),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(h.contains("coming soon") ? Icons.schedule : Icons.check,
-                                size: 16, color: AppColors.normalGreen),
-                            horizontalSpace(8),
-                            Expanded(child: regularText(h, fontWeight: FontWeight.w500, fontSize: 13)),
+                            Container(
+                              height: 20,
+                              width: 20,
+                              decoration: BoxDecoration(
+                                color: h.contains("coming soon") ? AppColors.greyF0F0 : AppColors.normalGreen,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(h.contains("coming soon") ? Icons.schedule : Icons.check_rounded,
+                                  size: 13, color: h.contains("coming soon") ? AppColors.grey : Colors.white),
+                            ),
+                            horizontalSpace(10),
+                            Expanded(child: regularText(h, fontWeight: FontWeight.w500, fontSize: 14, height: 1.3)),
                           ],
                         ),
                       ),

@@ -33,50 +33,70 @@ class MainMenuProfile extends StatefulWidget {
 class _MainMenuProfileState extends State<MainMenuProfile> {
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
     return CommonGradientBackground(
         child: SafeArea(
+      bottom: false,
       child: GetBuilder<AuthController>(
         builder: (context) {
+          final fullName = "${Prefs.firstName.get()} ${Prefs.lastName.get()}".trim();
+          final email = Prefs.email.get();
           return Column(
             children: [
               commonAppBar(heading: "Menu"),
               Expanded(
-                child: roundedContainer(
-                  borderRadiusWhole: BorderRadius.circular(13)
-                      .copyWith(bottomRight: Radius.zero, bottomLeft: Radius.zero),
-                  padding: const EdgeInsets.all(25).copyWith(bottom: 0, left: 15),
-                  margin: const EdgeInsets.all(10).copyWith(bottom: 0),
-                  width: width,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        verticalSpace(10),
-                        customProfileViewer(),
-                        verticalSpace(10),
-                        bigSubHeading("${Prefs.firstName.get()} ${Prefs.lastName.get()}".trim().isEmpty ? "Your Name" : "${Prefs.firstName.get()} ${Prefs.lastName.get()}"),
-                        subHeadingText(Prefs.email.get()),
-                        verticalSpace(30),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: bigSubHeading("More Option"),
-                        ),
-                        verticalSpace(10),
-                        option(icon: AppImages.profile, text: "Edit Profile", onTap: () => Get.toNamed(Profile.screenName)),
-                        option(icon: AppImages.password, text: "Password", onTap: () => Get.toNamed(ChangePassword.screenName)),
-                        option(icon: AppImages.tutorial, text: "Tutorials", onTap: () => Get.toNamed(TutorialScreen.screenName)),
-                        option(icon: AppImages.feedback, text: "Feedback", onTap: () => Get.toNamed(FeedbackScreen.screenName)),
-                        option(icon: AppImages.contactUs, text: "Contact us", onTap: () => Get.toNamed(ContactUsScreen.screenName)),
-                        option(icon: AppImages.privacyPolicy, text: "Privacy Policy", onTap: () => Get.toNamed(PrivacyScreen.screenName)),
-                        verticalSpace(20),
-                        CustomButton(onTap: (){
-                          Get.find<AuthController>().logout();
-                          Get.offAllNamed(OnBoard.screenName);
-                        },text: "Logout", color: AppColors.lightRed.withOpacity(0.2), textColor: AppColors.red,icon: AppImages.logout,notExpanded: true,margin: EdgeInsets.zero),
-                        verticalSpace(50),
-                      ],
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+                  children: [
+                    // Who is signed in.
+                    roundedContainer(
+                      borderRadius: 24,
+                      padding: const EdgeInsets.all(18),
+                      shadow: softShadow,
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 64,
+                            width: 64,
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.veryVeryLightGreen),
+                            child: ClipOval(child: SvgPicture.asset(AppImages.person)),
+                          ),
+                          horizontalSpace(14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                boldText(fullName.isEmpty ? "Your Name" : fullName,
+                                    fontSize: 18, maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                                if (email.isNotEmpty) ...[
+                                  verticalSpace(3),
+                                  regularText(email,
+                                      fontSize: 13, color: AppColors.grey, maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    _sectionTitle("Account"),
+                    _group([
+                      option(icon: AppImages.profile, text: "Edit Profile", onTap: () => Get.toNamed(Profile.screenName)),
+                      option(icon: AppImages.password, text: "Password", onTap: () => Get.toNamed(ChangePassword.screenName)),
+                    ]),
+                    _sectionTitle("Help & support"),
+                    _group([
+                      option(icon: AppImages.tutorial, text: "Tutorials", onTap: () => Get.toNamed(TutorialScreen.screenName)),
+                      option(icon: AppImages.feedback, text: "Feedback", onTap: () => Get.toNamed(FeedbackScreen.screenName)),
+                      option(icon: AppImages.contactUs, text: "Contact us", onTap: () => Get.toNamed(ContactUsScreen.screenName)),
+                      option(icon: AppImages.privacyPolicy, text: "Privacy Policy", onTap: () => Get.toNamed(PrivacyScreen.screenName)),
+                    ]),
+                    verticalSpace(24),
+                    CustomButton(onTap: (){
+                      Get.find<AuthController>().logout();
+                      Get.offAllNamed(OnBoard.screenName);
+                    },text: "Logout", color: AppColors.white, textColor: AppColors.lightRed, border: Border.all(color: AppColors.lightRed.withValues(alpha: 0.3)), icon: AppImages.logout,notExpanded: true,margin: EdgeInsets.zero),
+                  ],
                 ),
               ),
             ],
@@ -86,27 +106,47 @@ class _MainMenuProfileState extends State<MainMenuProfile> {
     ));
   }
 
-  option({required String icon, required String text, void Function()? onTap}) {
+  Widget _sectionTitle(String text) => Padding(
+        padding: const EdgeInsets.fromLTRB(6, 24, 6, 10),
+        child: regularText(text.toUpperCase(),
+            fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.black.withValues(alpha: 0.55)),
+      );
+
+  /// Options stacked in one card, separated by hairlines.
+  Widget _group(List<Widget> options) {
+    return roundedContainer(
+      borderRadius: 20,
+      shadow: softShadow,
+      child: Column(
+        children: [
+          for (int i = 0; i < options.length; i++) ...[
+            if (i > 0) Divider(height: 1, thickness: 1, indent: 66, color: AppColors.greyF0F0),
+            options[i],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget option({required String icon, required String text, void Function()? onTap}) {
     return customGestureDetecter(
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 15.0),
+      child: Container(
+        color: Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                roundedContainer(
-                  color: AppColors.greyF0F0,
-                  borderRadius: 50,
-                  padding: const EdgeInsets.all(10),
-                  child: SvgPicture.asset(icon)
-                ),
-                horizontalSpace(20),
-                regularText(text)
-              ],
+            roundedContainer(
+              height: 38,
+              width: 38,
+              color: AppColors.veryVeryLightGreen,
+              borderRadius: 12,
+              padding: const EdgeInsets.all(9),
+              child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(AppColors.normalGreen, BlendMode.srcIn)),
             ),
-            Icon(Icons.arrow_forward_ios, size: 10,)
+            horizontalSpace(14),
+            Expanded(child: regularText(text, fontSize: 15, fontWeight: FontWeight.w500)),
+            Icon(Icons.chevron_right_rounded, size: 22, color: AppColors.grey),
           ],
         ),
       ),

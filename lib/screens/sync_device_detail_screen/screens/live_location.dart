@@ -70,7 +70,7 @@ class _LiveLocationState extends State<LiveLocation> {
         commonAppBar(heading: "Live Location"),
         Expanded(
           child: roundedContainer(
-            borderRadiusWhole: BorderRadius.circular(13)
+            borderRadiusWhole: BorderRadius.circular(28)
                 .copyWith(bottomRight: Radius.zero, bottomLeft: Radius.zero),
             // padding: const EdgeInsets.all(25)
             //     .copyWith(bottom: 0, left: 15, right: 15),

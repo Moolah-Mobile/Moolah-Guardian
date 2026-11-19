@@ -30,7 +30,7 @@ class _EditProfileState extends State<EditProfile> {
             commonAppBar(heading: "Profile"),
             Expanded(
               child: roundedContainer(
-                borderRadiusWhole: BorderRadius.circular(13).copyWith(
+                borderRadiusWhole: BorderRadius.circular(28).copyWith(
                     bottomRight: Radius.zero, bottomLeft: Radius.zero),
                 padding: const EdgeInsets.all(25).copyWith(bottom: 0, left: 15, right: 15),
                 margin: const EdgeInsets.all(10).copyWith(bottom: 0),

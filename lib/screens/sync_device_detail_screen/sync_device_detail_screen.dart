@@ -149,9 +149,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                             decoration: const BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(15), topRight: Radius.circular(15)),
+                                  topLeft: Radius.circular(24), topRight: Radius.circular(24)),
                             ),
-                            padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                             alignment: Alignment.topCenter,
                             child: tabBar(),
                           ),
@@ -189,7 +189,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   }
 
   // Height of the pinned bar: 10 top padding plus the tab bar (5 padding each side around a 46 tall TabBar).
-  static const double _tabBarExtent = 10 + 56 + 6;
+  static const double _tabBarExtent = 12 + 56 + 6;
 
   /// "Block Apps" or "Add Black List URL" at the top of the tab's list, so it scrolls away with it.
   Widget _tabActionButton() {
@@ -621,19 +621,21 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
       "${time.day}/${time.month} ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
 
   Widget actionButton(IconData icon, String text, VoidCallback onTap, {bool locked = false, bool danger = false}) {
-    final color = danger && !locked ? AppColors.red : null;
+    final color = danger && !locked ? AppColors.red : AppColors.black;
     return Expanded(
       child: customGestureDetecter(
         onTap: onTap,
         child: roundedContainer(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          color: AppColors.lightGrey,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          borderRadius: 16,
+          color: AppColors.white,
+          border: Border.all(color: AppColors.buttonBorderGrey),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(locked ? Icons.lock_outline : icon, size: 18, color: color),
-              horizontalSpace(6),
-              regularText(text, fontSize: 14, fontWeight: FontWeight.w600, color: color),
+              Icon(locked ? Icons.lock_outline : icon, size: 19, color: locked ? AppColors.grey : color),
+              horizontalSpace(8),
+              regularText(text, fontSize: 14, fontWeight: FontWeight.w600, color: locked ? AppColors.grey : color),
             ],
           ),
         ),
@@ -700,60 +702,60 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
       Color color, String icon, String text, String value, String t,
       {bool otherOne = false, Feature? feature}) {
     final locked = feature != null && !planAllows(feature);
+    final iconBubble = Container(
+      height: 42,
+      width: 42,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(AppColors.white, BlendMode.srcIn)),
+    );
     return Expanded(
       child: customGestureDetecter(
         onTap: locked ? () => withFeature(feature, text, () {}) : null,
         child: roundedContainer(
-          padding: const EdgeInsets.all(7),
+          padding: const EdgeInsets.all(12),
+          borderRadius: 18,
           color: AppColors.lightGrey,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  roundedContainer(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 15, horizontal: 5),
-                    color: color,
-                    child: SvgPicture.asset(
-                      icon,
-                      colorFilter:
-                          ColorFilter.mode(AppColors.white, BlendMode.srcIn),
-                    ),
-                  ),
-                  horizontalSpace(3),
-                  if (otherOne)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: regularText(text,
-                          fontSize: 15, fontWeight: FontWeight.w600),
-                    )
-                  else
-                    subHeadingText(text, fontSize: 10),
-                ],
-              ),
-              if (locked)
-                const Icon(Icons.lock_outline, size: 20, color: Colors.grey)
-              else if (!otherOne)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+          child: otherOne
+              ? Row(
                   children: [
-                    bigHeadingText(value, fontSize: 20),
-                    Column(
-                      children: [
-                        bigHeadingText(t, fontSize: 12),
-                        verticalSpace(2)
-                      ],
-                    ),
+                    iconBubble,
+                    horizontalSpace(14),
+                    Expanded(child: regularText(text, fontSize: 15, fontWeight: FontWeight.w600)),
+                    Icon(Icons.chevron_right_rounded, size: 24, color: AppColors.black),
                   ],
                 )
-              else
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 15,
-                )
-            ],
-          )),
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        iconBubble,
+                        const Spacer(),
+                        if (locked) Icon(Icons.lock_outline, size: 18, color: AppColors.grey),
+                      ],
+                    ),
+                    verticalSpace(12),
+                    subHeadingText(text, fontSize: 12, color: AppColors.grey),
+                    verticalSpace(2),
+                    if (locked)
+                      regularText("Upgrade to see", fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.grey)
+                    else
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          bigHeadingText(value, fontSize: 24),
+                          horizontalSpace(2),
+                          bigHeadingText(t, fontSize: 13, color: AppColors.grey),
+                        ],
+                      ),
+                  ],
+                )),
       ),
     );
   }
@@ -762,70 +764,75 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     Kid kid = homeController.getSelectedKid(widget.kidId);
     final stats = kid.deviceDetail?.data?.realTimeStats;
 
+    final walletOn = kid.walletEnabled ?? false;
     return roundedContainer(
-      borderRadius: 15,
-      padding: const EdgeInsets.all(20),
+      borderRadius: 24,
+      padding: const EdgeInsets.all(18),
+      shadow: softShadow,
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  SizedBox(
-                    height: 55,
-                    width: 55,
-                    child: ClipRRect(
-                        child: ClipRRect(
-                      borderRadius: BorderRadius.circular(1000),
-                      child: kid.kidPic == null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(1000),
-                              child: SvgPicture.asset(AppImages.person))
-                          : Image.network(kid.kidPic!,
-                              errorBuilder: (c, e, v) =>
-                                  SvgPicture.asset(AppImages.person)),
-                    )),
-                  ),
-                  horizontalSpace(10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      bigSubHeading(kid.name ?? ""),
-                      iconText(AppImages.clock, "Active ${kid.lastActive}",
-                          isItalic: true),
-                    ],
-                  ),
-                ],
+              Container(
+                height: 56,
+                width: 56,
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.veryVeryLightGreen),
+                child: ClipOval(
+                  child: kid.kidPic == null
+                      ? SvgPicture.asset(AppImages.person)
+                      : Image.network(kid.kidPic!,
+                          fit: BoxFit.cover, errorBuilder: (c, e, v) => SvgPicture.asset(AppImages.person)),
+                ),
               ),
-              Column(
-                children: [
-                  Row(
-                    children: [
-                      customGestureDetecter(
-                          onTap: () {
-                            withFeature(Feature.wallet, "The M! wallet", _showAdDialog);
-                          },
-                          child: SvgPicture.asset(AppImages.information)),
-                      horizontalSpace(10),
-                      customSwitch(value: kid.walletEnabled ?? false)
-                    ],
-                  ),
-                  verticalSpace(2),
-                  regularText(
-                      kid.walletEnabled ?? false
-                          ? "Wallet Enabled"
-                          : "Wallet Disabled",
-                      color: kid.walletEnabled ?? false
-                          ? AppColors.normalGreen
-                          : AppColors.grey,
-                      fontSize: 10,
-                      italic: true)
-                ],
-              )
+              horizontalSpace(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    boldText(kid.name ?? "", fontSize: 18, maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                    verticalSpace(4),
+                    iconText(AppImages.clock, "Active ${kid.lastActive}"),
+                  ],
+                ),
+              ),
             ],
           ),
-          verticalSpace(20),
+          verticalSpace(14),
+          // M! wallet: the info button explains it, the switch turns it on or off.
+          roundedContainer(
+            color: walletOn ? AppColors.veryVeryLightGreen : AppColors.lightGrey,
+            borderRadius: 16,
+            padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+            child: Row(
+              children: [
+                regularText("M!", customFontFamily: fontFamilyPraise, fontSize: 20,
+                    color: walletOn ? AppColors.normalGreen : AppColors.grey),
+                horizontalSpace(10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      regularText("M! Wallet", fontSize: 14, fontWeight: FontWeight.w600),
+                      regularText(walletOn ? "Wallet Enabled" : "Wallet Disabled",
+                          color: walletOn ? AppColors.normalGreen : AppColors.grey, fontSize: 12),
+                    ],
+                  ),
+                ),
+                customGestureDetecter(
+                    onTap: () {
+                      withFeature(Feature.wallet, "The M! wallet", _showAdDialog);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: SvgPicture.asset(AppImages.information),
+                    )),
+                horizontalSpace(8),
+                customSwitch(value: walletOn),
+              ],
+            ),
+          ),
+          verticalSpace(12),
           Row(
             children: [
               percentageContainer(
@@ -882,7 +889,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
 
   Widget tabBar() {
     return roundedContainer(
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(4),
+      borderRadius: 16,
       color: AppColors.veryVeryLightGreen,
       child: Theme(
         data: Theme.of(context).copyWith(
@@ -892,8 +900,14 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             overlayColor: WidgetStateProperty.all(Colors.transparent),
             splashFactory: NoSplash.splashFactory,
             indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                color: AppColors.normalGreen),
+                borderRadius: BorderRadius.circular(12),
+                color: AppColors.normalGreen,
+                boxShadow: [
+                  BoxShadow(color: AppColors.normalGreen.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 3)),
+                ]),
+            indicatorSize: TabBarIndicatorSize.tab,
+            labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+            dividerColor: Colors.transparent,
             onTap: (v) {
               setState(() {});
             },

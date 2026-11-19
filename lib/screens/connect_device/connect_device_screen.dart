@@ -57,7 +57,7 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
                 Expanded(
                   child: roundedContainer(
                     width: width,
-                    borderRadiusWhole: BorderRadius.circular(13).copyWith(
+                    borderRadiusWhole: BorderRadius.circular(28).copyWith(
                       bottomRight: Radius.zero,
                       bottomLeft: Radius.zero,
                     ),
@@ -70,44 +70,42 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Container(
+                              height: 60,
+                              width: 60,
+                              decoration: BoxDecoration(
+                                color: AppColors.veryVeryLightGreen,
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: Icon(Icons.link_rounded, size: 30, color: AppColors.normalGreen),
+                            ),
+                            verticalSpace(18),
                             bigHeadingText(
                               "Link New Device",
-                              fontSize: 27,
+                              fontSize: 26,
                               height: 1.2,
                             ),
-                            verticalSpace(12),
+                            verticalSpace(8),
                             subHeadingText(
                               "Enter the connect code shown on the kid's device to link it.",
                               height: 1.4,
+                              color: AppColors.grey,
                             ),
-                            verticalSpace(24),
-                        
-                            subHeadingText(
-                              "Device Label",
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.black,
-                            ),
-                            verticalSpace(8),
+                            verticalSpace(14),
                             CustomTextField(
-                              hintText: "e.g. John's Tablet",
+                              hintText: "Device Label",
+                              placeholder: "e.g. John's Tablet",
                               textEditingController: labelController,
                               validators: Validators.notEmpty,
                             ),
-                            verticalSpace(16),
-                        
-                            subHeadingText(
-                              "Connect Code",
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.black,
-                            ),
-                            verticalSpace(8),
+                            verticalSpace(6),
                             CustomTextField(
-                              hintText: "Code shown on the child's device",
+                              hintText: "Connect Code",
+                              placeholder: "Code shown on the child's device",
                               textEditingController: codeController,
                               validators: Validators.notEmpty,
                             ),
-                            verticalSpace(24),
-                        
+                            verticalSpace(22),
                             CustomButton(
                               text: "Connect Device",
                               margin: EdgeInsets.zero,
@@ -148,7 +146,8 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
           type: MaterialType.transparency,
           child: Center(
             child: roundedContainer(
-              margin: const EdgeInsets.all(30),
+              margin: const EdgeInsets.all(28),
+              borderRadius: 28,
               padding:
                   const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
               color: Colors.white,
@@ -157,7 +156,7 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
                 children: [
                   SvgPicture.asset(AppImages.linkCircle),
                   verticalSpace(20),
-                  bigHeadingText("Device Synced"),
+                  bigHeadingText("Device Synced", fontSize: 26),
                   verticalSpace(12),
                   subHeadingText(
                     "Congrats! You have successfully\nconnected to your Moolah Device!",
