@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/feedbackController.dart';
 import 'package:moolah/util/apptext.dart';
+import 'package:moolah/util/colors.dart';
 import 'package:moolah/util/common_widgets/CommonGradientBackground.dart';
 import 'package:moolah/util/common_widgets/common_appbar.dart';
 import 'package:moolah/util/common_widgets/common_button.dart';
@@ -24,56 +25,86 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   TextEditingController textEditingController = TextEditingController();
   GlobalKey<FormState> form = GlobalKey();
   int rating = 1;
+
+  static const _ratingLabels = ["Poor", "Fair", "Good", "Great", "Excellent"];
+
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
     return CommonGradientBackground(
-      child: Column(
-        children: [
-          commonAppBar(heading: "Feedback"),
-          verticalSpace(20),
-          roundedContainer(
-            margin: const EdgeInsets.symmetric(horizontal: 15),
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-            width: width,
-            child: Form(
-              key: form,
-              child: Column(
-                children: [
-                  RatingBar(
-                    initialRating: 1,
-                    allowHalfRating: false,
-                    itemCount: 5,
-                    direction: Axis.horizontal,
-                    onRatingUpdate: (rate) {
-                      setState(() {
-                        rating = rate.toInt();
-                      });
-                    },
-                    itemPadding: const EdgeInsets.all(5),
-                    ratingWidget: RatingWidget(
-                      empty: SvgPicture.asset(AppImages.rating),
-                      full: SvgPicture.asset(AppImages.ratingFilled),
-                      half: SvgPicture.asset(AppImages.ratingFilled),
-                    ),
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            commonAppBar(heading: "Feedback"),
+            verticalSpace(12),
+            Expanded(
+              child: pageSheet(
+                child: Form(
+                  key: form,
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 28, 16, 40),
+                    children: [
+                      iconBadge(Icons.favorite_border_rounded, size: 56),
+                      verticalSpace(16),
+                      sheetIntro("How are we doing?",
+                          "Rate Moolah Guardian and tell us what would make it better for your family."),
+                      verticalSpace(24),
+                      roundedContainer(
+                        borderRadius: 20,
+                        color: AppColors.greyFAFA,
+                        border: Border.all(color: AppColors.greyF0F0),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        child: Column(
+                          children: [
+                            RatingBar(
+                              initialRating: 1,
+                              allowHalfRating: false,
+                              itemCount: 5,
+                              itemSize: 44,
+                              direction: Axis.horizontal,
+                              onRatingUpdate: (rate) => setState(() => rating = rate.toInt()),
+                              itemPadding: const EdgeInsets.symmetric(horizontal: 4),
+                              ratingWidget: RatingWidget(
+                                empty: SvgPicture.asset(AppImages.rating),
+                                full: SvgPicture.asset(AppImages.ratingFilled),
+                                half: SvgPicture.asset(AppImages.ratingFilled),
+                              ),
+                            ),
+                            verticalSpace(10),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 180),
+                              child: KeyedSubtree(
+                                key: ValueKey(rating),
+                                child: regularText(_ratingLabels[(rating - 1).clamp(0, 4)],
+                                    fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.normalGreen),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      verticalSpace(14),
+                      CustomTextField(
+                          hintText: "Your review",
+                          placeholder: "What do you like? What's missing?",
+                          maxLines: 5,
+                          textEditingController: textEditingController,
+                          validators: Validators.notEmpty),
+                      CustomButton(
+                        text: "Submit Feedback",
+                        margin: const EdgeInsets.only(top: 28),
+                        onTap: () {
+                          if (form.currentState?.validate() ?? false) {
+                            Get.find<FeedbackContactController>().postReview(textEditingController.text.trim(), rating);
+                          }
+                        },
+                      ),
+                    ],
                   ),
-                  verticalSpace(50),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                      child: regularText("Write a Review", fontWeight: FontWeight.w600)),
-                  CustomTextField(hintText: "", maxLines: 5,textEditingController: textEditingController, validators: Validators.notEmpty),
-                  CustomButton(text: "Submit", margin: const EdgeInsets.only(top: 30),onTap: (){
-                    print("MSG:::${textEditingController.text}");
-                    print("rating:::$rating");
-                    if(form.currentState?.validate() ?? false){
-                      Get.find<FeedbackContactController>().postReview(textEditingController.text.trim(), rating);
-                    }
-                  },)
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

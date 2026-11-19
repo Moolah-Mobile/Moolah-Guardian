@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:moolah/screens/home/home.dart';
 import 'package:moolah/util/apptext.dart';
+import 'package:moolah/util/colors.dart';
 import 'package:moolah/util/common_widgets/CommonGradientBackground.dart';
 import 'package:moolah/util/common_widgets/common_appbar.dart';
 import 'package:moolah/util/common_widgets/common_button.dart';
@@ -20,32 +21,42 @@ class PasswordReset extends StatefulWidget {
 class _PasswordResetState extends State<PasswordReset> {
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
     return CommonGradientBackground(
       child: SafeArea(
         child: Column(
           children: [
             commonAppBar(withIcon: true),
-            verticalSpace(50),
+            const Spacer(),
             roundedContainer(
-                borderRadius: 20,
-                margin: const EdgeInsets.all(15),
-                padding: EdgeInsets.symmetric(vertical: 40, horizontal: 10),
-                width: width,
-                child: Column(
-                  children: [
-                    SvgPicture.asset(AppImages.passwordReset),
-                    verticalSpace(30),
-                    bigHeadingText("Password Reset"),
-                    verticalSpace(10),
-                    subHeadingText("Your Password is Successfully changed"),
-                    verticalSpace(10),
-                    CustomButton(text: "Back to Home", onTap: (){
-                      Get.offAllNamed(Home.screenName);
-                    },)
-                  ],
-                )
-            )
+              borderRadius: 28,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.fromLTRB(24, 36, 24, 24),
+              width: double.infinity,
+              shadow: softShadow,
+              child: Column(
+                children: [
+                  // The success illustration pops in once.
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.6, end: 1),
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutBack,
+                    builder: (_, scale, child) => Transform.scale(scale: scale, child: child),
+                    child: SvgPicture.asset(AppImages.passwordReset, height: 120),
+                  ),
+                  verticalSpace(24),
+                  boldText("Password changed", fontSize: 24),
+                  verticalSpace(8),
+                  regularText("Your new password is ready to use next time you sign in.",
+                      fontSize: 14, color: AppColors.grey, textAlign: TextAlign.center, height: 1.45),
+                  CustomButton(
+                    text: "Back to Home",
+                    margin: const EdgeInsets.only(top: 28),
+                    onTap: () => Get.offAllNamed(Home.screenName),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(flex: 2),
           ],
         ),
       ),

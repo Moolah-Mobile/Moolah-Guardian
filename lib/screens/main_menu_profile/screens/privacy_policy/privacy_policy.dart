@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moolah/util/colors.dart';
 import 'package:moolah/util/common_widgets/CommonGradientBackground.dart';
 import 'package:moolah/util/common_widgets/common_appbar.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
@@ -13,8 +14,9 @@ class PrivacyScreen extends StatefulWidget {
 }
 
 class _PrivacyScreenState extends State<PrivacyScreen> {
-
   late WebViewController controller;
+  // 0 to 100 while the page loads; the bar under the app bar hides at 100.
+  int progress = 0;
 
   @override
   void initState() {
@@ -23,11 +25,13 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
       ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: (int progress) {
-            // Update loading bar.
+          onProgress: (int value) {
+            if (mounted) setState(() => progress = value);
           },
           onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
+          onPageFinished: (String url) {
+            if (mounted) setState(() => progress = 100);
+          },
           onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) {
             if (request.url.startsWith('https://www.youtube.com/')) {
@@ -39,24 +43,42 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
       )
       // Assumption: privacy policy will be hosted at moolahguardian.com under /privacy-policy.
       ..loadRequest(Uri.parse('https://moolahguardian.com/privacy-policy'));
-      // ..loadRequest(Uri.parse('https://moolahwireless.com/term-and-conditions/'));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return CommonGradientBackground(
-        child: Column(children: [
-          commonAppBar(heading: "Privacy Policy"),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(5),
-              child: roundedContainer(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: WebViewWidget(controller: controller)
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            commonAppBar(heading: "Privacy Policy"),
+            verticalSpace(12),
+            Expanded(
+              child: pageSheet(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: WebViewWidget(controller: controller),
+                      ),
+                      if (progress < 100)
+                        LinearProgressIndicator(
+                          value: progress == 0 ? null : progress / 100,
+                          minHeight: 3,
+                          backgroundColor: AppColors.veryVeryLightGreen,
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          )
-        ],));
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -23,37 +23,67 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
+    final fullName = "${Prefs.firstName.get()} ${Prefs.lastName.get()}".trim();
+    final email = Prefs.email.get();
+    final phone = Prefs.phone.get();
     return CommonGradientBackground(
       child: SafeArea(
+        bottom: false,
         child: Column(
           children: [
             commonAppBar(heading: "Profile"),
+            verticalSpace(8),
+            // The avatar and name sit on the gradient, above the details sheet.
+            Container(
+              height: 96,
+              width: 96,
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.white, boxShadow: softShadow),
+              child: ClipOval(child: SvgPicture.asset(AppImages.person)),
+            ),
+            verticalSpace(12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: boldText(fullName.isEmpty ? "Your Name" : fullName,
+                  fontSize: 22, maxLines: 1, textOverflow: TextOverflow.ellipsis),
+            ),
+            verticalSpace(20),
             Expanded(
-              child: roundedContainer(
-                borderRadiusWhole: BorderRadius.circular(28).copyWith(
-                    bottomRight: Radius.zero, bottomLeft: Radius.zero),
-                padding: const EdgeInsets.all(25).copyWith(bottom: 0, left: 15, right: 15),
-                margin: const EdgeInsets.all(10).copyWith(bottom: 0),
-                width: width,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      verticalSpace(10),
-                      customProfileViewer(),
-                      verticalSpace(10),
-                      valueContainers(icon: AppImages.nameField, heading: "Full Name", value: "${Prefs.firstName.get()} ${Prefs.lastName.get()}".trim().isEmpty ? "" : "${Prefs.firstName.get()} ${Prefs.lastName.get()}"),
-                      valueContainers(icon: AppImages.emailField, heading: "Email", value: Prefs.email.get().isNotEmpty?Prefs.email.get():""),
-                      valueContainers(icon: AppImages.mobileField, heading: "Mobile No.", value: Prefs.phone.get().isNotEmpty?Prefs.phone.get():""),
-                      // valueContainers(icon: AppImages.passwordField, heading: "Password", value: "**********"),
-                      verticalSpace(20),
-                      CustomButton(margin: EdgeInsets.zero,text: "Edit Profile", onTap: (){
-                        Get.toNamed(EditProfile.screenName);
-                      },),
-                      CustomButton(text: "Delete Account", textColor: AppColors.red, color: Colors.transparent),
-                      verticalSpace(30),
-                    ],
-                  ),
+              child: pageSheet(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+                  children: [
+                    regularText("PERSONAL DETAILS",
+                        fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.black.withValues(alpha: 0.55)),
+                    verticalSpace(10),
+                    roundedContainer(
+                      borderRadius: 20,
+                      color: AppColors.greyFAFA,
+                      border: Border.all(color: AppColors.greyF0F0),
+                      child: Column(
+                        children: [
+                          _detail(AppImages.nameField, "Full name", fullName),
+                          Divider(height: 1, thickness: 1, indent: 66, color: AppColors.greyF0F0),
+                          _detail(AppImages.emailField, "Email", email),
+                          Divider(height: 1, thickness: 1, indent: 66, color: AppColors.greyF0F0),
+                          _detail(AppImages.mobileField, "Mobile number", phone),
+                        ],
+                      ),
+                    ),
+                    verticalSpace(24),
+                    CustomButton(
+                      margin: EdgeInsets.zero,
+                      text: "Edit Profile",
+                      onTap: () => Get.toNamed(EditProfile.screenName),
+                    ),
+                    CustomButton(
+                      margin: const EdgeInsets.only(top: 12),
+                      text: "Delete Account",
+                      textColor: AppColors.lightRed,
+                      color: AppColors.white,
+                      border: Border.all(color: AppColors.lightRed.withValues(alpha: 0.3)),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -63,29 +93,37 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  valueContainers({required String icon, required String heading, required String value}) {
-    return roundedContainer(
-        color: AppColors.greyFAFA,
-        // color: AppColors.red,
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-        margin: const EdgeInsets.only(top: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SvgPicture.asset(icon),
-            horizontalSpace(25),
-            Column(
+  Widget _detail(String icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      child: Row(
+        children: [
+          roundedContainer(
+            height: 38,
+            width: 38,
+            color: AppColors.veryVeryLightGreen,
+            borderRadius: 12,
+            padding: const EdgeInsets.all(10),
+            child: SvgPicture.asset(icon, colorFilter: ColorFilter.mode(AppColors.normalGreen, BlendMode.srcIn)),
+          ),
+          horizontalSpace(14),
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                regularText(label, fontSize: 12, color: AppColors.grey, fontWeight: FontWeight.w500),
                 verticalSpace(3),
-                subHeadingText(heading, fontWeight: FontWeight.w500),
-                verticalSpace(5),
-                subHeadingText(value, fontWeight: FontWeight.w500, color: Colors.black),
+                regularText(value.isEmpty ? "Not added" : value,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: value.isEmpty ? AppColors.grey9494 : AppColors.black,
+                    maxLines: 1,
+                    textOverflow: TextOverflow.ellipsis),
               ],
-            )
-          ],
-        )
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

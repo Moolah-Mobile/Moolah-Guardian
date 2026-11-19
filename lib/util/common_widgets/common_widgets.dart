@@ -79,6 +79,43 @@ Widget pill({required Widget child, Color? color, EdgeInsets padding = const Edg
   );
 }
 
+/// The white panel with rounded top corners that holds a screen's content below its app bar, as on Home.
+Widget pageSheet({required Widget child, EdgeInsets? padding}) {
+  return Container(
+    width: double.infinity,
+    padding: padding,
+    decoration: BoxDecoration(
+      color: AppColors.white,
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      boxShadow: softShadow,
+    ),
+    child: child,
+  );
+}
+
+/// A Material icon on a soft green rounded square, used to head cards and list rows.
+Widget iconBadge(IconData icon, {double size = 44, Color? color, Color? background}) {
+  return Container(
+    height: size,
+    width: size,
+    decoration: BoxDecoration(
+        color: background ?? AppColors.veryVeryLightGreen, borderRadius: BorderRadius.circular(size * 0.32)),
+    child: Icon(icon, size: size * 0.52, color: color ?? AppColors.normalGreen),
+  );
+}
+
+/// A screen's heading and a line of explanation, shown at the top of a [pageSheet].
+Widget sheetIntro(String title, String subtitle) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      boldText(title, fontSize: 22),
+      verticalSpace(6),
+      regularText(subtitle, fontSize: 14, color: AppColors.grey, height: 1.45),
+    ],
+  );
+}
+
 Widget customProfileViewer({double size = 80}) {
   return roundedContainer(
       borderRadius: 100,

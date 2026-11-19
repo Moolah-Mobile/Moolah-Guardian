@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
+import 'package:moolah/util/common_widgets/CommonGradientBackground.dart';
 import 'package:moolah/util/common_widgets/app_search_field.dart';
+import 'package:moolah/util/common_widgets/common_appbar.dart';
+import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/common_widgets/loader.dart';
 
 class BlackListScreen extends StatefulWidget {
@@ -51,94 +53,167 @@ class _BlackListScreenState extends State<BlackListScreen> {
       }
       apps.sort((a, b) => (a.appName ?? "").toLowerCase().compareTo((b.appName ?? "").toLowerCase()));
       final shown = apps.where((a) => appMatchesQuery(a, query)).toList();
-      return Scaffold(
-        appBar: _buildAppBar(),
-        backgroundColor: Colors.white,
-        body: Loader(
-          c: homeController,
-          child: apps.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: regularText(
-                        homeController.isLoading
+      final blockedCount = apps.where((a) => kid.blockedPackages.contains(a.packageName)).length;
+      final childName = kid.name?.split(" ")[0] ?? "the child";
+
+      return CommonGradientBackground(
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              commonAppBar(heading: "Blocked Apps", onTap: () => Navigator.pop(context)),
+              verticalSpace(12),
+              Expanded(
+                child: pageSheet(
+                  child: Loader(
+                    c: homeController,
+                    child: apps.isEmpty
+                        ? _emptyState(homeController.isLoading
                             ? ""
                             : homeController.findKid(widget.kidId) == null
                                 ? "This device isn't in your device list right now. Go back to Home and open it again."
-                                : "No apps found on this device",
-                        color: AppColors.grey,
-                        textAlign: TextAlign.center),
-                  ))
-              : ListView(
-                  padding: const EdgeInsets.only(top: 10, bottom: adBannerSpace),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                      child: regularText(
-                          "Blocked apps are turned off on ${kid.name?.split(" ")[0] ?? "the child"}'s device at all times.",
-                          color: AppColors.grey,
-                          fontSize: 13),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-                      child: AppSearchField(
-                        controller: search,
-                        onChanged: (value) => setState(() => query = value),
-                      ),
-                    ),
-                    if (shown.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Center(
-                          child: regularText('No apps match "${query.trim()}"',
-                              color: AppColors.grey, fontSize: 14),
-                        ),
-                      ),
-                    for (final app in shown)
-                      appItem(app, kid.blockedPackages.contains(app.packageName)),
-                  ],
+                                : "No apps found on this device")
+                        : ListView(
+                            padding: const EdgeInsets.fromLTRB(16, 20, 16, adBannerSpace),
+                            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                            children: [
+                              _summary(childName, blockedCount, apps.length),
+                              verticalSpace(16),
+                              AppSearchField(
+                                controller: search,
+                                onChanged: (value) => setState(() => query = value),
+                              ),
+                              verticalSpace(12),
+                              if (shown.isEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 24),
+                                  child: Center(
+                                    child: regularText('No apps match "${query.trim()}"',
+                                        color: AppColors.grey, fontSize: 14),
+                                  ),
+                                )
+                              else
+                                roundedContainer(
+                                  borderRadius: 20,
+                                  color: AppColors.greyFAFA,
+                                  border: Border.all(color: AppColors.greyF0F0),
+                                  child: Column(
+                                    children: [
+                                      for (int i = 0; i < shown.length; i++) ...[
+                                        if (i > 0)
+                                          Divider(height: 1, thickness: 1, indent: 64, color: AppColors.greyF0F0),
+                                        appItem(shown[i], kid.blockedPackages.contains(shown[i].packageName)),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                  ),
                 ),
+              ),
+            ],
+          ),
         ),
       );
     });
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      title: boldText('Blocked Apps', fontSize: 18, color: Colors.black),
-      centerTitle: true,
-      leading: InkWell(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Center(
-          child: SvgPicture.asset('assets/images/home/back.svg'),
+  /// How many apps are blocked, and what blocking does.
+  Widget _summary(String childName, int blocked, int total) {
+    return roundedContainer(
+      borderRadius: 20,
+      padding: const EdgeInsets.all(16),
+      color: blocked > 0 ? AppColors.lightRed.withValues(alpha: 0.07) : AppColors.veryVeryLightGreen,
+      child: Row(
+        children: [
+          iconBadge(blocked > 0 ? Icons.block_rounded : Icons.verified_user_outlined,
+              color: blocked > 0 ? AppColors.lightRed : AppColors.normalGreen, background: AppColors.white),
+          horizontalSpace(14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                boldText(blocked == 0 ? "No apps blocked" : "$blocked of $total apps blocked", fontSize: 16),
+                verticalSpace(3),
+                regularText("Blocked apps are turned off on $childName's device at all times.",
+                    fontSize: 12, color: AppColors.grey, height: 1.35),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _emptyState(String message) {
+    if (message.isEmpty) return const SizedBox.shrink();
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            iconBadge(Icons.apps_rounded, size: 72),
+            verticalSpace(14),
+            regularText(message, color: AppColors.grey, textAlign: TextAlign.center, height: 1.4),
+          ],
         ),
       ),
-      backgroundColor: Colors.white,
-      elevation: 0,
     );
+  }
+
+  Widget _appIcon(String? url, bool blocked) {
+    final placeholder = Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(10)),
+      child: Icon(Icons.apps, size: 20, color: AppColors.grey),
+    );
+    final icon = (url == null || url.isEmpty)
+        ? placeholder
+        : ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              url,
+              width: 38,
+              height: 38,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => placeholder,
+              loadingBuilder: (_, child, progress) => progress == null ? child : placeholder,
+            ),
+          );
+    // Blocked apps are shown greyed out, as they are on the child's phone.
+    return AnimatedOpacity(opacity: blocked ? 0.4 : 1, duration: const Duration(milliseconds: 200), child: icon);
   }
 
   Widget appItem(App app, bool blocked) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
       child: Row(
         children: [
+          _appIcon(app.iconUrl, blocked),
+          horizontalSpace(12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 boldText(app.appName ?? app.packageName ?? "Unknown App",
-                    fontSize: 14, color: blocked ? AppColors.red : Colors.black),
-                regularText(app.packageName ?? "", color: AppColors.grey, fontSize: 11),
+                    fontSize: 14, maxLines: 1, textOverflow: TextOverflow.ellipsis),
+                verticalSpace(2),
+                regularText(blocked ? "Blocked" : (app.packageName ?? ""),
+                    color: blocked ? AppColors.lightRed : AppColors.grey,
+                    fontSize: 11,
+                    fontWeight: blocked ? FontWeight.w600 : null,
+                    maxLines: 1,
+                    textOverflow: TextOverflow.ellipsis),
               ],
             ),
           ),
           Switch(
             value: blocked,
-            activeColor: AppColors.red,
+            trackColor: WidgetStateProperty.resolveWith(
+                (s) => s.contains(WidgetState.selected) ? AppColors.lightRed : AppColors.darkLightGrey),
             onChanged: app.packageName == null
                 ? null
                 : (value) => Get.find<HomeController>().setAppBlocked(

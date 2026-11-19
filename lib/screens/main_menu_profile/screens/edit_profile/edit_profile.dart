@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:moolah/screens/main_menu_profile/screens/change_password/change_password.dart';
+import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/common_widgets/common_text_field.dart';
 
 import '../../../../util/colors.dart';
@@ -22,69 +23,63 @@ class EditProfile extends StatefulWidget {
 class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
     return CommonGradientBackground(
       child: SafeArea(
+        bottom: false,
         child: Column(
           children: [
-            commonAppBar(heading: "Profile"),
+            commonAppBar(heading: "Edit Profile"),
+            verticalSpace(8),
+            // Avatar with the camera badge for changing the picture.
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  height: 96,
+                  width: 96,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: AppColors.white, boxShadow: softShadow),
+                  child: ClipOval(child: SvgPicture.asset(AppImages.person)),
+                ),
+                Positioned(
+                  bottom: -2,
+                  right: -2,
+                  child: SvgPicture.asset(AppImages.editProfilePictureIcon),
+                ),
+              ],
+            ),
+            verticalSpace(20),
             Expanded(
-              child: roundedContainer(
-                borderRadiusWhole: BorderRadius.circular(28).copyWith(
-                    bottomRight: Radius.zero, bottomLeft: Radius.zero),
-                padding: const EdgeInsets.all(25).copyWith(bottom: 0, left: 15, right: 15),
-                margin: const EdgeInsets.all(10).copyWith(bottom: 0),
-                width: width,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      verticalSpace(10),
-                      Stack(
-                        children: [
-                          customProfileViewer(size: 90),
-                          Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: SvgPicture.asset(
-                                  AppImages.editProfilePictureIcon))
-                        ],
+              child: pageSheet(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+                  children: [
+                    _label("Full name"),
+                    CustomTextField(hintText: "Enter Full Name", otherOne: true, prefixIcon: AppImages.nameField),
+                    _label("Email"),
+                    CustomTextField(
+                        hintText: "Enter Email",
+                        otherOne: true,
+                        textInputType: TextInputType.emailAddress,
+                        prefixIcon: AppImages.emailField),
+                    _label("Mobile number"),
+                    CustomTextField(
+                        hintText: "Enter Mobile No",
+                        otherOne: true,
+                        textInputType: TextInputType.phone,
+                        prefixIcon: AppImages.mobileField),
+                    _label("Password"),
+                    // Opens the change-password screen rather than editing here.
+                    customGestureDetecter(
+                      onTap: () => Get.toNamed(ChangePassword.screenName),
+                      child: IgnorePointer(
+                        child: CustomTextField(
+                            hintText: "Change password", otherOne: true, prefixIcon: AppImages.passwordField),
                       ),
-                      verticalSpace(40),
-                      CustomTextField(
-                          hintText: "Enter Full Name",
-                          otherOne: true,
-                          prefixIcon: AppImages.nameField),
-                      verticalSpace(15),
-                      CustomTextField(
-                          hintText: "Enter Email",
-                          otherOne: true,
-                          textInputType: TextInputType.emailAddress,
-                          prefixIcon: AppImages.emailField),
-                      verticalSpace(15),
-                      CustomTextField(
-                          hintText: "Enter Mobile No",
-                          otherOne: true,
-                          prefixIcon: AppImages.mobileField),
-                      verticalSpace(15),
-                      customGestureDetecter(
-                        onTap: (){
-                          Get.toNamed(ChangePassword.screenName);
-                        },
-                        child: IgnorePointer(
-                          child: CustomTextField(
-                              hintText: "Enter Password",
-                              otherOne: true,
-                              prefixIcon: AppImages.passwordField),
-                        ),
-                      ),
-                      verticalSpace(25),
-                      CustomButton(
-                        text: "Save Profile",
-                        margin: EdgeInsets.zero,
-                      ),
-                      verticalSpace(30),
-                    ],
-                  ),
+                    ),
+                    verticalSpace(28),
+                    CustomButton(text: "Save Profile", margin: EdgeInsets.zero),
+                  ],
                 ),
               ),
             ),
@@ -93,4 +88,10 @@ class _EditProfileState extends State<EditProfile> {
       ),
     );
   }
+
+  Widget _label(String text) => Padding(
+        padding: const EdgeInsets.fromLTRB(4, 14, 4, 8),
+        child: regularText(text,
+            fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.black.withValues(alpha: 0.75)),
+      );
 }
