@@ -94,7 +94,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     appSearchFocus.addListener(() => setState(() {}));
     // initAPIS updates HomeController (loader state), which is not allowed while this screen is building.
     WidgetsBinding.instance.addPostFrameCallback((_) => initAPIS());
-    tabController = TabController(length: 3, vsync: this);
+    tabController = TabController(length: 3, vsync: this, animationDuration: Duration.zero);
     tabController?.addListener(() {
       final currentIndex = tabController?.index;
       if (currentIndex != prevIndex) {
@@ -335,9 +335,11 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
   Widget appSection(HomeController homeController) {
     final kid = homeController.getSelectedKid(widget.kidId);
     // getInstalledApps lists every app; getDeviceDetails may report only some of them.
-    final apps = kid.installedApps.isNotEmpty
-        ? kid.installedApps
-        : (kid.deviceDetail?.data?.apps ?? []);
+    final apps = (kid.installedApps.isNotEmpty
+            ? kid.installedApps
+            : (kid.deviceDetail?.data?.apps ?? <App>[]))
+        .where(HomeController.isUserApp)
+        .toList();
     final shown = apps.where((a) => appMatchesQuery(a, appQuery)).toList();
     final filtering = appQuery.trim().isNotEmpty;
     // While typing, results start right under the search box; with the keyboard closed, Block Apps and the
@@ -421,6 +423,28 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
     );
   }
 
+  // The MDM's icon for the app, or a generic one while it loads, when it fails, or when there is none.
+  Widget _appIcon(String? url) {
+    final placeholder = Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(color: AppColors.lightGrey, borderRadius: BorderRadius.circular(8)),
+      child: Icon(Icons.apps, size: 20, color: AppColors.grey),
+    );
+    if (url == null || url.isEmpty) return placeholder;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        url,
+        width: 36,
+        height: 36,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => placeholder,
+        loadingBuilder: (_, child, progress) => progress == null ? child : placeholder,
+      ),
+    );
+  }
+
   Widget appItem(App listOfInstalledApp, {required String kidId, required bool blocked}) {
     String appName = listOfInstalledApp.appName ?? "Unknown App";
     final pkg = listOfInstalledApp.packageName ?? "";
@@ -431,6 +455,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
       child: Row(
         children: [
           const SizedBox(width: 10),
+          _appIcon(listOfInstalledApp.iconUrl),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,7 +482,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             },
             itemBuilder: (context) => [
               // System apps cannot be uninstalled; they can only be disabled.
-              if (!systemApp)
+              if (listOfInstalledApp.removable ?? !systemApp)
                 PopupMenuItem<int>(
                   padding: const EdgeInsets.only(left: 5),
                   height: 30,
@@ -532,6 +558,21 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   .copyWith(bottom: 15, top: 0),
               child: boldText('Websites (last 7 days)', fontSize: 18),
             ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: AppColors.grey),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: regularText(
+                        "There is a 30 min - 90 min delay in receiving browser data",
+                        color: AppColors.grey,
+                        fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
             if (history == null)
               subHeadingText("Loading browser history...")
             else if (sites.isEmpty)
@@ -596,16 +637,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // Erasing a child's device cannot be undone, so the parent has to type WIPE to confirm.
-  void _confirmWipe() {
-    showDialog(
-      context: context,
-      builder: (_) => _WipeConfirmDialog(
-        onConfirm: () => Get.find<HomeController>().wipeDevice(kidId: widget.kidId),
       ),
     );
   }
@@ -844,14 +875,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
                   locked: !planAllows(Feature.deviceActions)),
             ],
           ),
-          verticalSpace(10),
-          Row(
-            children: [
-              actionButton(Icons.phonelink_erase, "Wipe device",
-                  () => withFeature(Feature.deviceActions, "Wiping the device", _confirmWipe),
-                  locked: !planAllows(Feature.deviceActions), danger: true),
-            ],
-          ),
         ],
       ),
     );
@@ -866,8 +889,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             colorScheme: Theme.of(context).colorScheme.copyWith(
                 surfaceContainerHighest: Colors.transparent)),
         child: TabBar(
-            overlayColor:
-                WidgetStateColor.resolveWith((states) => AppColors.lightGreen),
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            splashFactory: NoSplash.splashFactory,
             indicator: BoxDecoration(
                 borderRadius: BorderRadius.circular(6),
                 color: AppColors.normalGreen),
@@ -1000,69 +1023,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
           SvgPicture.asset(AppImages.comingSoon),
         ],
       ),
-    );
-  }
-}
-
-/// Asks the parent to type WIPE before a factory reset. The dialog owns its text controller and disposes it
-/// in [dispose], after the closing animation; disposing it when the route pops crashes the fading dialog.
-class _WipeConfirmDialog extends StatefulWidget {
-  const _WipeConfirmDialog({required this.onConfirm});
-
-  final VoidCallback onConfirm;
-
-  @override
-  State<_WipeConfirmDialog> createState() => _WipeConfirmDialogState();
-}
-
-class _WipeConfirmDialogState extends State<_WipeConfirmDialog> {
-  final typed = TextEditingController();
-
-  @override
-  void dispose() {
-    typed.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final confirmed = typed.text.trim().toUpperCase() == "WIPE";
-    return AlertDialog(
-      title: boldText("Wipe this device?", fontSize: 18, color: AppColors.red),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          regularText(
-              "This factory resets the child's device as soon as it is online. All apps, photos and "
-              "data on it are erased and cannot be recovered, and it will need to be set up and linked again.",
-              fontSize: 14,
-              height: 1.4),
-          verticalSpace(14),
-          regularText("Type WIPE to confirm.", fontSize: 14, fontWeight: FontWeight.w600),
-          verticalSpace(6),
-          TextField(
-            key: const ValueKey("wipe_confirm"),
-            controller: typed,
-            autofocus: true,
-            textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(hintText: "WIPE", isDense: true),
-            onChanged: (_) => setState(() {}),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: regularText("Cancel", fontSize: 14)),
-        TextButton(
-            onPressed: confirmed
-                ? () {
-                    Navigator.pop(context);
-                    widget.onConfirm();
-                  }
-                : null,
-            child: regularText("Wipe device",
-                color: confirmed ? AppColors.red : AppColors.grey, fontSize: 14, fontWeight: FontWeight.w700)),
-      ],
     );
   }
 }

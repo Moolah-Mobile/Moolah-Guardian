@@ -101,10 +101,25 @@ class App {
   String? name;
   String? version;
   int? usageTodayMs;
+  // Null when the MDM didn't say; see HomeController.isSystemApp for the fallback.
   bool? systemApp;
   int? isEnabled;
+  // True when the app has a screen the child can open.
+  bool? launchable;
+  bool? removable;
+  String? iconUrl;
 
-  App({this.pkg, this.name, this.version, this.usageTodayMs, this.systemApp = false, this.isEnabled = 1});
+  App({
+    this.pkg,
+    this.name,
+    this.version,
+    this.usageTodayMs,
+    this.systemApp,
+    this.isEnabled = 1,
+    this.launchable,
+    this.removable,
+    this.iconUrl,
+  });
 
   // Backward compatibility getters for legacy UI code
   String? get packageName => pkg;
@@ -116,16 +131,22 @@ class App {
     name: json["name"] ?? json["appName"],
     version: json["version"] ?? json["versionName"],
     usageTodayMs: (json["usageTodayMs"] ?? json["totalUsedTime"] ?? 0).toInt(),
-    systemApp: json["systemApp"] ?? false,
+    systemApp: json["system"] ?? json["systemApp"],
     isEnabled: json["isEnabled"] ?? 1,
+    launchable: json["launchable"],
+    removable: json["removable"],
+    iconUrl: json["iconUrl"],
   );
 
   Map<String, dynamic> toJson() => {
-    "pkg": pkg, 
-    "name": name, 
+    "pkg": pkg,
+    "name": name,
     "usageTodayMs": usageTodayMs,
-    "systemApp": systemApp,
+    "system": systemApp,
     "isEnabled": isEnabled,
+    "launchable": launchable,
+    "removable": removable,
+    "iconUrl": iconUrl,
   };
 }
 

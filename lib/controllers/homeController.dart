@@ -99,16 +99,33 @@ class HomeController extends BaseController {
   Future<void> blacklistApp({required String kidId, required String appPackage}) =>
       setAppBlocked(kidId: kidId, appPackage: appPackage, blocked: true);
 
-  // The MDM's app lists carry no system flag; preinstalled apps on these devices use these package prefixes.
+  // Uses the MDM's "system" flag. Older MDM responses have no flag, so fall back to the package prefixes
+  // preinstalled apps use on these devices.
   static bool isSystemApp(App app) {
+    if (app.systemApp != null) return app.systemApp!;
     final pkg = app.packageName ?? "";
-    return app.systemApp == true ||
-        pkg.startsWith("android.") ||
+    return pkg.startsWith("android.") ||
         pkg.startsWith("com.android.") ||
         pkg.startsWith("com.google.android.") ||
         pkg.startsWith("com.mediatek.") ||
         pkg.startsWith("com.umidigi.");
   }
+
+  // Apps the Apps tab lists: ones the child can open (they have a screen to launch) that aren't system apps
+  // or Moolah's own. When the MDM doesn't send "launchable", the app is treated as openable.
+  static bool isUserApp(App app) => hiddenReason(app) == null;
+
+  // Why the Apps tab hides [app], or null when it is shown.
+  static String? hiddenReason(App app) {
+    if (isMoolahApp(app.packageName)) return "moolah";
+    if (app.launchable == false) return "not launchable";
+    if (isSystemApp(app)) return app.systemApp == null ? "system (guessed from package)" : "system";
+    return null;
+  }
+
+  // Moolah's own apps on the child's device: the MDM agent, home screen, wallet and the rest.
+  static bool isMoolahApp(String? pkg) =>
+      isProtectedApp(pkg) || pkg!.startsWith("com.moolahmobile.");
 
   // Blocking or removing these would cut the child's device off from the MDM.
   static bool isProtectedApp(String? pkg) =>
@@ -176,6 +193,18 @@ class HomeController extends BaseController {
     update();
   }
 
+  // Debug builds only: one line per app with the MDM's flags and whether the Apps tab shows it.
+  static void _logInstalledApps(List<App> apps) {
+    final shown = apps.where(isUserApp).length;
+    debugPrint("📱 [APPS] ${apps.length} from MDM, $shown shown, ${apps.length - shown} hidden");
+    for (final a in apps) {
+      final reason = hiddenReason(a);
+      debugPrint("📱 [APPS] ${reason == null ? "SHOW" : "HIDE"} ${a.pkg} \"${a.name}\""
+          " system=${a.systemApp} launchable=${a.launchable} removable=${a.removable}"
+          " icon=${a.iconUrl != null}${reason == null ? "" : " ← $reason"}");
+    }
+  }
+
   Future<void> getInstalledApps({required String kidId}) async {
     final kid = findKid(kidId);
     if (kid == null) return;
@@ -191,6 +220,7 @@ class HomeController extends BaseController {
       for (final app in kid.installedApps) {
         if (app.pkg != null && app.name != null) kid.appNames[app.pkg!] = app.name!;
       }
+      if (kDebugMode) _logInstalledApps(kid.installedApps);
     } else {
       apiToast(appsRes);
     }
