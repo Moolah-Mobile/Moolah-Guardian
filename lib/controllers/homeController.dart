@@ -183,6 +183,8 @@ class HomeController extends BaseController {
     }
     isLoading = false;
     update();
+    // Reload the apps and rules, so the lists show what the device has now.
+    if (res.isSuccessful) await getInstalledApps(kidId: kidId);
   }
 
   // Debug builds only: one line per app with the MDM's flags and whether the Apps tab shows it.

@@ -336,10 +336,20 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   Widget appSection(HomeController homeController) {
     final kid = homeController.getSelectedKid(widget.kidId);
     // getInstalledApps lists every app; getDeviceDetails may report only some of them.
-    final apps = (kid.installedApps.isNotEmpty ? kid.installedApps : (kid.deviceDetail?.data?.apps ?? <App>[]))
+    final reported = kid.installedApps.isNotEmpty ? kid.installedApps : (kid.deviceDetail?.data?.apps ?? <App>[]);
+    // Turned-off apps get their own section, so blocking an app takes it out of All Apps. A blocked app
+    // can drop out of the device's app report, so it is listed from the rules, by its last known name.
+    final turnedOff = kid.blockedPackages
+        .where((pkg) => !HomeController.isProtectedApp(pkg))
+        .map((pkg) => reported.firstWhereOrNull((a) => a.pkg == pkg) ?? App(pkg: pkg, name: kid.appNames[pkg] ?? pkg))
+        .toList()
+      ..sort((a, b) => (a.appName ?? "").toLowerCase().compareTo((b.appName ?? "").toLowerCase()));
+    final apps = reported
         .where(HomeController.isUserApp)
+        .where((a) => !kid.blockedPackages.contains(a.packageName))
         .toList();
     final shown = apps.where((a) => appMatchesQuery(a, appQuery)).toList();
+    final shownOff = turnedOff.where((a) => appMatchesQuery(a, appQuery)).toList();
     final filtering = appQuery.trim().isNotEmpty;
     // While typing, results start right under the search box; with the keyboard closed, Block Apps and the
     // rest of the tab are back.
@@ -352,7 +362,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
           children: [
             // The search box sits above the list, outside it, so rows above the results can come and go
             // without rebuilding the field and closing the keyboard.
-            if (apps.isNotEmpty)
+            if (apps.isNotEmpty || turnedOff.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 6, bottom: 10),
                 child: AppSearchField(
@@ -373,12 +383,21 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                     comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
                     verticalSpace(10),
                   ],
+                  if (shownOff.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: boldText('Turned off · ${shownOff.length}', fontSize: 18),
+                    ),
+                    for (final app in shownOff)
+                      appItem(app, kidId: widget.kidId, blocked: true),
+                    verticalSpace(14),
+                  ],
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child:
                         boldText(filtering ? 'All Apps · ${shown.length} of ${apps.length}' : 'All Apps', fontSize: 18),
                   ),
-                  if (filtering && shown.isEmpty)
+                  if (filtering && shown.isEmpty && shownOff.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Center(
@@ -388,7 +407,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                   for (final app in shown)
                     appItem(app,
                         kidId: widget.kidId,
-                        blocked: kid.blockedPackages.contains(app.packageName),
+                        blocked: false,
                         uninstalling: kid.pendingUninstalls.contains(app.packageName)),
                 ],
               ),
