@@ -62,7 +62,7 @@ class HomeRepo {
 
   // 9. Network history
   static Future<ResponseModel> getNetworkHistory(String connectId) async =>
-      await Network.get("${EndPoints.getNetworkHistoryUrl}?kidDeviceAccountConnectID=$connectId&limit=50");
+      await Network.get("${EndPoints.getNetworkHistoryUrl}?kidDeviceAccountConnectID=$connectId&limit=1000");
 
   // 8. Screen time and device details
   static Future<ResponseModel> getAppUsage(String connectId) async =>

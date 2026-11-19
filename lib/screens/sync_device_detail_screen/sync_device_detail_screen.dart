@@ -518,7 +518,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
 
   Widget urlSection(HomeController homeController) {
     final history = homeController.getSelectedKid(widget.kidId).networkHistory;
-    final websites = history?.websites ?? [];
+    final sites = history?.visitedSites ?? [];
+    final hidden = history?.hiddenLookups ?? 0;
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -533,32 +534,50 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen>
             ),
             if (history == null)
               subHeadingText("Loading browser history...")
-            else if (websites.isEmpty)
+            else if (sites.isEmpty)
               subHeadingText("No websites visited in the last 7 days.")
             else
-              for (final site in websites)
+              for (final site in sites)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      boldText(site.domain, fontSize: 14),
-                      regularText(
-                          [
-                            if (site.appName != null) site.appName!,
-                            if (site.time != null)
-                              "${site.time!.day}/${site.time!.month} ${site.time!.hour.toString().padLeft(2, '0')}:${site.time!.minute.toString().padLeft(2, '0')}",
-                          ].join(" · "),
-                          color: AppColors.grey,
-                          fontSize: 11),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            boldText(site.domain, fontSize: 14),
+                            regularText(
+                                [
+                                  if (site.appName != null) site.appName!,
+                                  if (site.lastVisit != null) _visitTime(site.lastVisit!),
+                                ].join(" · "),
+                                color: AppColors.grey,
+                                fontSize: 11),
+                          ],
+                        ),
+                      ),
+                      if (site.visits > 1)
+                        regularText("${site.visits}×", color: AppColors.grey, fontSize: 12),
                     ],
                   ),
                 ),
+            if (history != null && hidden > 0)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 12, 10, 0),
+                child: regularText(
+                    "$hidden background lookups by the phone's system apps and Moolah are hidden.",
+                    color: AppColors.grey,
+                    fontSize: 11),
+              ),
           ],
         ),
       ),
     );
   }
+
+  static String _visitTime(DateTime time) =>
+      "${time.day}/${time.month} ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}";
 
   Widget actionButton(IconData icon, String text, VoidCallback onTap, {bool locked = false, bool danger = false}) {
     final color = danger && !locked ? AppColors.red : null;
