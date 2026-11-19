@@ -120,6 +120,14 @@ class Network {
     return header;
   }
 
+  /// api2 puts its message at the top level; the MDM sends `{"success": false, "error": {"message": "..."}}`.
+  static String? _errorMessage(dynamic body) {
+    if (body is! Map) return null;
+    final error = body["error"];
+    final nested = error is Map ? error["message"] : null;
+    return (body["message"] ?? nested)?.toString();
+  }
+
   static Future<ResponseModel> responseHandler(
       {http.Response? res, bool empty = false}) async {
     if (empty || res == null) {
@@ -152,7 +160,7 @@ class Network {
           isSuccessful = true; 
         }
 
-        final message = responseData["message"] ?? responseData["msg"] ?? "Success";
+        final message = _errorMessage(responseData) ?? responseData["msg"] ?? "Success";
 
         print("✅ Parsed Success: $isSuccessful");
         return ResponseModel(
@@ -168,7 +176,7 @@ class Network {
     print("❌ Error Body: ${res.body}");
     try {
       final errorData = jsonDecode(res.body);
-      final errorMessage = errorData["message"] ?? errorData["errorMsg"] ?? "Error ${res.statusCode}";
+      final errorMessage = _errorMessage(errorData) ?? errorData["errorMsg"] ?? "Error ${res.statusCode}";
       return ResponseModel(isSuccessful: false, message: errorMessage, data: errorData);
     } catch (e) {
       return ResponseModel(isSuccessful: false, message: "Error ${res.statusCode}", data: null);

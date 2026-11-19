@@ -386,7 +386,10 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                       ),
                     ),
                   for (final app in shown)
-                    appItem(app, kidId: widget.kidId, blocked: kid.blockedPackages.contains(app.packageName)),
+                    appItem(app,
+                        kidId: widget.kidId,
+                        blocked: kid.blockedPackages.contains(app.packageName),
+                        uninstalling: kid.pendingUninstalls.contains(app.packageName)),
                 ],
               ),
             ),
@@ -443,7 +446,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     );
   }
 
-  Widget appItem(App listOfInstalledApp, {required String kidId, required bool blocked}) {
+  Widget appItem(App listOfInstalledApp,
+      {required String kidId, required bool blocked, bool uninstalling = false}) {
     String appName = listOfInstalledApp.appName ?? "Unknown App";
     final pkg = listOfInstalledApp.packageName ?? "";
     final systemApp = HomeController.isSystemApp(listOfInstalledApp);
@@ -460,8 +464,12 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 boldText(appName, fontSize: 14, color: blocked ? AppColors.red : Colors.black),
-                regularText("${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
-                    color: AppColors.grey, fontSize: 11),
+                regularText(
+                    uninstalling
+                        ? "Uninstall pending…"
+                        : "${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
+                    color: uninstalling ? AppColors.normalGreen : AppColors.grey,
+                    fontSize: 11),
               ],
             ),
           ),
@@ -477,7 +485,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
               },
               itemBuilder: (context) => [
                 // System apps cannot be uninstalled; they can only be disabled.
-                if (listOfInstalledApp.removable ?? !systemApp)
+                if ((listOfInstalledApp.removable ?? !systemApp) && !uninstalling)
                   PopupMenuItem<int>(
                     padding: const EdgeInsets.only(left: 5),
                     height: 30,
@@ -554,12 +562,26 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                   Icon(Icons.info_outline, size: 16, color: AppColors.grey),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: regularText("There is a 30 min - 90 min delay in receiving browser data",
+                    child: regularText("Websites can take up to 2 hours to appear here.",
                         color: AppColors.grey, fontSize: 12),
                   ),
                 ],
               ),
             ),
+            if (history?.gapWarning != null)
+              roundedContainer(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                color: AppColors.yellow.withValues(alpha: 0.12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.black),
+                    const SizedBox(width: 8),
+                    Expanded(child: regularText(history!.gapWarning!, fontSize: 12, height: 1.4)),
+                  ],
+                ),
+              ),
             if (history == null)
               subHeadingText("Loading browser history...")
             else if (sites.isEmpty)

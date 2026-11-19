@@ -108,6 +108,9 @@ class App {
   bool? launchable;
   bool? removable;
   String? iconUrl;
+  // What the phone is doing with the app: active, suspended, hidden (blocked by the MDM) or disabled.
+  // Only newer agents report it.
+  String? state;
 
   App({
     this.pkg,
@@ -119,6 +122,7 @@ class App {
     this.launchable,
     this.removable,
     this.iconUrl,
+    this.state,
   });
 
   // Backward compatibility getters for legacy UI code
@@ -136,6 +140,7 @@ class App {
     launchable: json["launchable"],
     removable: json["removable"],
     iconUrl: json["iconUrl"],
+    state: json["state"],
   );
 
   Map<String, dynamic> toJson() => {
@@ -147,6 +152,7 @@ class App {
     "launchable": launchable,
     "removable": removable,
     "iconUrl": iconUrl,
+    "state": state,
   };
 }
 
@@ -180,14 +186,17 @@ class RealTimeStats {
 class Usage {
   int? todayMs;
   int? weekMs;
+  int? prevWeekMs;
   int? dailyAvgMs;
+  // Change against the previous week; null when there is no previous week.
   int? weekTrendPct;
 
-  Usage({this.todayMs, this.weekMs, this.dailyAvgMs, this.weekTrendPct});
+  Usage({this.todayMs, this.weekMs, this.prevWeekMs, this.dailyAvgMs, this.weekTrendPct});
 
   factory Usage.fromJson(Map<String, dynamic> json) => Usage(
     todayMs: (json["todayMs"] as num?)?.toInt(),
     weekMs: (json["weekMs"] as num?)?.toInt(),
+    prevWeekMs: (json["prevWeekMs"] as num?)?.toInt(),
     dailyAvgMs: (json["dailyAvgMs"] as num?)?.toInt(),
     weekTrendPct: (json["weekTrendPct"] as num?)?.toInt(),
   );
@@ -195,6 +204,7 @@ class Usage {
   Map<String, dynamic> toJson() => {
     "todayMs": todayMs,
     "weekMs": weekMs,
+    "prevWeekMs": prevWeekMs,
     "dailyAvgMs": dailyAvgMs,
     "weekTrendPct": weekTrendPct,
   };

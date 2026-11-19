@@ -16,6 +16,8 @@ class Kid {
   List<App> installedApps = [];
   // Packages in the device's "always-off" MDM rule.
   Set<String> blockedPackages = {};
+  // Packages with an uninstall sent to the device that it hasn't finished yet.
+  Set<String> pendingUninstalls = {};
   // Names of every app seen on the device, kept after an app stops being reported.
   Map<String, String> appNames = {};
   NetworkHistory? networkHistory;
@@ -99,11 +101,22 @@ class Kid {
       batteryStatus: (json["batteryPct"] ?? json["batteryStatus"])?.toString() ?? "0",
       connectId: (json["kidDeviceAccountConnectID"] ?? json["connectID"])?.toString(),
       dataUsageStatus: json["dataUsageStatus"]?.toString() ?? "0",
-      lastActive: json["lastSeenAt"] ?? json["lastActive"],
+      lastActive: lastSeenText(json["lastSeenAt"]?.toString()) ?? json["lastActive"]?.toString(),
       kidPic: json["kidPic"],
       walletEnabled: json["walletEnabled"] ?? false,
       msmsMonitoringStatus: json["msmsMonitoringStatus"] ?? false,
     );
+  }
+
+  /// The MDM's `lastSeenAt` (UTC, ISO-8601) as "Just now", "5m ago", "3h ago" or "2d ago"; null if unreadable.
+  static String? lastSeenText(String? lastSeenAt) {
+    final seen = DateTime.tryParse(lastSeenAt ?? "");
+    if (seen == null) return null;
+    final diff = DateTime.now().toUtc().difference(seen.toUtc());
+    if (diff.inMinutes < 1) return "Just now";
+    if (diff.inHours < 1) return "${diff.inMinutes}m ago";
+    if (diff.inDays < 1) return "${diff.inHours}h ago";
+    return "${diff.inDays}d ago";
   }
 
   Map<String, dynamic> toJson() => {

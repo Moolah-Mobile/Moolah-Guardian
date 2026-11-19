@@ -72,16 +72,30 @@ class ConnectDeviceController extends BaseController {
       return false;
     }
 
-    print("--- [CONNECT] Provision Success. Linking Device: $connectId ---");
+    // The MDM finds the tablet by its device number, IMEI or serial. api2's response may carry one;
+    // without it the connect ID is sent, which is how devices were linked before.
+    final deviceNumber = _findKey(api2Res.data, "deviceId") ??
+        _findKey(api2Res.data, "imei") ??
+        _findKey(api2Res.data, "serial") ??
+        connectId;
+    print("--- [CONNECT] Provision Success. Linking device $deviceNumber as $connectId ---");
     // Step 3: Link Child Device to Parent, under the connect ID api2 uses for it
     final linkRes = await ConnectDeviceRepo.linkDevice(
       externalMoolahId: externalMoolahId,
-      deviceId: connectId,
+      deviceId: deviceNumber,
+      connectId: connectId,
       label: label,
     );
 
     isLoading = false;
     update();
+
+    // Relinking the same parent and tablet returns the existing link, whose connect ID may differ from
+    // api2's. Every MDM call uses api2's ID, so a mismatch means this device's data won't load.
+    final mdmConnectId = linkRes.data?["data"]?["connectId"]?.toString();
+    if (linkRes.isSuccessful && mdmConnectId != null && mdmConnectId != connectId) {
+      print("--- [CONNECT] MDM connect ID $mdmConnectId differs from api2's $connectId ---");
+    }
 
     if (linkRes.isSuccessful) {
       successToast("Device linked successfully! You can now monitor it from your dashboard.");

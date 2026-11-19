@@ -76,15 +76,7 @@ class HomeController extends BaseController {
         if (deviceJson["batteryPct"] != null) {
           kid.batteryStatus = deviceJson["batteryPct"].toString();
         }
-        if (deviceJson["lastSeenAt"] != null) {
-          try {
-            DateTime lastSeen = DateTime.parse(deviceJson["lastSeenAt"]);
-            Duration diff = DateTime.now().difference(lastSeen);
-            kid.lastActive = "${diff.inMinutes}m ago";
-          } catch (e) {
-            kid.lastActive = "Now";
-          }
-        }
+        kid.lastActive = Kid.lastSeenText(deviceJson["lastSeenAt"]?.toString()) ?? kid.lastActive;
       }
     }
     update();
@@ -134,9 +126,12 @@ class HomeController extends BaseController {
       pkg.startsWith("com.moolahwireless.") ||
       pkg == "com.moolahmobile.moolahmobilehomescreen";
 
+  static const _alwaysOffId = "always-off";
+  static const _alwaysOffLastMinuteId = "always-off-last-minute";
+
   Set<String> _alwaysOffPackages(List rules) {
     for (final r in rules) {
-      if (r is Map && r["id"] == "always-off") {
+      if (r is Map && r["id"] == _alwaysOffId) {
         return Set<String>.from(r["packages"] as List? ?? []);
       }
     }
@@ -162,22 +157,19 @@ class HomeController extends BaseController {
     final rules = (current.data?["data"]?["rules"] as List? ?? [])
         .map((r) => Map<String, dynamic>.from(r as Map))
         .toList();
-    final alwaysOff = rules.indexWhere((r) => r["id"] == "always-off");
+    final alwaysOff = rules.indexWhere((r) => r["id"] == _alwaysOffId);
     final packages = alwaysOff < 0
         ? <String>[]
         : List<String>.from(rules[alwaysOff]["packages"] as List? ?? []);
     packages.remove(appPackage);
     if (blocked) packages.add(appPackage);
 
-    if (alwaysOff >= 0) rules.removeAt(alwaysOff);
+    // A rule's window can't cover a whole day, so "always off" is two rules: 00:00–23:59 and the
+    // last minute, 23:59–00:00.
+    rules.removeWhere((r) => r["id"] == _alwaysOffId || r["id"] == _alwaysOffLastMinuteId);
     if (packages.isNotEmpty) {
-      rules.add({
-        "id": "always-off",
-        "type": "time",
-        "packages": packages,
-        "from": "00:00",
-        "to": "23:59"
-      });
+      rules.add({"id": _alwaysOffId, "type": "time", "packages": packages, "from": "00:00", "to": "23:59"});
+      rules.add({"id": _alwaysOffLastMinuteId, "type": "time", "packages": packages, "from": "23:59", "to": "00:00"});
     }
 
     ResponseModel res = await HomeRepo.setDeviceRestrictions(
@@ -229,8 +221,43 @@ class HomeController extends BaseController {
     if (rulesRes.isSuccessful) {
       kid.blockedPackages = _alwaysOffPackages(rulesRes.data?["data"]?["rules"] as List? ?? []);
     }
+    await _loadPendingUninstalls(kid);
     isLoading = false;
     update();
+  }
+
+  /// Marks apps whose uninstall the device hasn't finished, so their rows say "Uninstall pending".
+  Future<void> _loadPendingUninstalls(Kid kid) async {
+    ResponseModel res = await HomeRepo.getPendingCommands(_connectIdOf(kid));
+    if (!res.isSuccessful) return;
+    kid.pendingUninstalls = (res.data?["data"]?["commands"] as List? ?? [])
+        .whereType<Map>()
+        .where((c) => c["type"] == "deleteApp" && c["pkg"] != null)
+        .map((c) => c["pkg"].toString())
+        .toSet();
+  }
+
+  /// Follows an uninstall: when the device reports it failed (some phones need on-screen confirmation),
+  /// tells the parent and clears the pending mark; when done, drops the app from the list.
+  Future<void> _followUninstall(Kid kid, String commandId, String appPackage) async {
+    for (int attempt = 0; attempt < 6; attempt++) {
+      await Future.delayed(const Duration(seconds: 20));
+      ResponseModel res = await HomeRepo.getCommandStatus(commandId);
+      final status = res.data?["data"]?["status"]?.toString();
+      if (status == "done") {
+        kid.pendingUninstalls.remove(appPackage);
+        kid.installedApps.removeWhere((app) => app.pkg == appPackage);
+        kid.deviceDetail?.data?.apps?.removeWhere((app) => app.pkg == appPackage);
+        update();
+        return;
+      }
+      if (status == "failed" || status == "cancelled") {
+        kid.pendingUninstalls.remove(appPackage);
+        update();
+        errorToast("Couldn't uninstall ${kid.appNames[appPackage] ?? appPackage}. Block it instead.");
+        return;
+      }
+    }
   }
 
   Future<void> getNetworkHistory({required String kidId}) async {
@@ -269,9 +296,28 @@ class HomeController extends BaseController {
     isLoading = false;
     update();
     if (res.isSuccessful) {
-      successToast("Wipe sent. The device will be erased as soon as it is online.");
-    } else if ((res.message ?? "").contains("404")) {
-      errorToast("Device wipe isn't available on the server yet.");
+      final cancellable = res.data?["data"]?["cancellable"] != false;
+      successToast(cancellable
+          ? "Wipe scheduled. You can cancel it for the next 5 minutes."
+          : "Wipe sent. The device will be erased as soon as it is online.");
+    } else {
+      // 403 says why: the device isn't this parent's, or wipe isn't switched on for it yet.
+      apiToast(res);
+    }
+  }
+
+  /// Takes back a wipe from [wipeDevice], until the device has received it.
+  Future<void> cancelWipe({required String kidId}) async {
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return;
+    isLoading = true;
+    update();
+    ResponseModel res = await HomeRepo.cancelWipe(
+        connectId: _connectIdOf(kid), externalMoolahId: Prefs.userId.get());
+    isLoading = false;
+    update();
+    if (res.isSuccessful) {
+      successToast("Wipe cancelled. Nothing was erased.");
     } else {
       apiToast(res);
     }
@@ -289,15 +335,15 @@ class HomeController extends BaseController {
       packageName: appPackage
     );
 
-    if (res.isSuccessful) {
-      // The MDM's app reports still list the app until the device reports again, so drop it here.
-      kid.installedApps.removeWhere((app) => app.pkg == appPackage);
-      kid.deviceDetail?.data?.apps?.removeWhere((app) => app.pkg == appPackage);
-    }
+    // The app stays listed, marked pending, until the device has removed it: the uninstall can fail
+    // (some phones ask for on-screen confirmation), and then the parent needs to see it is still there.
+    if (res.isSuccessful) kid.pendingUninstalls.add(appPackage);
     isLoading = false;
     update();
     if (res.isSuccessful) {
       successToast("Uninstall sent to the device");
+      final commandId = res.data?["data"]?["commandId"]?.toString();
+      if (commandId != null) _followUninstall(kid, commandId, appPackage);
     } else {
       apiToast(res);
     }

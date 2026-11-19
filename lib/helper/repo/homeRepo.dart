@@ -38,6 +38,21 @@ class HomeRepo {
     'externalMoolahId': externalMoolahId,
   });
 
+  // Takes back a pending wipe, until the device has received it.
+  static Future<ResponseModel> cancelWipe({required String connectId, required String externalMoolahId}) async =>
+      await Network.post(EndPoints.cancelWipeUrl, body: {
+    'kidDeviceAccountConnectID': connectId,
+    'externalMoolahId': externalMoolahId,
+  });
+
+  // Status of one command: queued, delivered, done, failed or cancelled.
+  static Future<ResponseModel> getCommandStatus(String commandId) async =>
+      await Network.get("${EndPoints.getCommandStatusUrl}?commandId=${Uri.encodeQueryComponent(commandId)}");
+
+  // The device's queued and delivered commands, newest first.
+  static Future<ResponseModel> getPendingCommands(String connectId) async =>
+      await Network.get("${EndPoints.getPendingCommandsUrl}?kidDeviceAccountConnectID=$connectId");
+
   // 4. List installed apps
   static Future<ResponseModel> getInstalledApps(String connectId) async =>
       await Network.get("${EndPoints.getInstalledAppsUrl}?kidDeviceAccountConnectID=$connectId");

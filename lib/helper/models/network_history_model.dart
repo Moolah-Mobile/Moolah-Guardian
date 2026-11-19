@@ -2,17 +2,46 @@ class NetworkHistory {
   final List<WebsiteVisit> websites;
   final int websitesTotal;
   final int dataUsageBytes;
+  // Browsers that ignore the device's DNS setting and can hide sites from this history.
+  final List<String> unmanagedBrowsers;
+  // When the device last uploaded history; null if it never has.
+  final DateTime? lastUploadAt;
+  // Reported by newer agents only (null otherwise).
+  final bool? loggingEnabled;
+  final bool? vpnActive;
 
   NetworkHistory({
     required this.websites,
     required this.websitesTotal,
     required this.dataUsageBytes,
+    this.unmanagedBrowsers = const [],
+    this.lastUploadAt,
+    this.loggingEnabled,
+    this.vpnActive,
   });
+
+  /// Why this history may be missing sites, or null when nothing says so.
+  String? get gapWarning {
+    if (loggingEnabled == false) return "The device isn't recording browsing right now.";
+    if (vpnActive == true) return "A VPN is on, so some sites may not appear here.";
+    if (unmanagedBrowsers.isNotEmpty) {
+      return "${unmanagedBrowsers.join(", ")} can hide sites from this list. Block it from the Apps tab.";
+    }
+    return null;
+  }
 
   factory NetworkHistory.fromJson(Map<String, dynamic> json) {
     final websites = json["websites"]?["items"] as List? ?? [];
     final usage = json["dataUsage"] as List? ?? [];
     return NetworkHistory(
+      unmanagedBrowsers: (json["unmanagedBrowsers"] as List? ?? [])
+          .whereType<Map>()
+          .map((b) => (b["name"] ?? b["pkg"])?.toString())
+          .whereType<String>()
+          .toList(),
+      lastUploadAt: DateTime.tryParse(json["lastHistoryUploadAt"]?.toString() ?? "")?.toLocal(),
+      loggingEnabled: json["networkLoggingEnabled"] as bool?,
+      vpnActive: json["vpnActive"] as bool?,
       websites: websites
           .map((w) => WebsiteVisit.fromJson(Map<String, dynamic>.from(w as Map)))
           .toList(),

@@ -23,16 +23,18 @@ class ConnectDeviceRepo {
     });
   }
 
-  // 2. Link a child's tablet
+  // 2. Link a child's tablet. [deviceId] is the tablet's device number, IMEI or serial; [connectId] is
+  // the ID api2 already uses for this parent–tablet pair, which the MDM stores as is.
   static Future<ResponseModel> linkDevice({
     required String externalMoolahId,
     required String deviceId,
+    required String connectId,
     required String label,
   }) async {
     return await Network.post(EndPoints.linkDevice, body: {
       "externalMoolahId": externalMoolahId,
       "deviceId": deviceId,
-      "kidDeviceAccountConnectID": deviceId,
+      "kidDeviceAccountConnectID": connectId,
       "label": label
     });
   }
