@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -10,6 +11,7 @@ import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
 import 'package:moolah/helper/models/kids_model.dart';
+import 'package:moolah/helper/repo/placeSearchRepo.dart';
 import 'package:moolah/screens/block_rules/app_picker_screen.dart';
 import 'package:moolah/screens/block_rules/places_screen.dart';
 import 'package:moolah/screens/block_rules/rule_widgets.dart';
@@ -51,6 +53,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
   void dispose() {
     name.dispose();
     address.dispose();
+    _typingPause?.cancel();
     _map?.dispose();
     super.dispose();
   }
@@ -62,28 +65,56 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
         _matches = [];
       });
 
-  // Address search. The phone's own geocoder does the lookup (Google's on Android, Apple's on iOS), so the
-  // app needs no geocoding key.
+  // Address search. While the parent types, OpenStreetMap suggestions (Photon) appear under the box. The
+  // search button asks the phone's own geocoder instead (Google's on Android, Apple's on iOS), which also
+  // works when the suggestions can't be fetched. Neither needs a key.
   final _geocoder = geo.Geocoding();
   bool _searching = false;
-  // Shown for the parent to pick from when an address matches more than one place.
-  List<({String label, LatLng at})> _matches = [];
+  // Places for the parent to pick from: suggestions while typing, or an address with several matches.
+  List<PlaceSuggestion> _matches = [];
+  bool _matchesFromSearch = false;
+  Timer? _typingPause;
+  int _suggestRequest = 0;
+
+  LatLng? get _searchNear => _childAt ?? (pinned ? _pin : null);
+
+  void _onAddressTyped(String text) {
+    _typingPause?.cancel();
+    final request = ++_suggestRequest;
+    if (text.trim().length < PlaceSearchRepo.minChars) {
+      if (_matches.isNotEmpty) setState(() => _matches = []);
+      return;
+    }
+    _typingPause = Timer(const Duration(milliseconds: 400), () async {
+      final near = _searchNear;
+      final found = await PlaceSearchRepo.suggest(text, nearLat: near?.latitude, nearLng: near?.longitude);
+      // Drop answers to text the parent has since changed, or after a place was picked.
+      if (!mounted || request != _suggestRequest) return;
+      setState(() {
+        _matches = found;
+        _matchesFromSearch = false;
+      });
+    });
+  }
 
   Future<void> _findAddress() async {
     final query = address.text.trim();
     if (query.isEmpty || _searching) return;
+    _typingPause?.cancel();
+    _suggestRequest++;
     FocusScope.of(context).unfocus();
     setState(() {
       _searching = true;
       _matches = [];
     });
-    List<({String label, LatLng at})> found = [];
+    List<PlaceSuggestion> found = [];
     try {
       final locations = await _geocoder.locationFromAddress(query);
-      found = await Future.wait(locations.take(5).map((l) async {
-        final at = LatLng(l.latitude, l.longitude);
-        return (label: await _addressAt(at) ?? query, at: at);
-      }));
+      found = await Future.wait(locations.take(5).map((l) async => PlaceSuggestion(
+          title: await _addressAt(LatLng(l.latitude, l.longitude)) ?? query,
+          detail: "",
+          lat: l.latitude,
+          lng: l.longitude)));
     } catch (_) {
       // Android throws when nothing matches, as well as when the lookup fails.
     }
@@ -93,7 +124,10 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
       return errorToast("Couldn't find that address. Check it, or add the city or ZIP code.");
     }
     if (found.length == 1) return _goTo(found.single);
-    setState(() => _matches = found);
+    setState(() {
+      _matches = found;
+      _matchesFromSearch = true;
+    });
   }
 
   Future<String?> _addressAt(LatLng at) async {
@@ -117,8 +151,11 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
     }
   }
 
-  void _goTo(({String label, LatLng at}) match) {
-    _movePin(match.at);
+  void _goTo(PlaceSuggestion match) {
+    _typingPause?.cancel();
+    _suggestRequest++;
+    FocusScope.of(context).unfocus();
+    _movePin(LatLng(match.lat, match.lng));
     address.text = match.label;
     _map?.animateCamera(CameraUpdate.newLatLngZoom(_pin, _zoomToFit()));
   }
@@ -130,8 +167,9 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
         fieldLabel("Address"),
         _textField(
           address,
-          hint: "Search for an address",
+          hint: "Type an address or a place's name",
           action: TextInputAction.search,
+          onChanged: _onAddressTyped,
           onSubmitted: (_) => _findAddress(),
           suffix: _searching
               ? const Padding(
@@ -146,16 +184,33 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
         ),
         if (_matches.isNotEmpty) ...[
           verticalSpace(8),
-          regularText("More than one place matches. Which one?", fontSize: 13, color: AppColors.grey),
-          verticalSpace(4),
-          for (final m in _matches)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              leading: Icon(Icons.place_outlined, color: AppColors.normalGreen),
-              title: regularText(m.label, fontSize: 14),
-              onTap: () => _goTo(m),
+          if (_matchesFromSearch) ...[
+            regularText("More than one place matches. Which one?", fontSize: 13, color: AppColors.grey),
+            verticalSpace(4),
+          ],
+          roundedContainer(
+            borderRadius: 14,
+            color: AppColors.white,
+            border: Border.all(color: AppColors.darkLightGrey),
+            child: Column(
+              children: [
+                for (final (i, m) in _matches.indexed) ...[
+                  if (i > 0) Divider(height: 1, color: AppColors.darkLightGrey),
+                  ListTile(
+                    dense: true,
+                    leading: Icon(Icons.place_outlined, color: AppColors.normalGreen),
+                    title: boldText(m.title, fontSize: 14),
+                    subtitle: m.detail.isEmpty ? null : regularText(m.detail, fontSize: 13, color: AppColors.grey),
+                    onTap: () => _goTo(m),
+                  ),
+                ],
+              ],
             ),
+          ),
+          if (!_matchesFromSearch) ...[
+            verticalSpace(4),
+            regularText("Suggestions © OpenStreetMap contributors", fontSize: 11, color: AppColors.grey),
+          ],
         ],
         verticalSpace(12),
       ],

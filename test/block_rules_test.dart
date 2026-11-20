@@ -3,6 +3,7 @@ import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
+import 'package:moolah/helper/repo/placeSearchRepo.dart';
 import 'package:moolah/screens/block_rules/rule_widgets.dart';
 import 'package:moolah/screens/connect_device/pair_too_far_screen.dart';
 
@@ -168,5 +169,51 @@ void main() {
     expect(PairTooFarScreen.milesText(2414), "1.5 miles");
     expect(PairTooFarScreen.milesText(13520), "8.4 miles");
     expect(PairTooFarScreen.milesText(13500000), "8389 miles");
+  });
+
+  test('address suggestions read from Photon: named places, plain addresses, no repeats', () {
+    Map<String, dynamic> feature(Map<String, dynamic> props, [List<num>? at]) => {
+          "type": "Feature",
+          "properties": props,
+          if (at != null) "geometry": {"type": "Point", "coordinates": at},
+        };
+    final list = PlaceSuggestion.fromPhoton({
+      "type": "FeatureCollection",
+      "features": [
+        feature({
+          "name": "Stuyvesant High School",
+          "housenumber": "345",
+          "street": "Chambers Street",
+          "locality": "Tribeca",
+          "city": "New York",
+          "state": "New York",
+          "postcode": "10282",
+          "country": "United States",
+        }, [-74.0138398, 40.7179857]),
+        // The same school again: dropped.
+        feature({
+          "name": "Stuyvesant High School",
+          "housenumber": "345",
+          "street": "Chambers Street",
+          "city": "New York",
+          "state": "New York",
+          "postcode": "10282",
+          "country": "United States",
+        }, [-74.0138, 40.7179]),
+        feature({"housenumber": "12", "street": "Main Street", "locality": "Springfield", "country": "United States"},
+            [-72.5, 42.1]),
+        // No point, or nothing to call it: dropped.
+        feature({"name": "Nowhere"}),
+        feature({"country": "United States"}, [-100, 40]),
+      ],
+    });
+    expect(list.length, 2);
+    expect(list[0].title, "Stuyvesant High School");
+    expect(list[0].detail, "345 Chambers Street, New York, New York 10282, United States");
+    expect(list[0].lat, 40.7179857);
+    expect(list[0].lng, -74.0138398);
+    expect(list[1].title, "12 Main Street");
+    expect(list[1].label, "12 Main Street, Springfield, United States");
+    expect(PlaceSuggestion.fromPhoton({}), isEmpty);
   });
 }
