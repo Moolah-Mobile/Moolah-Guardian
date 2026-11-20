@@ -109,7 +109,7 @@ class SchedulesScreen extends StatelessWidget {
                 child: regularText(
                     s.allApps
                         ? "All apps except Phone and Messages"
-                        : notActive == null && s.enabled
+                        : notActive == null && s.isOnAt(now)
                             ? "$count blocked"
                             : count,
                     fontSize: 14),

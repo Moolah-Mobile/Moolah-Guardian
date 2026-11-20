@@ -55,8 +55,9 @@ String? childClockNote(Kid kid) {
   if (offset == null || offset == DateTime.now().timeZoneOffset.inMinutes) return null;
   final name = childFirstName(kid);
   final now = childNow(kid);
-  final zone = data?.timeZone?.replaceAll("_", " ");
-  return "$name's phone is on a different time zone${zone == null ? "" : " ($zone)"}, where it's "
+  // "America/New_York" reads as "New York".
+  final zone = data?.timeZone?.split("/").last.replaceAll("_", " ");
+  return "$name's phone is on ${zone == null ? "a different time zone" : "$zone time"}, where it's "
       "${formatTime(now.hour * 60 + now.minute)} now. Times here are $name's time.";
 }
 
