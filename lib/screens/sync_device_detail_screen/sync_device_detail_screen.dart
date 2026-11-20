@@ -739,6 +739,32 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     );
   }
 
+  void _confirmUnpair() {
+    final kid = Get.find<HomeController>().getSelectedKid(widget.kidId);
+    final name = kid.name?.split(" ").first ?? "your child";
+    showDialog(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: boldText("Unpair $name's device?", fontSize: 18),
+        content: regularText(
+            "It will be removed from your account, and you won't be able to see or manage it here. "
+            "To add it again, connect it with a new code from the device.",
+            fontSize: 14),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialog), child: regularText("Cancel", fontSize: 14)),
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(dialog);
+                final unpaired = await Get.find<HomeController>().unpairDevice(kidId: widget.kidId);
+                // The device is gone from the list, so go back to Home.
+                if (unpaired && mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              child: regularText("Unpair", color: AppColors.red, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
   void _confirmReboot() {
     showDialog(
       context: context,
@@ -975,6 +1001,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                 locked: !planAllows(Feature.deviceActions)),
           ],
         ),
+        verticalSpace(10),
+        // Any plan can unpair: it only removes the device from this account.
+        Row(children: [actionButton(Icons.link_off, "Unpair device", _confirmUnpair, danger: true)]),
       ],
     );
   }

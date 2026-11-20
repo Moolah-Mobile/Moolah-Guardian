@@ -220,5 +220,18 @@ class BlockRulesController extends GetxController {
   List<BlockSchedule> schedulesOnAt(String kidId, DateTime now) =>
       schedulesFor(kidId).where((s) => s.isOnAt(now)).toList();
 
+  /// Drops what this phone keeps for a device that has been unpaired.
+  void forgetDevice(String connectId) {
+    _schedules.remove(connectId);
+    _places.remove(connectId);
+    _notApplied.remove(connectId);
+    _refreshedAt.remove(connectId);
+    _sentOnce.remove(connectId);
+    try {
+      Prefs.prefs.remove(_prefsKey(connectId));
+    } catch (_) {}
+    update();
+  }
+
   static String newId(String prefix) => "$prefix-${DateTime.now().microsecondsSinceEpoch}";
 }

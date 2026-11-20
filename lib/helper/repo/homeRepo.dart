@@ -7,6 +7,13 @@ class HomeRepo {
   static Future<ResponseModel> getParentKidDevices() async =>
       await Network.get(EndPoints.getParentKidDevicesUrl);
 
+  // Removes the child's device from the parent's account on api2.
+  static Future<ResponseModel> unpairKidDevice({required String kidUserId, required String connectId}) async =>
+      await Network.post(EndPoints.unpairKidDevice, body: {
+        "kidDeviceAccountUserID": kidUserId,
+        "kidDeviceAccountConnectID": connectId,
+      });
+
   // 3. Get the child's device(s)
   // API requires kidDeviceAccountConnectID parameter
   static Future<ResponseModel> getSyncedKidDevices({String? connectId}) async {

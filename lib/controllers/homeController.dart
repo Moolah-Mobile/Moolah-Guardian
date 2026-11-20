@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/baseController.dart';
 import 'package:moolah/helper/endpoints.dart';
 import 'package:moolah/helper/models/blocked_url_model.dart';
@@ -305,6 +306,33 @@ class HomeController extends BaseController {
       // 403 says why: the device isn't this parent's, or wipe isn't switched on for it yet.
       apiToast(res);
     }
+  }
+
+  /// Removes the child's device from this parent's account. On success it leaves the device list and its
+  /// schedules and places saved on this phone are dropped. Returns whether it was unpaired.
+  Future<bool> unpairDevice({required String kidId}) async {
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return false;
+    final kidUserId = kid.kidUserId;
+    if (kidUserId == null || kidUserId.isEmpty) {
+      errorToast("Couldn't unpair this device right now. Go back to Home, open it again and try once more.");
+      return false;
+    }
+    final connectId = _connectIdOf(kid);
+    isLoading = true;
+    update();
+    final res = await HomeRepo.unpairKidDevice(kidUserId: kidUserId, connectId: connectId);
+    isLoading = false;
+    if (!res.isSuccessful) {
+      update();
+      apiToast(res);
+      return false;
+    }
+    connectedKids.removeWhere((k) => k.connectId == kid.connectId && k.kidId == kid.kidId);
+    Get.find<BlockRulesController>().forgetDevice(connectId);
+    update();
+    successToast("Device unpaired");
+    return true;
   }
 
   /// Takes back a wipe from [wipeDevice], until the device has received it.
