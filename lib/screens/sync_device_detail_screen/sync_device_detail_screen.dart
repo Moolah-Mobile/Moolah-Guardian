@@ -354,7 +354,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
             Expanded(
               child: ListView(
                 // No room is needed for the ad banner while it is hidden for the keyboard.
-                padding: EdgeInsets.only(bottom: _searchingApps ? 16 : listEndSpace),
+                padding: EdgeInsets.only(bottom: _searchingApps ? 16 : listEndPadding(context)),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 children: [
                   if (!compact) ...[
@@ -623,7 +623,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView(
-          padding: const EdgeInsets.only(bottom: listEndSpace),
+          padding: EdgeInsets.only(bottom: listEndPadding(context)),
           children: [
             _tabActionButton(),
             Padding(
@@ -732,8 +732,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
       builder: (dialog) => AlertDialog(
         title: boldText("Unpair $name's device?", fontSize: 18),
         content: regularText(
-            "It will be removed from your account, and you won't be able to see or manage it here. "
-            "To add it again, connect it with a new code from the device.",
+            "It will be removed from your account, and your schedules, places and blocked apps will be taken off "
+            "it. To add it again, connect it with a new code from the device.",
             fontSize: 14),
         actions: [
           TextButton(onPressed: () => Navigator.pop(dialog), child: regularText("Cancel", fontSize: 14)),
@@ -789,7 +789,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   Widget _comingSoonTab({required IconData icon, required String text, bool showContacts = false}) {
     return Expanded(
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(10, 24, 10, listEndSpace),
+        padding: EdgeInsets.fromLTRB(10, 24, 10, listEndPadding(context)),
         children: [
           Center(child: iconBadge(icon, size: 72)),
           verticalSpace(14),

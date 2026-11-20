@@ -46,6 +46,14 @@ class HomeRepo {
   });
 
   // Takes back a pending wipe, until the device has received it.
+  // Frees the tablet on the MDM after unpairing: if no other parent is linked, its Guardian rules, VPN and
+  // Private DNS locks and pending wipe are removed. The connect ID stops working ("Device not found").
+  static Future<ResponseModel> unlinkGuardianDevice({required String connectId, required String externalMoolahId}) async =>
+      await Network.post(EndPoints.unlinkDevice, body: {
+    'kidDeviceAccountConnectID': connectId,
+    'externalMoolahId': externalMoolahId,
+  });
+
   static Future<ResponseModel> cancelWipe({required String connectId, required String externalMoolahId}) async =>
       await Network.post(EndPoints.cancelWipeUrl, body: {
     'kidDeviceAccountConnectID': connectId,

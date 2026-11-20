@@ -322,16 +322,28 @@ class HomeController extends BaseController {
     isLoading = true;
     update();
     final res = await HomeRepo.unpairKidDevice(kidUserId: kidUserId, connectId: connectId);
-    isLoading = false;
     if (!res.isSuccessful) {
+      isLoading = false;
       update();
       apiToast(res);
       return false;
     }
+    // api2 only removes the device from this account. The MDM keeps the tablet's rules (and VPN/Private DNS
+    // locks) until it's unlinked there too, so the phone would go on blocking apps and the rules would come
+    // back if it's paired again. Unlinking clears them unless another parent still manages the tablet.
+    // "Device not found" means it's already unlinked (api2 may do this itself).
+    final unlink = await HomeRepo.unlinkGuardianDevice(connectId: connectId, externalMoolahId: Prefs.userId.get());
+    final freed = unlink.isSuccessful || (unlink.message ?? "").contains("Device not found");
+    isLoading = false;
     connectedKids.removeWhere((k) => k.connectId == kid.connectId && k.kidId == kid.kidId);
     Get.find<BlockRulesController>().forgetDevice(connectId);
     update();
-    successToast("Device unpaired");
+    if (freed) {
+      successToast("Device unpaired");
+    } else {
+      errorToast("Device unpaired, but its schedules, places and blocked apps couldn't be removed from the "
+          "phone. Contact support to have them removed.");
+    }
     return true;
   }
 
