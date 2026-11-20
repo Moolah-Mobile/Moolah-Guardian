@@ -14,6 +14,7 @@ import 'package:moolah/screens/block_rules/places_screen.dart';
 import 'package:moolah/screens/block_rules/rule_widgets.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
+import 'package:moolah/util/customtoast.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
 
 /// Adds a place, or edits [place] when given: a pin on the map, the size of the area around it, and which
@@ -74,10 +75,21 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
     if (picked != null) setState(() => draft.packages = picked);
   }
 
+  // Sent to the child's phone first; the screen closes only once the MDM has it.
+  bool _saving = false;
+
+  Future<void> _run(Future<String?> Function(BlockRulesController rules) change) async {
+    setState(() => _saving = true);
+    final error = await change(Get.find<BlockRulesController>());
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (error != null) return errorToast(error);
+    Navigator.pop(context);
+  }
+
   void _save() {
     draft.name = name.text.trim();
-    Get.find<BlockRulesController>().savePlace(widget.kidId, draft);
-    Navigator.pop(context);
+    _run((rules) => rules.savePlace(widget.kidId, draft));
   }
 
   void _delete() {
@@ -91,8 +103,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialog);
-              Get.find<BlockRulesController>().deletePlace(widget.kidId, draft.id);
-              Navigator.pop(context);
+              _run((rules) => rules.deletePlace(widget.kidId, draft.id));
             },
             child: regularText("Delete", color: AppColors.red, fontSize: 14),
           ),
@@ -199,6 +210,9 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
                     label: "Until", minutes: draft.to, onChanged: (m) => setState(() => draft.to = m))),
           ],
         ),
+        verticalSpace(12),
+        infoNote("Children's phones can't follow places with set times yet. The place is saved, but to block "
+            "apps there now, choose Any time."),
       ],
       verticalSpace(18),
       fieldLabel("Apps to block"),
@@ -234,12 +248,12 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
         regularText(problem, fontSize: 13, color: AppColors.grey),
         verticalSpace(8),
       ],
-      primaryButton("Save place", onTap: problem == null ? _save : null),
+      primaryButton(_saving ? "Saving…" : "Save place", onTap: problem == null && !_saving ? _save : null),
       if (!_isNew) ...[
         verticalSpace(8),
         Center(
           child: TextButton(
-            onPressed: _delete,
+            onPressed: _saving ? null : _delete,
             child: regularText("Delete place", color: AppColors.red, fontSize: 15, fontWeight: FontWeight.w600),
           ),
         ),

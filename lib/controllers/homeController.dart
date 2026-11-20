@@ -110,7 +110,8 @@ class HomeController extends BaseController {
   // Why the Apps tab hides [app], or null when it is shown.
   static String? hiddenReason(App app) {
     if (isMoolahApp(app.packageName)) return "moolah";
-    if (app.launchable == false) return "not launchable";
+    // A blocked app is hidden on the phone and reports itself as not launchable; it's still the child's app.
+    if (app.launchable == false && app.state != "hidden") return "not launchable";
     if (isSystemApp(app)) return app.systemApp == null ? "system (guessed from package)" : "system";
     return null;
   }

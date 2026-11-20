@@ -8,6 +8,7 @@ import 'package:moolah/screens/block_rules/app_picker_screen.dart';
 import 'package:moolah/screens/block_rules/rule_widgets.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
+import 'package:moolah/util/customtoast.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
 
 /// Adds a schedule, or edits [schedule] when given.
@@ -50,10 +51,21 @@ class _ScheduleEditScreenState extends State<ScheduleEditScreen> {
     if (picked != null) setState(() => draft.packages = picked);
   }
 
+  // Sent to the child's phone first; the screen closes only once the MDM has it.
+  bool _saving = false;
+
+  Future<void> _run(Future<String?> Function(BlockRulesController rules) change) async {
+    setState(() => _saving = true);
+    final error = await change(Get.find<BlockRulesController>());
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (error != null) return errorToast(error);
+    Navigator.pop(context);
+  }
+
   void _save() {
     draft.name = name.text.trim();
-    Get.find<BlockRulesController>().saveSchedule(widget.kidId, draft);
-    Navigator.pop(context);
+    _run((rules) => rules.saveSchedule(widget.kidId, draft));
   }
 
   void _delete() {
@@ -67,8 +79,7 @@ class _ScheduleEditScreenState extends State<ScheduleEditScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialog);
-              Get.find<BlockRulesController>().deleteSchedule(widget.kidId, draft.id);
-              Navigator.pop(context);
+              _run((rules) => rules.deleteSchedule(widget.kidId, draft.id));
             },
             child: regularText("Delete", color: AppColors.red, fontSize: 14),
           ),
@@ -139,7 +150,8 @@ class _ScheduleEditScreenState extends State<ScheduleEditScreen> {
       ),
       verticalSpace(12),
       if (draft.allApps)
-        infoNote("Every app is turned off except Phone, Messages and Moolah apps.")
+        infoNote("Every app is turned off except Phone, Messages and Moolah apps. Children's phones can't "
+            "follow this yet: the schedule is saved and starts once they can.")
       else
         _chosenApps(kid),
       verticalSpace(16),
@@ -149,12 +161,12 @@ class _ScheduleEditScreenState extends State<ScheduleEditScreen> {
         regularText(problem, fontSize: 13, color: AppColors.grey),
         verticalSpace(8),
       ],
-      primaryButton("Save schedule", onTap: problem == null ? _save : null),
+      primaryButton(_saving ? "Saving…" : "Save schedule", onTap: problem == null && !_saving ? _save : null),
       if (!_isNew) ...[
         verticalSpace(8),
         Center(
           child: TextButton(
-            onPressed: _delete,
+            onPressed: _saving ? null : _delete,
             child: regularText("Delete schedule", color: AppColors.red, fontSize: 15, fontWeight: FontWeight.w600),
           ),
         ),

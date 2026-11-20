@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/advertisementController.dart';
+import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
+import 'package:moolah/screens/block_rules/rule_widgets.dart' show ruleBlocksNow;
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
 import 'package:moolah/util/common_widgets/CommonGradientBackground.dart';
@@ -38,15 +40,20 @@ class _BlackListScreenState extends State<BlackListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<HomeController>(builder: (homeController) {
+    // Rule blocks come from the schedules and places, so rebuild when either controller changes.
+    return GetBuilder<BlockRulesController>(
+        initState: (_) => Get.find<BlockRulesController>().loadFromMdm(widget.kidId),
+        builder: (rules) => GetBuilder<HomeController>(builder: (homeController) {
       final kid = homeController.getSelectedKid(widget.kidId);
+      // Apps a schedule or place is blocking now. Their switch stays off: it means "blocked at all times".
+      final ruleBlocks = ruleBlocksNow(rules, kid, widget.kidId, DateTime.now());
       final apps = kid.installedApps
           .where((a) => !HomeController.isProtectedApp(a.packageName))
           .toList();
       // A blocked app is suspended on the device and drops out of its installed-apps report,
       // so list it from the rules to keep it unblockable.
       final listed = apps.map((a) => a.packageName).toSet();
-      for (final pkg in kid.blockedPackages) {
+      for (final pkg in {...kid.blockedPackages, ...ruleBlocks.keys}) {
         if (!listed.contains(pkg) && !HomeController.isProtectedApp(pkg)) {
           apps.add(App(pkg: pkg, name: kid.appNames[pkg] ?? pkg));
         }
@@ -102,7 +109,8 @@ class _BlackListScreenState extends State<BlackListScreen> {
                                       for (int i = 0; i < shown.length; i++) ...[
                                         if (i > 0)
                                           Divider(height: 1, thickness: 1, indent: 64, color: AppColors.greyF0F0),
-                                        appItem(shown[i], kid.blockedPackages.contains(shown[i].packageName)),
+                                        appItem(shown[i], kid.blockedPackages.contains(shown[i].packageName),
+                                            ruleBlocks[shown[i].packageName]),
                                       ],
                                     ],
                                   ),
@@ -116,7 +124,7 @@ class _BlackListScreenState extends State<BlackListScreen> {
           ),
         ),
       );
-    });
+    }));
   }
 
   /// How many apps are blocked, and what blocking does.
@@ -187,12 +195,14 @@ class _BlackListScreenState extends State<BlackListScreen> {
     return AnimatedOpacity(opacity: blocked ? 0.4 : 1, duration: const Duration(milliseconds: 200), child: icon);
   }
 
-  Widget appItem(App app, bool blocked) {
+  /// [ruleBlock] says why a schedule or place is blocking the app right now, when one is.
+  Widget appItem(App app, bool blocked, [String? ruleBlock]) {
+    final off = blocked || ruleBlock != null;
     return Padding(
       padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
       child: Row(
         children: [
-          _appIcon(app.iconUrl, blocked),
+          _appIcon(app.iconUrl, off),
           horizontalSpace(12),
           Expanded(
             child: Column(
@@ -201,10 +211,10 @@ class _BlackListScreenState extends State<BlackListScreen> {
                 boldText(app.appName ?? app.packageName ?? "Unknown App",
                     fontSize: 14, maxLines: 1, textOverflow: TextOverflow.ellipsis),
                 verticalSpace(2),
-                regularText(blocked ? "Blocked" : (app.packageName ?? ""),
-                    color: blocked ? AppColors.lightRed : AppColors.grey,
+                regularText(blocked ? "Blocked" : ruleBlock ?? (app.packageName ?? ""),
+                    color: off ? AppColors.lightRed : AppColors.grey,
                     fontSize: 11,
-                    fontWeight: blocked ? FontWeight.w600 : null,
+                    fontWeight: off ? FontWeight.w600 : null,
                     maxLines: 1,
                     textOverflow: TextOverflow.ellipsis),
               ],

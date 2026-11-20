@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/helper/models/kids_model.dart';
+import 'package:moolah/screens/block_rules/places_screen.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
 import 'package:moolah/util/common_widgets/CommonGradientBackground.dart';
@@ -348,7 +351,58 @@ Widget primaryButton(String text, {required VoidCallback? onTap, IconData? icon}
   );
 }
 
-/// The banner that says these rules aren't sent to the phone yet.
-Widget notOnPhoneYetNote(String childName) => infoNote(
-    "Saved in Guardian on this phone. $childName's phone starts following these rules once Moolah Connect "
-    "supports them.");
+/// What to tell the parent when the MDM says [childName]'s phone isn't following a rule yet ([reason] is
+/// the MDM's own wording, meant for developers).
+String notActiveText(String reason, String childName) {
+  final r = reason.toLowerCase();
+  final notYet = "Not active on $childName's phone yet";
+  if (r.contains("days or times")) return "$notYet: places with set times aren't supported. Choose Any time.";
+  if (r.contains("allowonly")) return "$notYet: \u201cAll apps\u201d schedules aren't supported.";
+  if (r.contains("place rules")) return "$notYet: this phone doesn't support places.";
+  if (r.contains("all-day")) return "$notYet: this phone doesn't support all-day schedules.";
+  if (r.contains("never blocked")) return "Not active: the apps in it always stay on (calls, messages, Moolah).";
+  return "$notYet.";
+}
+
+/// One line under a rule card saying the child's phone isn't following it.
+Widget notActiveLine(String text) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 1),
+          child: Icon(Icons.info_outline, size: 16, color: AppColors.grey),
+        ),
+        horizontalSpace(6),
+        Expanded(child: regularText(text, fontSize: 13, color: AppColors.grey, height: 1.4)),
+      ],
+    );
+
+/// The apps a schedule or place is blocking on the child's phone at [now], each with a line saying why:
+/// "Blocked by Homework until 9:00 PM", "Blocked while Aman is at Tuition". Only rules the phone follows
+/// count. [now] is this phone's clock and places use the child's last reported location, so this is
+/// Guardian's best estimate, not a report from the phone.
+Map<String, String> ruleBlocksNow(BlockRulesController rules, Kid kid, String kidId, DateTime now) {
+  final out = <String, String>{};
+  for (final s in rules.schedulesFor(kidId)) {
+    if (s.allApps || !s.isOnAt(now) || rules.notAppliedReason(kidId, s.id) != null) continue;
+    final label = "Blocked by ${s.name.isEmpty ? "a schedule" : s.name} until ${formatTime(s.to)}";
+    for (final pkg in s.packages) {
+      out.putIfAbsent(pkg, () => label);
+    }
+  }
+  final position = childPosition(kid);
+  if (position == null) return out;
+  final name = childFirstName(kid);
+  for (final p in rules.placesFor(kidId)) {
+    if (!p.enabled || rules.notAppliedReason(kidId, p.id) != null) continue;
+    if (p.useTimes && !windowCovers(p.days, p.from, p.to, now)) continue;
+    final inside = distanceMeters(position, LatLng(p.lat, p.lng)) <= p.radiusM;
+    if (inside != p.inside) continue;
+    final where = p.name.isEmpty ? "a place" : p.name;
+    final label = p.inside ? "Blocked while $name is at $where" : "Blocked while $name is away from $where";
+    for (final pkg in p.packages) {
+      out.putIfAbsent(pkg, () => label);
+    }
+  }
+  return out;
+}

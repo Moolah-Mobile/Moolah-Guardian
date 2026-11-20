@@ -6,7 +6,7 @@ import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
-import 'package:moolah/screens/block_rules/rule_widgets.dart' show childFirstName;
+import 'package:moolah/screens/block_rules/rule_widgets.dart' show childFirstName, ruleBlocksNow;
 import 'package:moolah/screens/block_rules/places_screen.dart';
 import 'package:moolah/screens/block_rules/schedules_screen.dart';
 import 'package:ironsource_mediation/ironsource_mediation.dart';
@@ -390,11 +390,18 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                         child: regularText('No apps match "${appQuery.trim()}"', color: AppColors.grey, fontSize: 14),
                       ),
                     ),
-                  for (final app in shown)
-                    appItem(app,
-                        kidId: widget.kidId,
-                        blocked: kid.blockedPackages.contains(app.packageName),
-                        uninstalling: kid.pendingUninstalls.contains(app.packageName)),
+                  // Rebuilt when the schedules and places load, to show which apps they block now.
+                  GetBuilder<BlockRulesController>(builder: (rules) {
+                    final ruleBlocks = ruleBlocksNow(rules, kid, widget.kidId, DateTime.now());
+                    return Column(children: [
+                      for (final app in shown)
+                        appItem(app,
+                            kidId: widget.kidId,
+                            blocked: kid.blockedPackages.contains(app.packageName),
+                            ruleBlock: ruleBlocks[app.packageName],
+                            uninstalling: kid.pendingUninstalls.contains(app.packageName)),
+                    ]);
+                  }),
                 ],
               ),
             ),
@@ -406,7 +413,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
 
   // "Block by schedule" and "Block by location", each with a short status, opening their lists.
   Widget _ruleEntryTiles(Kid kid) {
-    return GetBuilder<BlockRulesController>(builder: (rules) {
+    return GetBuilder<BlockRulesController>(
+        initState: (_) => Get.find<BlockRulesController>().loadFromMdm(widget.kidId),
+        builder: (rules) {
       final schedules = rules.schedulesFor(widget.kidId);
       final places = rules.placesFor(widget.kidId);
       final onNow = rules.schedulesOnAt(widget.kidId, DateTime.now()).length;
@@ -462,7 +471,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     return GetBuilder<BlockRulesController>(builder: (rules) {
       final on = rules.schedulesOnAt(widget.kidId, DateTime.now());
       if (on.isEmpty) return const SizedBox.shrink();
-      final s = on.first;
+      // A schedule the phone follows comes first; one it can't follow yet says so.
+      final s = on.firstWhere((s) => rules.notAppliedReason(widget.kidId, s.id) == null, orElse: () => on.first);
+      final active = rules.notAppliedReason(widget.kidId, s.id) == null;
       final apps = s.allApps ? "All apps except Phone and Messages" : "${s.packages.length} ${s.packages.length == 1 ? "app" : "apps"}";
       return customGestureDetecter(
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SchedulesScreen(kidId: widget.kidId))),
@@ -480,7 +491,10 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     boldText("${s.name.isEmpty ? "A schedule" : s.name} is on", fontSize: 14),
-                    regularText("$apps until ${formatTime(s.to)} · not on ${childFirstName(kid)}'s phone\u00A0yet",
+                    regularText(
+                        active
+                            ? "$apps blocked until ${formatTime(s.to)}"
+                            : "$apps until ${formatTime(s.to)} · not on ${childFirstName(kid)}'s phone\u00A0yet",
                         fontSize: 12, color: AppColors.grey),
                   ],
                 ),
@@ -516,7 +530,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   }
 
   Widget appItem(App listOfInstalledApp,
-      {required String kidId, required bool blocked, bool uninstalling = false}) {
+      {required String kidId, required bool blocked, String? ruleBlock, bool uninstalling = false}) {
     String appName = listOfInstalledApp.appName ?? "Unknown App";
     final pkg = listOfInstalledApp.packageName ?? "";
     final systemApp = HomeController.isSystemApp(listOfInstalledApp);
@@ -532,12 +546,19 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                boldText(appName, fontSize: 14, color: blocked ? AppColors.red : Colors.black),
+                boldText(appName,
+                    fontSize: 14, color: blocked || ruleBlock != null ? AppColors.red : Colors.black),
                 regularText(
                     uninstalling
                         ? "Uninstall pending…"
-                        : "${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
-                    color: uninstalling ? AppColors.normalGreen : AppColors.grey,
+                        : !blocked && ruleBlock != null
+                            ? ruleBlock
+                            : "${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
+                    color: uninstalling
+                        ? AppColors.normalGreen
+                        : !blocked && ruleBlock != null
+                            ? AppColors.lightRed
+                            : AppColors.grey,
                     fontSize: 11),
               ],
             ),

@@ -11,6 +11,7 @@ import 'package:moolah/screens/block_rules/place_edit_screen.dart';
 import 'package:moolah/screens/block_rules/rule_widgets.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
+import 'package:moolah/util/customtoast.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
 
 /// The child's last known position, or null when the phone hasn't reported one.
@@ -42,45 +43,46 @@ class PlacesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<BlockRulesController>(builder: (rules) {
-      final kid = Get.find<HomeController>().getSelectedKid(kidId);
-      final name = childFirstName(kid);
-      final places = rules.placesFor(kidId);
-      final child = childPosition(kid);
+    return GetBuilder<BlockRulesController>(
+        initState: (_) => Get.find<BlockRulesController>().loadFromMdm(kidId),
+        builder: (rules) {
+          final kid = Get.find<HomeController>().getSelectedKid(kidId);
+          final name = childFirstName(kid);
+          final places = rules.placesFor(kidId);
+          final child = childPosition(kid);
 
-      return ruleScreen(context, title: "Block by location", children: [
-        regularText("Choose where apps should turn off: while $name is at a place, such as school, or away from one.",
-            fontSize: 14, color: AppColors.grey, height: 1.45),
-        verticalSpace(16),
-        if (child != null || places.isNotEmpty) ...[
-          _overviewMap(child, places, name, kid),
-          verticalSpace(16),
-        ],
-        if (places.isEmpty)
-          roundedContainer(
-            color: AppColors.lightGrey,
-            borderRadius: 20,
-            padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
-            child: Column(
-              children: [
-                iconBadge(Icons.location_on_outlined, size: 52),
-                verticalSpace(12),
-                boldText("No places yet", fontSize: 16),
-                verticalSpace(4),
-                regularText("Add school, a tuition centre or anywhere apps should be off.",
-                    fontSize: 14, color: AppColors.grey, textAlign: TextAlign.center),
-              ],
-            ),
-          ),
-        for (final p in places) _placeCard(context, rules, kid, p, child, name),
-        verticalSpace(4),
-        primaryButton("Add a place", icon: Icons.add, onTap: () => _open(context)),
-        verticalSpace(16),
-        infoNote("Uses the location of $name's phone. Apps turn off when $name arrives and back on when $name leaves."),
-        verticalSpace(12),
-        notOnPhoneYetNote(name),
-      ]);
-    });
+          return ruleScreen(context, title: "Block by location", children: [
+            regularText("Turn apps off while $name is at a place, such as school, or away from one.",
+                fontSize: 14, color: AppColors.grey, height: 1.45),
+            verticalSpace(16),
+            if (child != null || places.isNotEmpty) ...[
+              _overviewMap(child, places, name, kid),
+              verticalSpace(16),
+            ],
+            if (places.isEmpty)
+              roundedContainer(
+                color: AppColors.lightGrey,
+                borderRadius: 20,
+                padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+                child: Column(
+                  children: [
+                    iconBadge(Icons.location_on_outlined, size: 52),
+                    verticalSpace(12),
+                    boldText("No places yet", fontSize: 16),
+                    verticalSpace(4),
+                    regularText("Add school, a tuition centre or anywhere apps should be off.",
+                        fontSize: 14, color: AppColors.grey, textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+            for (final p in places) _placeCard(context, rules, kid, p, child, name),
+            verticalSpace(4),
+            primaryButton("Add a place", icon: Icons.add, onTap: () => _open(context)),
+            verticalSpace(16),
+            infoNote("Uses the location of $name's phone. Apps turn off within a minute or two of $name arriving, "
+                "and back on after $name leaves."),
+          ]);
+        });
   }
 
   Widget _overviewMap(LatLng? child, List<BlockPlace> places, String name, Kid kid) {
@@ -129,7 +131,9 @@ class PlacesScreen extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                    width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFF1A62C9), shape: BoxShape.circle)),
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(color: Color(0xFF1A62C9), shape: BoxShape.circle)),
                 horizontalSpace(10),
                 Expanded(
                   child: regularText(
@@ -146,20 +150,22 @@ class PlacesScreen extends StatelessWidget {
     );
   }
 
-  Widget _placeCard(BuildContext context, BlockRulesController rules, Kid kid, BlockPlace p, LatLng? child, String name) {
+  Widget _placeCard(
+      BuildContext context, BlockRulesController rules, Kid kid, BlockPlace p, LatLng? child, String name) {
     final here = child != null && distanceMeters(child, LatLng(p.lat, p.lng)) <= p.radiusM;
     final apps = appListText(kid, p.packages);
-    final rule =
-        p.inside ? "Set to block $apps while $name is here" : "Set to block $apps while $name is away from here";
+    final notActive = rules.notAppliedReason(kidId, p.id);
+    final verb = notActive == null ? "Blocks" : "Set to block";
+    final rule = p.inside ? "$verb $apps while $name is here" : "$verb $apps while $name is away from here";
     final placeMatches = child != null && (p.inside ? here : !here);
     final inTimes = !p.useTimes || windowCovers(p.days, p.from, p.to, DateTime.now());
-    final blockingNow = p.enabled && placeMatches && inTimes;
+    final blockingNow = notActive == null && p.enabled && placeMatches && inTimes;
     final status = child == null
         ? "Location not known yet"
         : !p.enabled
             ? "Off"
             : "${here ? "$name is here" : "$name isn't here"} · "
-                "${blockingNow ? "rule applies now" : placeMatches ? "outside the set times" : "rule doesn't apply"}";
+                "${blockingNow ? "apps blocked" : placeMatches ? "outside the set times" : "nothing blocked"}";
 
     return ruleCard(
       onTap: () => _open(context, p),
@@ -180,7 +186,12 @@ class PlacesScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              ruleSwitch(value: p.enabled, onChanged: (v) => rules.setPlaceEnabled(kidId, p.id, v)),
+              ruleSwitch(
+                  value: p.enabled,
+                  onChanged: (v) async {
+                    final error = await rules.setPlaceEnabled(kidId, p.id, v);
+                    if (error != null) errorToast(error);
+                  }),
             ],
           ),
           verticalSpace(10),
@@ -189,18 +200,21 @@ class PlacesScreen extends StatelessWidget {
             child: regularText("$rule.", fontSize: 14, height: 1.4),
           ),
           verticalSpace(8),
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                    color: blockingNow ? AppColors.normalGreen : AppColors.darkLightGrey, shape: BoxShape.circle),
-              ),
-              horizontalSpace(8),
-              Expanded(child: regularText(status, fontSize: 13, color: AppColors.grey)),
-            ],
-          ),
+          if (notActive != null && p.enabled)
+            notActiveLine(notActiveText(notActive, name))
+          else
+            Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                      color: blockingNow ? AppColors.normalGreen : AppColors.darkLightGrey, shape: BoxShape.circle),
+                ),
+                horizontalSpace(8),
+                Expanded(child: regularText(status, fontSize: 13, color: AppColors.grey)),
+              ],
+            ),
         ],
       ),
     );

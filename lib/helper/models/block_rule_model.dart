@@ -1,7 +1,7 @@
 // Rules that turn apps off on the child's phone at set times ([BlockSchedule]) or at a place ([BlockPlace]).
 //
-// [toMdmRule] gives each rule the shape proposed to the MDM team for setDeviceRestrictions. Until the agent
-// supports days, overnight ranges and geofences, Guardian keeps the rules itself (BlockRulesController).
+// [toMdmRule] is the rule as setDeviceRestrictions takes it, and [BlockSchedule.fromMdmRule] /
+// [BlockPlace.fromMdmRule] read it back from getDeviceRestrictions. BlockRulesController keeps them in step.
 
 /// Days are 1 (Monday) to 7 (Sunday), as in [DateTime.weekday].
 const weekdays = {1, 2, 3, 4, 5};
@@ -58,6 +58,14 @@ bool windowCovers(Set<int> days, int from, int to, DateTime now) {
   final yesterday = now.weekday == 1 ? 7 : now.weekday - 1;
   return (days.contains(now.weekday) && minute >= from) || (days.contains(yesterday) && minute < to);
 }
+
+/// "08:00" → 480. Null for anything that isn't an "HH:mm" time.
+int? parseMinutes24(dynamic value) {
+  final m = RegExp(r"^([01][0-9]|2[0-3]):([0-5][0-9])$").firstMatch(value?.toString() ?? "");
+  return m == null ? null : int.parse(m.group(1)!) * 60 + int.parse(m.group(2)!);
+}
+
+List<String> _packagesFrom(dynamic json) => (json as List? ?? []).map((p) => p.toString()).toList();
 
 Set<int> _daysFromJson(dynamic json) {
   final list = json as List? ?? [];
@@ -118,6 +126,18 @@ class BlockSchedule {
         "allApps": allApps,
         "packages": packages,
       };
+
+  /// A schedule from getDeviceRestrictions. No days means every day.
+  factory BlockSchedule.fromMdmRule(Map<String, dynamic> rule) => BlockSchedule(
+        id: rule["id"].toString(),
+        name: rule["name"]?.toString() ?? "",
+        enabled: rule["enabled"] != false,
+        days: rule["days"] == null ? {...everyDay} : _daysFromJson(rule["days"]),
+        from: parseMinutes24(rule["from"]) ?? 8 * 60,
+        to: parseMinutes24(rule["to"]) ?? 15 * 60,
+        allApps: rule["mode"] == "allowOnly",
+        packages: _packagesFrom(rule["packages"]),
+      );
 
   Map<String, dynamic> toMdmRule() => {
         "id": id,
@@ -205,6 +225,26 @@ class BlockPlace {
         "toMin": to,
         "packages": packages,
       };
+
+  /// A place from getDeviceRestrictions; one with days or times is limited to them.
+  factory BlockPlace.fromMdmRule(Map<String, dynamic> rule) {
+    final from = parseMinutes24(rule["from"]);
+    final to = parseMinutes24(rule["to"]);
+    return BlockPlace(
+      id: rule["id"].toString(),
+      name: rule["name"]?.toString() ?? "",
+      lat: (rule["lat"] as num?)?.toDouble() ?? 0,
+      lng: (rule["lng"] as num?)?.toDouble() ?? 0,
+      radiusM: (rule["radiusM"] as num?)?.toInt() ?? 200,
+      inside: rule["trigger"] != "outside",
+      enabled: rule["enabled"] != false,
+      useTimes: from != null && to != null,
+      days: rule["days"] == null ? {...everyDay} : _daysFromJson(rule["days"]),
+      from: from ?? 8 * 60,
+      to: to ?? 15 * 60,
+      packages: _packagesFrom(rule["packages"]),
+    );
+  }
 
   Map<String, dynamic> toMdmRule() => {
         "id": id,
