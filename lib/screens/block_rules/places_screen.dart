@@ -49,7 +49,7 @@ class PlacesScreen extends StatelessWidget {
       final child = childPosition(kid);
 
       return ruleScreen(context, title: "Block by location", children: [
-        regularText("Turn apps off while $name is at a place, such as school, or away from one.",
+        regularText("Choose where apps should turn off: while $name is at a place, such as school, or away from one.",
             fontSize: 14, color: AppColors.grey, height: 1.45),
         verticalSpace(16),
         if (child != null || places.isNotEmpty) ...[
@@ -149,16 +149,17 @@ class PlacesScreen extends StatelessWidget {
   Widget _placeCard(BuildContext context, BlockRulesController rules, Kid kid, BlockPlace p, LatLng? child, String name) {
     final here = child != null && distanceMeters(child, LatLng(p.lat, p.lng)) <= p.radiusM;
     final apps = appListText(kid, p.packages);
-    final rule = p.inside ? "Blocks $apps while $name is here" : "Blocks $apps while $name is away from here";
+    final rule =
+        p.inside ? "Set to block $apps while $name is here" : "Set to block $apps while $name is away from here";
     final placeMatches = child != null && (p.inside ? here : !here);
     final inTimes = !p.useTimes || windowCovers(p.days, p.from, p.to, DateTime.now());
     final blockingNow = p.enabled && placeMatches && inTimes;
     final status = child == null
         ? "Location not known yet"
         : !p.enabled
-            ? "Off · nothing will be blocked here"
+            ? "Off"
             : "${here ? "$name is here" : "$name isn't here"} · "
-                "${blockingNow ? "apps blocked now" : placeMatches ? "outside the set times" : "nothing blocked"}";
+                "${blockingNow ? "rule applies now" : placeMatches ? "outside the set times" : "rule doesn't apply"}";
 
     return ruleCard(
       onTap: () => _open(context, p),

@@ -28,8 +28,11 @@ class SchedulesScreen extends StatelessWidget {
       final now = DateTime.now();
 
       return ruleScreen(context, title: "Block by schedule", children: [
-        regularText("Turn apps off on $name's phone at set times. Phone calls and Moolah apps always stay on.",
-            fontSize: 14, color: AppColors.grey, height: 1.45),
+        regularText(
+            "Choose times when apps should turn off on $name's phone. Phone calls and Moolah apps always stay on.",
+            fontSize: 14,
+            color: AppColors.grey,
+            height: 1.45),
         verticalSpace(16),
         if (schedules.isEmpty)
           roundedContainer(
@@ -87,7 +90,7 @@ class SchedulesScreen extends StatelessWidget {
                       child: regularText(
                           s.allApps
                               ? "All apps except Phone and Messages"
-                              : "${s.packages.length} ${s.packages.length == 1 ? "app" : "apps"} blocked",
+                              : "${s.packages.length} ${s.packages.length == 1 ? "app" : "apps"} to block",
                           fontSize: 14),
                     ),
                   ],

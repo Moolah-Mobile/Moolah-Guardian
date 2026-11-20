@@ -6,6 +6,7 @@ import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
+import 'package:moolah/screens/block_rules/rule_widgets.dart' show childFirstName;
 import 'package:moolah/screens/block_rules/places_screen.dart';
 import 'package:moolah/screens/block_rules/schedules_screen.dart';
 import 'package:ironsource_mediation/ironsource_mediation.dart';
@@ -40,7 +41,7 @@ class SyncDeviceDetailScreen extends StatefulWidget {
 
 class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with SingleTickerProviderStateMixin {
   TabController? tabController;
-  String headingText = "Block Apps";
+  String headingText = "Blocked Apps";
   int prevIndex = 0;
   final appSearch = TextEditingController();
   final appSearchFocus = FocusNode();
@@ -102,7 +103,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
       final currentIndex = tabController?.index;
       if (currentIndex != prevIndex) {
         setState(() {
-          headingText = currentIndex == 0 ? "Block Apps" : "Add Black List URL";
+          headingText = currentIndex == 0 ? "Blocked Apps" : "Add Black List URL";
         });
         prevIndex = currentIndex ?? 0;
       }
@@ -196,7 +197,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   // Height of the pinned bar: 10 top padding plus the tab bar (5 padding each side around a 46 tall TabBar).
   static const double _tabBarExtent = 12 + 56 + 6;
 
-  /// "Block Apps" or "Add Black List URL" at the top of the tab's list, so it scrolls away with it.
+  /// "Blocked Apps" or "Add Black List URL" at the top of the tab's list, so it scrolls away with it.
   Widget _tabActionButton() {
     if (!_tabUnlocked) return const SizedBox.shrink();
     return CustomButton(
@@ -345,7 +346,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
         .toList();
     final shown = apps.where((a) => appMatchesQuery(a, appQuery)).toList();
     final filtering = appQuery.trim().isNotEmpty;
-    // While typing, results start right under the search box; with the keyboard closed, Block Apps and the
+    // While typing, results start right under the search box; with the keyboard closed, Blocked Apps and the
     // rest of the tab are back.
     final compact = _searchingApps;
     return Expanded(
@@ -372,7 +373,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 children: [
                   if (!compact) ...[
-                    _scheduleOnNowBanner(),
+                    _scheduleOnNowBanner(kid),
                     _tabActionButton(),
                     _ruleEntryTiles(kid),
                     comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
@@ -458,7 +459,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   }
 
   // "School hours is on · until 3:00 PM", while a schedule is running; nothing otherwise.
-  Widget _scheduleOnNowBanner() {
+  Widget _scheduleOnNowBanner(Kid kid) {
     return GetBuilder<BlockRulesController>(builder: (rules) {
       final on = rules.schedulesOnAt(widget.kidId, DateTime.now());
       if (on.isEmpty) return const SizedBox.shrink();
@@ -480,7 +481,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     boldText("${s.name.isEmpty ? "A schedule" : s.name} is on", fontSize: 14),
-                    regularText("$apps blocked until ${formatTime(s.to)}", fontSize: 12, color: AppColors.grey),
+                    regularText("$apps until ${formatTime(s.to)} · not on ${childFirstName(kid)}'s phone\u00A0yet",
+                        fontSize: 12, color: AppColors.grey),
                   ],
                 ),
               ),
