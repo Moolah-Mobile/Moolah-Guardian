@@ -42,7 +42,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 child: Form(
                   key: form,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 28, 16, 40),
+                    padding: EdgeInsets.fromLTRB(16, 28, 16, listEndPadding(context, 40)),
                     children: [
                       iconBadge(Icons.favorite_border_rounded, size: 56),
                       verticalSpace(16),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/baseController.dart';
 import 'package:moolah/helper/endpoints.dart';
 import 'package:moolah/helper/models/blocked_url_model.dart';
@@ -110,7 +111,8 @@ class HomeController extends BaseController {
   // Why the Apps tab hides [app], or null when it is shown.
   static String? hiddenReason(App app) {
     if (isMoolahApp(app.packageName)) return "moolah";
-    if (app.launchable == false) return "not launchable";
+    // A blocked app is hidden on the phone and reports itself as not launchable; it's still the child's app.
+    if (app.launchable == false && app.state != "hidden") return "not launchable";
     if (isSystemApp(app)) return app.systemApp == null ? "system (guessed from package)" : "system";
     return null;
   }
@@ -306,6 +308,45 @@ class HomeController extends BaseController {
       // 403 says why: the device isn't this parent's, or wipe isn't switched on for it yet.
       apiToast(res);
     }
+  }
+
+  /// Removes the child's device from this parent's account. On success it leaves the device list and its
+  /// schedules and places saved on this phone are dropped. Returns whether it was unpaired.
+  Future<bool> unpairDevice({required String kidId}) async {
+    final kid = _deviceForAction(kidId);
+    if (kid == null) return false;
+    final kidUserId = kid.kidUserId;
+    if (kidUserId == null || kidUserId.isEmpty) {
+      errorToast("Couldn't unpair this device right now. Go back to Home, open it again and try once more.");
+      return false;
+    }
+    final connectId = _connectIdOf(kid);
+    isLoading = true;
+    update();
+    final res = await HomeRepo.unpairKidDevice(kidUserId: kidUserId, connectId: connectId);
+    if (!res.isSuccessful) {
+      isLoading = false;
+      update();
+      apiToast(res);
+      return false;
+    }
+    // api2 only removes the device from this account. The MDM keeps the tablet's rules (and VPN/Private DNS
+    // locks) until it's unlinked there too, so the phone would go on blocking apps and the rules would come
+    // back if it's paired again. Unlinking clears them unless another parent still manages the tablet.
+    // "Device not found" means it's already unlinked (api2 may do this itself).
+    final unlink = await HomeRepo.unlinkGuardianDevice(connectId: connectId, externalMoolahId: Prefs.userId.get());
+    final freed = unlink.isSuccessful || (unlink.message ?? "").contains("Device not found");
+    isLoading = false;
+    connectedKids.removeWhere((k) => k.connectId == kid.connectId && k.kidId == kid.kidId);
+    Get.find<BlockRulesController>().forgetDevice(connectId);
+    update();
+    if (freed) {
+      successToast("Device unpaired");
+    } else {
+      errorToast("Device unpaired, but its schedules, places and blocked apps couldn't be removed from the "
+          "phone. Contact support to have them removed.");
+    }
+    return true;
   }
 
   /// Takes back a wipe from [wipeDevice], until the device has received it.

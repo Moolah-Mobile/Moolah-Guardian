@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:ironsource_mediation/ironsource_mediation.dart';
 import 'package:moolah/helper/repo/homeRepo.dart';
 import 'package:moolah/util/common_widgets/CommonGradientBackground.dart';
 
@@ -48,14 +47,12 @@ class _LiveLocationState extends State<LiveLocation> {
     }
     getLocation();
     setLocationTimer();
-    IronSource.hideBanner();
     super.initState();
   }
 
   @override
   void dispose() {
     timer.cancel();
-    IronSource.displayBanner();
     super.dispose();
   }
   

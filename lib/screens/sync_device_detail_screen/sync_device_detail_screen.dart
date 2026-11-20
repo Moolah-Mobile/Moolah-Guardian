@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/authController.dart';
+import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
-import 'package:ironsource_mediation/ironsource_mediation.dart';
+import 'package:moolah/helper/models/block_rule_model.dart';
+import 'package:moolah/screens/block_rules/rule_widgets.dart' show childFirstName, childNow, ruleBlocksNow;
+import 'package:moolah/screens/block_rules/places_screen.dart';
+import 'package:moolah/screens/block_rules/schedules_screen.dart';
 import 'package:moolah/screens/blacklist/blacklist_screen.dart';
 import 'package:moolah/screens/sync_device_detail_screen/screens/live_location.dart';
 import 'package:moolah/util/colors.dart';
@@ -36,7 +39,7 @@ class SyncDeviceDetailScreen extends StatefulWidget {
 
 class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with SingleTickerProviderStateMixin {
   TabController? tabController;
-  String headingText = "Block Apps";
+  String headingText = "Blocked Apps";
   int prevIndex = 0;
   final appSearch = TextEditingController();
   final appSearchFocus = FocusNode();
@@ -48,7 +51,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
 
   // The ad banner floats just above the keyboard and would cover the search results, so it is hidden
   // while searching and shown again when the keyboard closes.
-  bool _bannerHiddenForSearch = false;
 
   // Once the search keyboard has been shown and is closed again (Android's Back key), the field gives up
   // focus, so the keyboard doesn't pop up by itself when the parent comes back from another screen.
@@ -66,21 +68,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     }
   }
 
-  void _syncBannerWithSearch(bool searching) {
-    if (searching == _bannerHiddenForSearch) return;
-    _bannerHiddenForSearch = searching;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (searching) {
-        IronSource.hideBanner();
-      } else {
-        IronSource.displayBanner();
-      }
-    });
-  }
-
   @override
   void dispose() {
-    if (_bannerHiddenForSearch) IronSource.displayBanner();
     appSearch.dispose();
     appSearchFocus.dispose();
     tabController?.dispose();
@@ -93,12 +82,12 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     appSearchFocus.addListener(() => setState(() {}));
     // initAPIS updates HomeController (loader state), which is not allowed while this screen is building.
     WidgetsBinding.instance.addPostFrameCallback((_) => initAPIS());
-    tabController = TabController(length: 3, vsync: this, animationDuration: Duration.zero);
+    tabController = TabController(length: 4, vsync: this, animationDuration: Duration.zero);
     tabController?.addListener(() {
       final currentIndex = tabController?.index;
       if (currentIndex != prevIndex) {
         setState(() {
-          headingText = currentIndex == 0 ? "Block Apps" : "Add Black List URL";
+          headingText = currentIndex == 0 ? "Blocked Apps" : "Add Black List URL";
         });
         prevIndex = currentIndex ?? 0;
       }
@@ -108,7 +97,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   @override
   Widget build(BuildContext context) {
     _releaseSearchFocusWhenKeyboardCloses();
-    _syncBannerWithSearch(_searchingApps);
     return GetBuilder<SubscriptionController>(
         builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
               if (homeController.findKid(widget.kidId) == null) {
@@ -175,7 +163,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                                             child: lockedFeaturePanel(
                                                 Feature.browserHistory, "Browser history and URL blocking"))
                                   else if (tabController?.index == 2)
-                                    messagesSection(homeController),
+                                    messagesSection(homeController)
+                                  else if (tabController?.index == 3)
+                                    callsSection(homeController),
                                 ],
                               ),
                             ),
@@ -192,7 +182,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   // Height of the pinned bar: 10 top padding plus the tab bar (5 padding each side around a 46 tall TabBar).
   static const double _tabBarExtent = 12 + 56 + 6;
 
-  /// "Block Apps" or "Add Black List URL" at the top of the tab's list, so it scrolls away with it.
+  /// "Blocked Apps" or "Add Black List URL" at the top of the tab's list, so it scrolls away with it.
   Widget _tabActionButton() {
     if (!_tabUnlocked) return const SizedBox.shrink();
     return CustomButton(
@@ -351,7 +341,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     final shown = apps.where((a) => appMatchesQuery(a, appQuery)).toList();
     final shownOff = turnedOff.where((a) => appMatchesQuery(a, appQuery)).toList();
     final filtering = appQuery.trim().isNotEmpty;
-    // While typing, results start right under the search box; with the keyboard closed, Block Apps and the
+    // While typing, results start right under the search box; with the keyboard closed, Blocked Apps and the
     // rest of the tab are back.
     final compact = _searchingApps;
     return Expanded(
@@ -373,14 +363,14 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
               ),
             Expanded(
               child: ListView(
-                // No room is needed for the ad banner while it is hidden for the keyboard.
-                padding: EdgeInsets.only(bottom: _searchingApps ? 16 : adBannerSpace),
+                // While the keyboard is open it covers the navigation bar, so less room is needed.
+                padding: EdgeInsets.only(bottom: _searchingApps ? 16 : listEndPadding(context)),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 children: [
                   if (!compact) ...[
+                    _scheduleOnNowBanner(kid),
                     _tabActionButton(),
-                    comingSoonTile(Icons.location_on_outlined, "Delete apps by location and time"),
-                    comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
+                    _ruleEntryTiles(kid),
                     verticalSpace(10),
                   ],
                   if (shownOff.isNotEmpty) ...[
@@ -404,11 +394,19 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                         child: regularText('No apps match "${appQuery.trim()}"', color: AppColors.grey, fontSize: 14),
                       ),
                     ),
-                  for (final app in shown)
-                    appItem(app,
-                        kidId: widget.kidId,
-                        blocked: false,
-                        uninstalling: kid.pendingUninstalls.contains(app.packageName)),
+                  // Always-off apps are in "Turned off" above. Rebuilt when the schedules and places load, to show
+                  // which apps they block now.
+                  GetBuilder<BlockRulesController>(builder: (rules) {
+                    final ruleBlocks = ruleBlocksNow(rules, kid, widget.kidId, childNow(kid));
+                    return Column(children: [
+                      for (final app in shown)
+                        appItem(app,
+                            kidId: widget.kidId,
+                            blocked: false,
+                            ruleBlock: ruleBlocks[app.packageName],
+                            uninstalling: kid.pendingUninstalls.contains(app.packageName)),
+                    ]);
+                  }),
                 ],
               ),
             ),
@@ -418,29 +416,100 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     );
   }
 
-  Widget comingSoonTile(IconData icon, String title) {
+  // "Block by schedule" and "Block by location", each with a short status, opening their lists.
+  Widget _ruleEntryTiles(Kid kid) {
+    return GetBuilder<BlockRulesController>(
+        initState: (_) => Get.find<BlockRulesController>().loadFromMdm(widget.kidId),
+        builder: (rules) {
+      final schedules = rules.schedulesFor(widget.kidId);
+      final places = rules.placesFor(widget.kidId);
+      final onNow = rules.schedulesOnAt(widget.kidId, childNow(kid)).length;
+      String count(int n, String one) => n == 0 ? "None yet" : "$n $one${n == 1 ? "" : "s"}";
+      return Column(
+        children: [
+          _ruleEntryTile(
+            Icons.schedule,
+            "Block by schedule",
+            "${count(schedules.length, "schedule")}${onNow > 0 ? " · $onNow on now" : ""}",
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => SchedulesScreen(kidId: widget.kidId))),
+          ),
+          _ruleEntryTile(
+            Icons.location_on_outlined,
+            "Block by location",
+            count(places.length, "place"),
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => PlacesScreen(kidId: widget.kidId))),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _ruleEntryTile(IconData icon, String title, String subtitle, VoidCallback onTap) {
     return customGestureDetecter(
-      onTap: () => showComingSoon(title),
+      onTap: onTap,
       child: roundedContainer(
         margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         color: AppColors.lightGrey,
         child: Row(
           children: [
-            Icon(icon, size: 20, color: AppColors.normalGreen),
-            horizontalSpace(10),
-            Expanded(child: regularText(title, fontSize: 13, fontWeight: FontWeight.w600)),
-            roundedContainer(
-              borderRadius: 20,
-              color: AppColors.veryVeryLightGreen,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              child:
-                  regularText("Coming soon", fontSize: 10, color: AppColors.normalGreen, fontWeight: FontWeight.w700),
+            Icon(icon, size: 22, color: AppColors.normalGreen),
+            horizontalSpace(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  regularText(title, fontSize: 14, fontWeight: FontWeight.w700),
+                  regularText(subtitle, fontSize: 12, color: AppColors.grey),
+                ],
+              ),
             ),
+            Icon(Icons.chevron_right, size: 22, color: AppColors.grey),
           ],
         ),
       ),
     );
+  }
+
+  // "School hours is on · until 3:00 PM", while a schedule is running; nothing otherwise.
+  Widget _scheduleOnNowBanner(Kid kid) {
+    return GetBuilder<BlockRulesController>(builder: (rules) {
+      final on = rules.schedulesOnAt(widget.kidId, childNow(kid));
+      if (on.isEmpty) return const SizedBox.shrink();
+      // A schedule the phone follows comes first; one it can't follow yet says so.
+      final s = on.firstWhere((s) => rules.notAppliedReason(widget.kidId, s.id) == null, orElse: () => on.first);
+      final active = rules.notAppliedReason(widget.kidId, s.id) == null;
+      final apps = s.allApps ? "All apps except Phone and Messages" : "${s.packages.length} ${s.packages.length == 1 ? "app" : "apps"}";
+      return customGestureDetecter(
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SchedulesScreen(kidId: widget.kidId))),
+        child: roundedContainer(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+          color: AppColors.veryVeryLightGreen,
+          borderRadius: 16,
+          child: Row(
+            children: [
+              iconBadge(Icons.schedule, size: 38, color: AppColors.white, background: AppColors.normalGreen),
+              horizontalSpace(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    boldText("${s.name.isEmpty ? "A schedule" : s.name} is on", fontSize: 14),
+                    regularText(
+                        active
+                            ? "$apps blocked until ${formatTime(s.to)}"
+                            : "$apps until ${formatTime(s.to)} · not on ${childFirstName(kid)}'s phone\u00A0yet",
+                        fontSize: 12, color: AppColors.grey),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, size: 22, color: AppColors.grey),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   // The MDM's icon for the app, or a generic one while it loads, when it fails, or when there is none.
@@ -466,7 +535,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   }
 
   Widget appItem(App listOfInstalledApp,
-      {required String kidId, required bool blocked, bool uninstalling = false}) {
+      {required String kidId, required bool blocked, String? ruleBlock, bool uninstalling = false}) {
     String appName = listOfInstalledApp.appName ?? "Unknown App";
     final pkg = listOfInstalledApp.packageName ?? "";
     final systemApp = HomeController.isSystemApp(listOfInstalledApp);
@@ -482,12 +551,19 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                boldText(appName, fontSize: 14, color: blocked ? AppColors.red : Colors.black),
+                boldText(appName,
+                    fontSize: 14, color: blocked || ruleBlock != null ? AppColors.red : Colors.black),
                 regularText(
                     uninstalling
                         ? "Uninstall pending…"
-                        : "${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
-                    color: uninstalling ? AppColors.normalGreen : AppColors.grey,
+                        : !blocked && ruleBlock != null
+                            ? ruleBlock
+                            : "${systemApp ? "System app" : "Installed app"}${blocked ? " · Disabled" : ""}",
+                    color: uninstalling
+                        ? AppColors.normalGreen
+                        : !blocked && ruleBlock != null
+                            ? AppColors.lightRed
+                            : AppColors.grey,
                     fontSize: 11),
               ],
             ),
@@ -567,7 +643,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView(
-          padding: const EdgeInsets.only(bottom: adBannerSpace),
+          padding: EdgeInsets.only(bottom: listEndPadding(context)),
           children: [
             _tabActionButton(),
             Padding(
@@ -668,6 +744,32 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     );
   }
 
+  void _confirmUnpair() {
+    final kid = Get.find<HomeController>().getSelectedKid(widget.kidId);
+    final name = kid.name?.split(" ").first ?? "your child";
+    showDialog(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: boldText("Unpair $name's device?", fontSize: 18),
+        content: regularText(
+            "It will be removed from your account, and your schedules, places and blocked apps will be taken off "
+            "it. To add it again, connect it with a new code from the device.",
+            fontSize: 14),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialog), child: regularText("Cancel", fontSize: 14)),
+          TextButton(
+              onPressed: () async {
+                Navigator.pop(dialog);
+                final unpaired = await Get.find<HomeController>().unpairDevice(kidId: widget.kidId);
+                // The device is gone from the list, so go back to Home.
+                if (unpaired && mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+              child: regularText("Unpair", color: AppColors.red, fontSize: 14)),
+        ],
+      ),
+    );
+  }
+
   void _confirmReboot() {
     showDialog(
       context: context,
@@ -688,31 +790,93 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     );
   }
 
-  Widget messagesSection(HomeController homeController) {
+  Widget messagesSection(HomeController homeController) => _comingSoonTab(
+        icon: Icons.chat_bubble_outline,
+        text: "Messages monitoring is coming soon. We'll let you know when it's ready.",
+      );
+
+  Widget callsSection(HomeController homeController) {
+    final name = homeController.getSelectedKid(widget.kidId).name?.split(" ").first ?? "your child";
+    return _comingSoonTab(
+      icon: Icons.call_outlined,
+      text: "See who $name calls and who calls $name, with the time and length of each call.",
+      showContacts: true,
+    );
+  }
+
+  /// A tab whose feature isn't ready: what it will show, then the emergency-contacts limit to come, which
+  /// covers both calls and messages. Its switch is shown but can't be turned on yet.
+  Widget _comingSoonTab({required IconData icon, required String text, bool showContacts = false}) {
     return Expanded(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: roundedContainer(
-            color: AppColors.lightGrey,
-            borderRadius: 15,
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      child: ListView(
+        padding: EdgeInsets.fromLTRB(10, 24, 10, listEndPadding(context)),
+        children: [
+          Center(child: iconBadge(icon, size: 72)),
+          verticalSpace(14),
+          Center(child: bigSubHeading("Coming soon")),
+          verticalSpace(8),
+          subHeadingText(text, textAlign: TextAlign.center, height: 1.45),
+          verticalSpace(22),
+          roundedContainer(
+            borderRadius: 20,
+            border: Border.all(color: AppColors.buttonBorderGrey),
+            padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.hourglass_top, size: 48, color: Colors.grey),
-                verticalSpace(16),
-                bigSubHeading("Coming soon"),
-                verticalSpace(10),
-                subHeadingText(
-                  "Messages monitoring is coming soon. We'll let you know when it's ready.",
-                  textAlign: TextAlign.center,
-                  height: 1.4,
+                Row(
+                  children: [
+                    iconBadge(Icons.verified_user_outlined, size: 40),
+                    horizontalSpace(12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          boldText("Emergency contacts only", fontSize: 16),
+                          verticalSpace(4),
+                          roundedContainer(
+                            borderRadius: 20,
+                            color: AppColors.veryVeryLightGreen,
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            child: regularText("Coming soon",
+                                fontSize: 11, color: AppColors.normalGreen, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Shown so parents know it's coming; it can't be switched on yet.
+                    const Switch(value: false, onChanged: null),
+                  ],
                 ),
+                verticalSpace(10),
+                regularText("Limit communication to only emergency contacts through calls and messages when enabled.",
+                    fontSize: 14, height: 1.45),
               ],
             ),
           ),
-        ),
+          if (showContacts) ...[
+            verticalSpace(20),
+            boldText("Emergency contacts", fontSize: 15),
+            verticalSpace(10),
+            roundedContainer(
+              borderRadius: 16,
+              color: AppColors.lightGrey,
+              border: Border.all(color: AppColors.darkLightGrey),
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add, size: 18, color: AppColors.grey),
+                  horizontalSpace(8),
+                  regularText("Add emergency contact", fontSize: 15, color: AppColors.grey, fontWeight: FontWeight.w600),
+                ],
+              ),
+            ),
+            verticalSpace(10),
+            regularText("Calls and messages to these people will always go through, even when everything else is limited.",
+                fontSize: 13, color: AppColors.grey, height: 1.45),
+          ],
+        ],
       ),
     );
   }
@@ -904,6 +1068,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                 locked: !planAllows(Feature.deviceActions)),
           ],
         ),
+        verticalSpace(10),
+        // Any plan can unpair: it only removes the device from this account.
+        Row(children: [actionButton(Icons.link_off, "Unpair device", _confirmUnpair, danger: true)]),
       ],
     );
   }
@@ -931,8 +1098,10 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
             controller: tabController,
             tabs: [
               textForTab("Apps", tabController!.index == 0),
-              textForTab("Browser History", tabController!.index == 1),
+              // Four tabs fit a phone only with "History" for browser history.
+              textForTab("History", tabController!.index == 1),
               textForTab("Messages", tabController!.index == 2),
+              textForTab("Calls", tabController!.index == 3),
             ]),
       ),
     );

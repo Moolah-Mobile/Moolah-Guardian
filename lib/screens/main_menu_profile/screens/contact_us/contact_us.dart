@@ -36,7 +36,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 child: Form(
                   key: form,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 28, 16, 40),
+                    padding: EdgeInsets.fromLTRB(16, 28, 16, listEndPadding(context, 40)),
                     children: [
                       iconBadge(Icons.support_agent_rounded, size: 56),
                       verticalSpace(16),

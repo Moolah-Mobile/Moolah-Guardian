@@ -7,6 +7,13 @@ class HomeRepo {
   static Future<ResponseModel> getParentKidDevices() async =>
       await Network.get(EndPoints.getParentKidDevicesUrl);
 
+  // Removes the child's device from the parent's account on api2.
+  static Future<ResponseModel> unpairKidDevice({required String kidUserId, required String connectId}) async =>
+      await Network.post(EndPoints.unpairKidDevice, body: {
+        "kidDeviceAccountUserID": kidUserId,
+        "kidDeviceAccountConnectID": connectId,
+      });
+
   // 3. Get the child's device(s)
   // API requires kidDeviceAccountConnectID parameter
   static Future<ResponseModel> getSyncedKidDevices({String? connectId}) async {
@@ -39,6 +46,14 @@ class HomeRepo {
   });
 
   // Takes back a pending wipe, until the device has received it.
+  // Frees the tablet on the MDM after unpairing: if no other parent is linked, its Guardian rules, VPN and
+  // Private DNS locks and pending wipe are removed. The connect ID stops working ("Device not found").
+  static Future<ResponseModel> unlinkGuardianDevice({required String connectId, required String externalMoolahId}) async =>
+      await Network.post(EndPoints.unlinkDevice, body: {
+    'kidDeviceAccountConnectID': connectId,
+    'externalMoolahId': externalMoolahId,
+  });
+
   static Future<ResponseModel> cancelWipe({required String connectId, required String externalMoolahId}) async =>
       await Network.post(EndPoints.cancelWipeUrl, body: {
     'kidDeviceAccountConnectID': connectId,

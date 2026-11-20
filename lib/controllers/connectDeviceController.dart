@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:moolah/controllers/baseController.dart';
 import 'package:moolah/helper/repo/connectDeviceRepo.dart';
 import 'package:moolah/helper/repo/homeRepo.dart';
@@ -6,14 +7,85 @@ import 'package:moolah/helper/sharedHelper.dart';
 import '../util/customtoast.dart';
 
 class ConnectDeviceController extends BaseController {
+  /// Pairing goes through only when this phone is within 1 mile of the child's device, so someone who
+  /// doesn't have the child's phone with them can't pair with it.
+  static const pairRadiusMeters = 1609.344;
+
+  /// How far this phone was from the child's device when the last attempt was refused for distance.
+  double? tooFarMeters;
+
+  /// What pairing is doing right now, shown while it works.
+  String? progressText;
+
+  void _progress(String? text) {
+    progressText = text;
+    update();
+  }
+
+  /// This phone's position, asking for location permission when needed; null (with a message) when it
+  /// can't be had.
+  Future<Position?> _parentPosition() async {
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      errorToast("Turn on location on this phone. Pairing checks you're within 1 mile of your child's device.");
+      return null;
+    }
+    var permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      errorToast("Allow location for Moolah Guardian. Pairing checks you're within 1 mile of your child's device.");
+      return null;
+    }
+    try {
+      return await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, timeLimit: Duration(seconds: 20)));
+    } catch (_) {
+      errorToast("Couldn't find this phone's location. Move somewhere with a clearer signal and try again.");
+      return null;
+    }
+  }
+
+  /// The child's device's last reported position from the MDM, or null when it has none.
+  Future<({double lat, double lng})?> _childPosition(String deviceNumber) async {
+    final res = await HomeRepo.getSyncedKidDeviceLocation(deviceNumber);
+    final data = res.isSuccessful ? (res.data?["data"]) : null;
+    final lat = (data?["lat"] as num?)?.toDouble();
+    final lng = (data?["lng"] as num?)?.toDouble();
+    if (lat == null || lng == null || (lat == 0 && lng == 0)) return null;
+    return (lat: lat, lng: lng);
+  }
+
+  /// Takes back api2's link when pairing is refused, so the device doesn't show up half-paired.
+  Future<void> _undoApi2Link(dynamic linkData, String connectId) async {
+    var kidUserId = _findKey(linkData, "kidDeviceAccountUserID");
+    if (kidUserId == null) {
+      final devices = await _parentDevices() ?? [];
+      final match = devices.where((d) => d["kidDeviceAccountConnectID"]?.toString() == connectId);
+      kidUserId = match.isEmpty ? null : match.first["kidDeviceAccountUserID"]?.toString();
+    }
+    if (kidUserId == null) {
+      print("--- [CONNECT] Could not undo the api2 link for $connectId: no child user ID ---");
+      return;
+    }
+    final res = await HomeRepo.unpairKidDevice(kidUserId: kidUserId, connectId: connectId);
+    if (!res.isSuccessful) print("--- [CONNECT] Undoing the api2 link for $connectId failed: ${res.message} ---");
+  }
 
   Future<bool> linkKidByConnectCode({
     required BuildContext context,
     required String code, // Connect code shown on the child's device
     required String label, // e.g. "Kid's Tablet"
   }) async {
+    tooFarMeters = null;
     isLoading = true;
-    update();
+    _progress("Finding your location…");
+    final parent = await _parentPosition();
+    if (parent == null) {
+      isLoading = false;
+      _progress(null);
+      return false;
+    }
 
     // Note the parent's devices before linking, so the newly linked one can be told apart.
     final before = await _parentDevices();
@@ -29,7 +101,7 @@ class ConnectDeviceController extends BaseController {
     print("--- [CONNECT] api2 link response: ${api2Res.data} ---");
     if (!api2Res.isSuccessful) {
       isLoading = false;
-      update();
+      _progress(null);
       errorToast(api2Res.message ?? "Invalid code. Please check and try again.");
       return false;
     }
@@ -45,18 +117,48 @@ class ConnectDeviceController extends BaseController {
             (connectId != null && knownIds.contains(connectId));
     if (alreadyLinked) {
       isLoading = false;
-      update();
+      _progress(null);
       errorToast("This child is already linked to your account. To add another device, sign in to "
           "Moolah Wallet on it with a different child account.");
       return false;
     }
     if (connectId == null) {
       isLoading = false;
-      update();
+      _progress(null);
       errorToast("Device linked, but its connect ID could not be found. Please try again.");
       return false;
     }
 
+    // The MDM finds the tablet by its device number, IMEI or serial. api2's response may carry one;
+    // without it the connect ID is sent, which is how devices were linked before.
+    final deviceNumber = _findKey(api2Res.data, "deviceId") ??
+        _findKey(api2Res.data, "imei") ??
+        _findKey(api2Res.data, "serial") ??
+        connectId;
+
+    // Only someone with the child's phone nearby may pair: compare this phone's position with the one the
+    // child's device last reported. api2 has already linked by now, so a refusal takes that link back.
+    _progress("Checking you're near the device…");
+    final child = await _childPosition(deviceNumber);
+    if (child == null) {
+      await _undoApi2Link(api2Res.data, connectId);
+      isLoading = false;
+      _progress(null);
+      errorToast("Couldn't find where your child's device is. Make sure it's on, online and has location "
+          "turned on, then try again.");
+      return false;
+    }
+    final distance = Geolocator.distanceBetween(parent.latitude, parent.longitude, child.lat, child.lng);
+    print("--- [CONNECT] Parent is ${distance.round()} m from device $deviceNumber ---");
+    if (distance > pairRadiusMeters) {
+      await _undoApi2Link(api2Res.data, connectId);
+      tooFarMeters = distance;
+      isLoading = false;
+      _progress(null);
+      return false;
+    }
+
+    _progress("Linking the device…");
     String externalMoolahId = Prefs.userId.get();
     print("--- [CONNECT] Starting Provision for Parent ID: $externalMoolahId ---");
 
@@ -67,17 +169,11 @@ class ConnectDeviceController extends BaseController {
 
     if (!provisionRes.isSuccessful) {
       isLoading = false;
-      update();
+      _progress(null);
       errorToast(provisionRes.message ?? "Provisioning failed. Please try again.");
       return false;
     }
 
-    // The MDM finds the tablet by its device number, IMEI or serial. api2's response may carry one;
-    // without it the connect ID is sent, which is how devices were linked before.
-    final deviceNumber = _findKey(api2Res.data, "deviceId") ??
-        _findKey(api2Res.data, "imei") ??
-        _findKey(api2Res.data, "serial") ??
-        connectId;
     print("--- [CONNECT] Provision Success. Linking device $deviceNumber as $connectId ---");
     // Step 3: Link Child Device to Parent, under the connect ID api2 uses for it
     final linkRes = await ConnectDeviceRepo.linkDevice(
@@ -88,7 +184,7 @@ class ConnectDeviceController extends BaseController {
     );
 
     isLoading = false;
-    update();
+    _progress(null);
 
     // Relinking the same parent and tablet returns the existing link, whose connect ID may differ from
     // api2's. Every MDM call uses api2's ID, so a mismatch means this device's data won't load.

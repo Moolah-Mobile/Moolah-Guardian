@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ironsource_mediation/ironsource_mediation.dart';
 import 'package:moolah/helper/sharedHelper.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
@@ -50,16 +49,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   void initState() {
     obscure = widget.textInputType == TextInputType.visiblePassword;
     textEditingController = widget.textEditingController ?? TextEditingController();
-    
-    if(Prefs.isLoggedIn.get()) {
-      focusNode.addListener(() {
-        if(focusNode.hasFocus) {
-          IronSource.hideBanner();
-        } else {
-          IronSource.displayBanner();
-        }
-      });
-    }
+
     super.initState();
   }
 

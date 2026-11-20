@@ -35,6 +35,7 @@ class EndPoints {
   // Device Connection Flow (moolahmdm)
   static String provisionDevice = "$mdmBaseUrl/guardian/provision";
   static String linkDevice = "$mdmBaseUrl/guardian/link";
+  static String unlinkDevice = "$mdmBaseUrl/guardian/unlink";
 
   // Other Feature Management (api2)
   static String getParentKidDevicesUrl = "$baseUrl/getConnectedKidDevices";
@@ -49,6 +50,8 @@ class EndPoints {
   static String getThreadsMessages = "$baseUrl/getThreadMessagesEncryption";
   static String parentAppSecurityCheck = "$baseUrl/parentAppSecurityCheck";
   static String linkKidByConnectCode = "$baseUrl/linkKidByConnectCode";
+  // Removes a child's device from the parent's account (the reverse of linkKidByConnectCode).
+  static String unpairKidDevice = "$baseUrl/unpairKidDevice";
   static String getBannerAds = "$baseUrl/getBannerAds";
   static String submitReview = "$baseUrl/submitReview";
   static String feedback = "$baseUrl/feedback";
