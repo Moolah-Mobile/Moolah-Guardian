@@ -376,7 +376,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                     _scheduleOnNowBanner(kid),
                     _tabActionButton(),
                     _ruleEntryTiles(kid),
-                    comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
                     verticalSpace(10),
                   ],
                   Padding(
@@ -492,31 +491,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
         ),
       );
     });
-  }
-
-  Widget comingSoonTile(IconData icon, String title) {
-    return customGestureDetecter(
-      onTap: () => showComingSoon(title),
-      child: roundedContainer(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        color: AppColors.lightGrey,
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: AppColors.normalGreen),
-            horizontalSpace(10),
-            Expanded(child: regularText(title, fontSize: 13, fontWeight: FontWeight.w600)),
-            roundedContainer(
-              borderRadius: 20,
-              color: AppColors.veryVeryLightGreen,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              child:
-                  regularText("Coming soon", fontSize: 10, color: AppColors.normalGreen, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   // The MDM's icon for the app, or a generic one while it loads, when it fails, or when there is none.

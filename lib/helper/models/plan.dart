@@ -40,7 +40,6 @@ enum Plan {
       "Browser history and URL blocking",
       "Wallet, sync and reboot",
       "Delete apps by location and time (coming soon)",
-      "Block apps until unlocked (coming soon)",
     ],
   ),
   ultimate(
