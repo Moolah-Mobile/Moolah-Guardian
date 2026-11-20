@@ -69,7 +69,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
             Expanded(
               child: pageSheet(
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+                  padding: EdgeInsets.fromLTRB(16, 20, 16, listEndPadding(context, 40)),
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(22),

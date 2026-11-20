@@ -97,7 +97,7 @@ class _HomeState extends State<Home> {
                     boxShadow: softShadow,
                   ),
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, listEndSpace),
+                    padding: EdgeInsets.fromLTRB(16, 20, 16, listEndPadding(context)),
                     children: [
                       _connectCard(),
                       verticalSpace(26),

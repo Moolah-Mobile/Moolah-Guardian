@@ -80,7 +80,7 @@ class _BlackListScreenState extends State<BlackListScreen> {
                                             : "",
                                     childName: childName)
                                 : ListView(
-                                    padding: const EdgeInsets.fromLTRB(16, 20, 16, listEndSpace),
+                                    padding: EdgeInsets.fromLTRB(16, 20, 16, listEndPadding(context)),
                                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                                     children: [
                                       _summary(childName, apps.length),

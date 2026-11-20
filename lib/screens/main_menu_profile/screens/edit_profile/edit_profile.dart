@@ -52,7 +52,7 @@ class _EditProfileState extends State<EditProfile> {
             Expanded(
               child: pageSheet(
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+                  padding: EdgeInsets.fromLTRB(16, 24, 16, listEndPadding(context, 40)),
                   children: [
                     _label("Full name"),
                     CustomTextField(hintText: "Enter Full Name", otherOne: true, prefixIcon: AppImages.nameField),

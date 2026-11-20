@@ -25,7 +25,7 @@ Widget ruleScreen(BuildContext context, {required String title, required List<Wi
           Expanded(
             child: pageSheet(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, listEndSpace),
+                padding: EdgeInsets.fromLTRB(16, 20, 16, listEndPadding(context)),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 children: children,
               ),

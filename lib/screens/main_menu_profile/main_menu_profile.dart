@@ -35,6 +35,7 @@ class MainMenuProfile extends StatefulWidget {
 class _MainMenuProfileState extends State<MainMenuProfile> {
   @override
   Widget build(BuildContext context) {
+    final listEnd = listEndPadding(context, 40);
     return CommonGradientBackground(
         child: SafeArea(
       bottom: false,
@@ -47,7 +48,7 @@ class _MainMenuProfileState extends State<MainMenuProfile> {
               commonAppBar(heading: "Menu"),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, listEnd),
                   children: [
                     // Who is signed in, and their plan (tap to manage it).
                     gradientCard(

@@ -39,7 +39,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                 child: Form(
                   key: key,
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 28, 16, 40),
+                    padding: EdgeInsets.fromLTRB(16, 28, 16, listEndPadding(context, 40)),
                     children: [
                       iconBadge(Icons.lock_outline_rounded, size: 56),
                       verticalSpace(16),

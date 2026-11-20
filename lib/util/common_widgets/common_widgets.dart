@@ -18,6 +18,11 @@ String getStripeSecretKey() {
 /// Empty space after the last row of a scrolling list, so it doesn't sit against the bottom edge.
 const double listEndSpace = 24;
 
+/// [listEndSpace] plus the phone's navigation buttons or gesture bar. Screens draw behind those so the white
+/// sheet reaches the bottom edge, so a list's last row (often a button) must end above them.
+double listEndPadding(BuildContext context, [double space = listEndSpace]) =>
+    space + MediaQuery.paddingOf(context).bottom;
+
 
 /// APP LOGO
 Widget appLogo({double? size}) {

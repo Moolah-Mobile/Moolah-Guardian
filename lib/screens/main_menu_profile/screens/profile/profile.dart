@@ -51,7 +51,7 @@ class _ProfileState extends State<Profile> {
             Expanded(
               child: pageSheet(
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+                  padding: EdgeInsets.fromLTRB(16, 24, 16, listEndPadding(context, 40)),
                   children: [
                     regularText("PERSONAL DETAILS",
                         fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.black.withValues(alpha: 0.55)),
