@@ -144,4 +144,22 @@ void main() {
     expect(HomeController.isUserApp(hidden), isTrue);
     expect(HomeController.isUserApp(service), isFalse);
   });
+
+  test('rules are checked on the child\'s clock when the phone reports its time zone', () {
+    // 8:19 PM Friday in India is 9:49 AM Friday in New York (UTC-5 in November).
+    final instant = DateTime.utc(2026, 11, 20, 14, 49);
+    final newYork = clockAt(-300, instant);
+    expect([newYork.weekday, newYork.hour, newYork.minute], [DateTime.friday, 9, 49]);
+    final india = clockAt(330, instant);
+    expect([india.hour, india.minute], [20, 19]);
+
+    final homework = BlockSchedule(id: "sched-h", days: {...weekdays}, from: 17 * 60, to: 21 * 60);
+    expect(homework.isOnAt(india), isTrue);
+    expect(homework.isOnAt(newYork), isFalse);
+
+    // Across midnight the child's day can differ from the parent's: Saturday 1 AM in India is Friday 2:30 PM
+    // in New York.
+    final late = clockAt(-300, DateTime.utc(2026, 11, 20, 19, 30));
+    expect([late.weekday, late.hour], [DateTime.friday, 14]);
+  });
 }

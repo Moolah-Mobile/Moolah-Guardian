@@ -28,12 +28,14 @@ class SchedulesScreen extends StatelessWidget {
           final kid = Get.find<HomeController>().getSelectedKid(kidId);
           final name = childFirstName(kid);
           final schedules = rules.schedulesFor(kidId);
-          final now = DateTime.now();
+          final now = childNow(kid);
+          final clockNote = childClockNote(kid);
 
           return ruleScreen(context, title: "Block by schedule", children: [
             regularText("Turn apps off on $name's phone at set times. Phone calls and Moolah apps always stay on.",
                 fontSize: 14, color: AppColors.grey, height: 1.45),
             verticalSpace(16),
+            if (clockNote != null) ...[infoNote(clockNote), verticalSpace(12)],
             if (schedules.isEmpty)
               roundedContainer(
                 color: AppColors.lightGrey,

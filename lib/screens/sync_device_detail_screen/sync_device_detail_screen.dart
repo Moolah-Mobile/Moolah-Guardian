@@ -6,7 +6,7 @@ import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
-import 'package:moolah/screens/block_rules/rule_widgets.dart' show childFirstName, ruleBlocksNow;
+import 'package:moolah/screens/block_rules/rule_widgets.dart' show childFirstName, childNow, ruleBlocksNow;
 import 'package:moolah/screens/block_rules/places_screen.dart';
 import 'package:moolah/screens/block_rules/schedules_screen.dart';
 import 'package:ironsource_mediation/ironsource_mediation.dart';
@@ -392,7 +392,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                     ),
                   // Rebuilt when the schedules and places load, to show which apps they block now.
                   GetBuilder<BlockRulesController>(builder: (rules) {
-                    final ruleBlocks = ruleBlocksNow(rules, kid, widget.kidId, DateTime.now());
+                    final ruleBlocks = ruleBlocksNow(rules, kid, widget.kidId, childNow(kid));
                     return Column(children: [
                       for (final app in shown)
                         appItem(app,
@@ -418,7 +418,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
         builder: (rules) {
       final schedules = rules.schedulesFor(widget.kidId);
       final places = rules.placesFor(widget.kidId);
-      final onNow = rules.schedulesOnAt(widget.kidId, DateTime.now()).length;
+      final onNow = rules.schedulesOnAt(widget.kidId, childNow(kid)).length;
       String count(int n, String one) => n == 0 ? "None yet" : "$n $one${n == 1 ? "" : "s"}";
       return Column(
         children: [
@@ -469,7 +469,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   // "School hours is on · until 3:00 PM", while a schedule is running; nothing otherwise.
   Widget _scheduleOnNowBanner(Kid kid) {
     return GetBuilder<BlockRulesController>(builder: (rules) {
-      final on = rules.schedulesOnAt(widget.kidId, DateTime.now());
+      final on = rules.schedulesOnAt(widget.kidId, childNow(kid));
       if (on.isEmpty) return const SizedBox.shrink();
       // A schedule the phone follows comes first; one it can't follow yet says so.
       final s = on.firstWhere((s) => rules.notAppliedReason(widget.kidId, s.id) == null, orElse: () => on.first);

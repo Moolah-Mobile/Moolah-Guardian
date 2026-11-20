@@ -43,6 +43,23 @@ String childFirstName(Kid kid) {
   return name.isEmpty ? "your child" : name.split(" ").first;
 }
 
+/// The time on [kid]'s phone now. App rules run on its clock; until the phone reports its time zone, this
+/// phone's clock stands in.
+DateTime childNow(Kid kid) => clockAt(kid.deviceDetail?.data?.utcOffsetMinutes);
+
+/// Says rule times follow [kid]'s clock when the child's phone is on a different time zone from this one;
+/// null when it's the same or not known.
+String? childClockNote(Kid kid) {
+  final data = kid.deviceDetail?.data;
+  final offset = data?.utcOffsetMinutes;
+  if (offset == null || offset == DateTime.now().timeZoneOffset.inMinutes) return null;
+  final name = childFirstName(kid);
+  final now = childNow(kid);
+  final zone = data?.timeZone?.replaceAll("_", " ");
+  return "$name's phone is on a different time zone${zone == null ? "" : " ($zone)"}, where it's "
+      "${formatTime(now.hour * 60 + now.minute)} now. Times here are $name's time.";
+}
+
 /// The app named [pkg] on [kid]'s phone, or a stand-in with whatever name Guardian knows.
 App appFor(Kid kid, String pkg) {
   for (final app in kid.installedApps) {

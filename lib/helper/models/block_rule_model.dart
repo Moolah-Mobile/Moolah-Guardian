@@ -59,6 +59,15 @@ bool windowCovers(Set<int> days, int from, int to, DateTime now) {
   return (days.contains(now.weekday) && minute >= from) || (days.contains(yesterday) && minute < to);
 }
 
+/// The time on a clock [utcOffsetMinutes] from UTC, as a plain date and time (its fields read like that
+/// clock's, which is what [windowCovers] needs). Null offset: this phone's own clock.
+DateTime clockAt(int? utcOffsetMinutes, [DateTime? instant]) {
+  final at = instant ?? DateTime.now();
+  if (utcOffsetMinutes == null) return at.toLocal();
+  final t = at.toUtc().add(Duration(minutes: utcOffsetMinutes));
+  return DateTime(t.year, t.month, t.day, t.hour, t.minute, t.second);
+}
+
 /// "08:00" → 480. Null for anything that isn't an "HH:mm" time.
 int? parseMinutes24(dynamic value) {
   final m = RegExp(r"^([01][0-9]|2[0-3]):([0-5][0-9])$").firstMatch(value?.toString() ?? "");

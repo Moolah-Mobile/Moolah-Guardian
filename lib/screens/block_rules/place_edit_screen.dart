@@ -210,6 +210,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
                     label: "Until", minutes: draft.to, onChanged: (m) => setState(() => draft.to = m))),
           ],
         ),
+        if (childClockNote(kid) case final note?) ...[verticalSpace(12), infoNote(note)],
         verticalSpace(12),
         infoNote("Children's phones can't follow places with set times yet. The place is saved, but to block "
             "apps there now, choose Any time."),

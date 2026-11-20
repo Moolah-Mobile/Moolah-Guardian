@@ -45,6 +45,10 @@ class Data {
   bool? online;
   int? batteryPct;
   String? lastSeenAt;
+  // The phone's time zone (IANA id) and its current offset from UTC in minutes. App rules run on this clock.
+  // Null until the phone's agent reports it.
+  String? timeZone;
+  int? utcOffsetMinutes;
   List<App>? apps;
   Usage? usage;
   LocationData? location;
@@ -56,6 +60,8 @@ class Data {
     this.online,
     this.batteryPct,
     this.lastSeenAt,
+    this.timeZone,
+    this.utcOffsetMinutes,
     this.apps,
     this.usage,
     this.location,
@@ -78,6 +84,8 @@ class Data {
     online: json["online"] ?? (json["isOnline"] == 1),
     batteryPct: (json["batteryPct"] ?? json["batteryLevel"] ?? json["batteryLevel"])?.toInt(),
     lastSeenAt: json["lastSeenAt"] ?? json["lastReportedTime"]?.toString(),
+    timeZone: json["timeZone"]?.toString(),
+    utcOffsetMinutes: (json["utcOffsetMinutes"] as num?)?.toInt(),
     apps: json["apps"] == null ? [] : List<App>.from(json["apps"]!.map((x) => App.fromJson(x))),
     usage: json["usage"] == null ? null : Usage.fromJson(json["usage"]),
     location: json["location"] == null ? null : LocationData.fromJson(json["location"]),
@@ -90,6 +98,8 @@ class Data {
     "online": online,
     "batteryPct": batteryPct,
     "lastSeenAt": lastSeenAt,
+    "timeZone": timeZone,
+    "utcOffsetMinutes": utcOffsetMinutes,
     "apps": apps?.map((x) => x.toJson()).toList(),
     "usage": usage?.toJson(),
     "location": location?.toJson(),

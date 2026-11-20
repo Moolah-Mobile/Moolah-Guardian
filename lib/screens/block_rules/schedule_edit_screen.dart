@@ -141,6 +141,7 @@ class _ScheduleEditScreenState extends State<ScheduleEditScreen> {
                   label: "Until", minutes: draft.to, onChanged: (m) => setState(() => draft.to = m))),
         ],
       ),
+      if (childClockNote(kid) case final note?) ...[verticalSpace(12), infoNote(note)],
       verticalSpace(18),
       fieldLabel("What to block"),
       segmentedChoice(

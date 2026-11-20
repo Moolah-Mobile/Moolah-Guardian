@@ -158,7 +158,7 @@ class PlacesScreen extends StatelessWidget {
     final verb = notActive == null ? "Blocks" : "Set to block";
     final rule = p.inside ? "$verb $apps while $name is here" : "$verb $apps while $name is away from here";
     final placeMatches = child != null && (p.inside ? here : !here);
-    final inTimes = !p.useTimes || windowCovers(p.days, p.from, p.to, DateTime.now());
+    final inTimes = !p.useTimes || windowCovers(p.days, p.from, p.to, childNow(kid));
     final blockingNow = notActive == null && p.enabled && placeMatches && inTimes;
     final status = child == null
         ? "Location not known yet"
