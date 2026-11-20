@@ -3,7 +3,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/authController.dart';
+import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
+import 'package:moolah/helper/models/block_rule_model.dart';
+import 'package:moolah/screens/block_rules/places_screen.dart';
+import 'package:moolah/screens/block_rules/schedules_screen.dart';
 import 'package:ironsource_mediation/ironsource_mediation.dart';
 import 'package:moolah/screens/blacklist/blacklist_screen.dart';
 import 'package:moolah/screens/sync_device_detail_screen/screens/live_location.dart';
@@ -368,8 +372,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 children: [
                   if (!compact) ...[
+                    _scheduleOnNowBanner(),
                     _tabActionButton(),
-                    comingSoonTile(Icons.location_on_outlined, "Delete apps by location and time"),
+                    _ruleEntryTiles(kid),
                     comingSoonTile(Icons.lock_clock_outlined, "Block apps until unlocked"),
                     verticalSpace(10),
                   ],
@@ -397,6 +402,94 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
         ),
       ),
     );
+  }
+
+  // "Block by schedule" and "Block by location", each with a short status, opening their lists.
+  Widget _ruleEntryTiles(Kid kid) {
+    return GetBuilder<BlockRulesController>(builder: (rules) {
+      final schedules = rules.schedulesFor(widget.kidId);
+      final places = rules.placesFor(widget.kidId);
+      final onNow = rules.schedulesOnAt(widget.kidId, DateTime.now()).length;
+      String count(int n, String one) => n == 0 ? "None yet" : "$n $one${n == 1 ? "" : "s"}";
+      return Column(
+        children: [
+          _ruleEntryTile(
+            Icons.schedule,
+            "Block by schedule",
+            "${count(schedules.length, "schedule")}${onNow > 0 ? " · $onNow on now" : ""}",
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => SchedulesScreen(kidId: widget.kidId))),
+          ),
+          _ruleEntryTile(
+            Icons.location_on_outlined,
+            "Block by location",
+            count(places.length, "place"),
+            () => Navigator.push(context, MaterialPageRoute(builder: (_) => PlacesScreen(kidId: widget.kidId))),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _ruleEntryTile(IconData icon, String title, String subtitle, VoidCallback onTap) {
+    return customGestureDetecter(
+      onTap: onTap,
+      child: roundedContainer(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        color: AppColors.lightGrey,
+        child: Row(
+          children: [
+            Icon(icon, size: 22, color: AppColors.normalGreen),
+            horizontalSpace(12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  regularText(title, fontSize: 14, fontWeight: FontWeight.w700),
+                  regularText(subtitle, fontSize: 12, color: AppColors.grey),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 22, color: AppColors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // "School hours is on · until 3:00 PM", while a schedule is running; nothing otherwise.
+  Widget _scheduleOnNowBanner() {
+    return GetBuilder<BlockRulesController>(builder: (rules) {
+      final on = rules.schedulesOnAt(widget.kidId, DateTime.now());
+      if (on.isEmpty) return const SizedBox.shrink();
+      final s = on.first;
+      final apps = s.allApps ? "All apps except Phone and Messages" : "${s.packages.length} ${s.packages.length == 1 ? "app" : "apps"}";
+      return customGestureDetecter(
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SchedulesScreen(kidId: widget.kidId))),
+        child: roundedContainer(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+          color: AppColors.veryVeryLightGreen,
+          borderRadius: 16,
+          child: Row(
+            children: [
+              iconBadge(Icons.schedule, size: 38, color: AppColors.white, background: AppColors.normalGreen),
+              horizontalSpace(12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    boldText("${s.name.isEmpty ? "A schedule" : s.name} is on", fontSize: 14),
+                    regularText("$apps blocked until ${formatTime(s.to)}", fontSize: 12, color: AppColors.grey),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, size: 22, color: AppColors.grey),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget comingSoonTile(IconData icon, String title) {
