@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/connectDeviceController.dart';
+import 'package:moolah/screens/connect_device/pair_too_far_screen.dart';
 import 'package:moolah/screens/home/home.dart';
 import 'package:moolah/util/apptext.dart';
 import 'package:moolah/util/colors.dart';
@@ -39,6 +40,46 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
     codeController.dispose();
     labelController.dispose();
     super.dispose();
+  }
+
+  Future<void> _connect(ConnectDeviceController controller) async {
+    final success = await controller.linkKidByConnectCode(
+      context: context,
+      code: codeController.text.trim(),
+      label: labelController.text.trim(),
+    );
+    if (success) {
+      await _showSuccessDialog();
+      return;
+    }
+    final tooFar = controller.tooFarMeters;
+    if (tooFar == null || !mounted) return;
+    final retry = await Navigator.push<bool>(
+        context, MaterialPageRoute(builder: (_) => PairTooFarScreen(distanceMeters: tooFar)));
+    if (retry == true && mounted) _connect(controller);
+  }
+
+  /// Says pairing needs the parent near the child's device, and why.
+  Widget _nearbyNote() {
+    return roundedContainer(
+      color: AppColors.veryVeryLightGreen,
+      borderRadius: 16,
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.location_on_outlined, size: 22, color: AppColors.normalGreen),
+          horizontalSpace(10),
+          Expanded(
+            child: regularText(
+                "Be within 1 mile of the device. We check both phones' locations before pairing, so no one who "
+                "doesn't have your child's phone can pair with it.",
+                fontSize: 14,
+                height: 1.45),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -119,24 +160,24 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
                               textEditingController: codeController,
                               validators: Validators.notEmpty,
                             ),
+                            verticalSpace(14),
+                            _nearbyNote(),
                             verticalSpace(22),
                             CustomButton(
                               text: "Connect Device",
                               margin: EdgeInsets.zero,
                               onTap: () async {
                                 if (!requireDeviceSlot()) return;
-                                if (_formKey.currentState!.validate()) {
-                                  final success = await controller.linkKidByConnectCode(
-                                    context: context,
-                                    code: codeController.text.trim(),
-                                    label: labelController.text.trim(),
-                                  );
-                                  if (success) {
-                                    await _showSuccessDialog();
-                                  }
-                                }
+                                if (_formKey.currentState!.validate()) _connect(controller);
                               },
                             ),
+                            if (controller.progressText != null) ...[
+                              verticalSpace(12),
+                              Center(
+                                child: regularText(controller.progressText!,
+                                    fontSize: 14, color: AppColors.grey, textAlign: TextAlign.center),
+                              ),
+                            ],
                           ],
                         ),
                       ),

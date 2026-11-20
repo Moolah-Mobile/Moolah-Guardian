@@ -98,7 +98,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     appSearchFocus.addListener(() => setState(() {}));
     // initAPIS updates HomeController (loader state), which is not allowed while this screen is building.
     WidgetsBinding.instance.addPostFrameCallback((_) => initAPIS());
-    tabController = TabController(length: 3, vsync: this, animationDuration: Duration.zero);
+    tabController = TabController(length: 4, vsync: this, animationDuration: Duration.zero);
     tabController?.addListener(() {
       final currentIndex = tabController?.index;
       if (currentIndex != prevIndex) {
@@ -180,7 +180,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
                                             child: lockedFeaturePanel(
                                                 Feature.browserHistory, "Browser history and URL blocking"))
                                   else if (tabController?.index == 2)
-                                    messagesSection(homeController),
+                                    messagesSection(homeController)
+                                  else if (tabController?.index == 3)
+                                    callsSection(homeController),
                                 ],
                               ),
                             ),
@@ -785,31 +787,93 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     );
   }
 
-  Widget messagesSection(HomeController homeController) {
+  Widget messagesSection(HomeController homeController) => _comingSoonTab(
+        icon: Icons.chat_bubble_outline,
+        text: "Messages monitoring is coming soon. We'll let you know when it's ready.",
+      );
+
+  Widget callsSection(HomeController homeController) {
+    final name = homeController.getSelectedKid(widget.kidId).name?.split(" ").first ?? "your child";
+    return _comingSoonTab(
+      icon: Icons.call_outlined,
+      text: "See who $name calls and who calls $name, with the time and length of each call.",
+      showContacts: true,
+    );
+  }
+
+  /// A tab whose feature isn't ready: what it will show, then the emergency-contacts limit to come, which
+  /// covers both calls and messages. Its switch is shown but can't be turned on yet.
+  Widget _comingSoonTab({required IconData icon, required String text, bool showContacts = false}) {
     return Expanded(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: roundedContainer(
-            color: AppColors.lightGrey,
-            borderRadius: 15,
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(10, 24, 10, adBannerSpace),
+        children: [
+          Center(child: iconBadge(icon, size: 72)),
+          verticalSpace(14),
+          Center(child: bigSubHeading("Coming soon")),
+          verticalSpace(8),
+          subHeadingText(text, textAlign: TextAlign.center, height: 1.45),
+          verticalSpace(22),
+          roundedContainer(
+            borderRadius: 20,
+            border: Border.all(color: AppColors.buttonBorderGrey),
+            padding: const EdgeInsets.all(16),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.hourglass_top, size: 48, color: Colors.grey),
-                verticalSpace(16),
-                bigSubHeading("Coming soon"),
-                verticalSpace(10),
-                subHeadingText(
-                  "Messages monitoring is coming soon. We'll let you know when it's ready.",
-                  textAlign: TextAlign.center,
-                  height: 1.4,
+                Row(
+                  children: [
+                    iconBadge(Icons.verified_user_outlined, size: 40),
+                    horizontalSpace(12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          boldText("Emergency contacts only", fontSize: 16),
+                          verticalSpace(4),
+                          roundedContainer(
+                            borderRadius: 20,
+                            color: AppColors.veryVeryLightGreen,
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            child: regularText("Coming soon",
+                                fontSize: 11, color: AppColors.normalGreen, fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Shown so parents know it's coming; it can't be switched on yet.
+                    const Switch(value: false, onChanged: null),
+                  ],
                 ),
+                verticalSpace(10),
+                regularText("Limit communication to only emergency contacts through calls and messages when enabled.",
+                    fontSize: 14, height: 1.45),
               ],
             ),
           ),
-        ),
+          if (showContacts) ...[
+            verticalSpace(20),
+            boldText("Emergency contacts", fontSize: 15),
+            verticalSpace(10),
+            roundedContainer(
+              borderRadius: 16,
+              color: AppColors.lightGrey,
+              border: Border.all(color: AppColors.darkLightGrey),
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add, size: 18, color: AppColors.grey),
+                  horizontalSpace(8),
+                  regularText("Add emergency contact", fontSize: 15, color: AppColors.grey, fontWeight: FontWeight.w600),
+                ],
+              ),
+            ),
+            verticalSpace(10),
+            regularText("Calls and messages to these people will always go through, even when everything else is limited.",
+                fontSize: 13, color: AppColors.grey, height: 1.45),
+          ],
+        ],
       ),
     );
   }
@@ -1031,8 +1095,10 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
             controller: tabController,
             tabs: [
               textForTab("Apps", tabController!.index == 0),
-              textForTab("Browser History", tabController!.index == 1),
+              // Four tabs fit a phone only with "History" for browser history.
+              textForTab("History", tabController!.index == 1),
               textForTab("Messages", tabController!.index == 2),
+              textForTab("Calls", tabController!.index == 3),
             ]),
       ),
     );

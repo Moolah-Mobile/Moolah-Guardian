@@ -46,6 +46,7 @@ dependencies:
   characters: ^1.4.0
   flat_buffers: ^23.5.26
   test_api: ^0.7.7
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:

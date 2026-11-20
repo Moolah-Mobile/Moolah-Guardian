@@ -4,6 +4,7 @@ import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
 import 'package:moolah/screens/block_rules/rule_widgets.dart';
+import 'package:moolah/screens/connect_device/pair_too_far_screen.dart';
 
 void main() {
   test('times read as 12-hour for parents and 24-hour for the MDM', () {
@@ -161,5 +162,11 @@ void main() {
     // in New York.
     final late = clockAt(-300, DateTime.utc(2026, 11, 20, 19, 30));
     expect([late.weekday, late.hour], [DateTime.friday, 14]);
+  });
+
+  test('the too-far screen says how far away the parent is', () {
+    expect(PairTooFarScreen.milesText(2414), "1.5 miles");
+    expect(PairTooFarScreen.milesText(13520), "8.4 miles");
+    expect(PairTooFarScreen.milesText(13500000), "8389 miles");
   });
 }
