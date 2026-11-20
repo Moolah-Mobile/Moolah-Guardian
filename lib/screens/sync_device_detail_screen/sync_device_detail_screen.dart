@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
@@ -9,7 +8,6 @@ import 'package:moolah/helper/models/block_rule_model.dart';
 import 'package:moolah/screens/block_rules/rule_widgets.dart' show childFirstName, childNow, ruleBlocksNow;
 import 'package:moolah/screens/block_rules/places_screen.dart';
 import 'package:moolah/screens/block_rules/schedules_screen.dart';
-import 'package:ironsource_mediation/ironsource_mediation.dart';
 import 'package:moolah/screens/blacklist/blacklist_screen.dart';
 import 'package:moolah/screens/sync_device_detail_screen/screens/live_location.dart';
 import 'package:moolah/util/colors.dart';
@@ -53,7 +51,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
 
   // The ad banner floats just above the keyboard and would cover the search results, so it is hidden
   // while searching and shown again when the keyboard closes.
-  bool _bannerHiddenForSearch = false;
 
   // Once the search keyboard has been shown and is closed again (Android's Back key), the field gives up
   // focus, so the keyboard doesn't pop up by itself when the parent comes back from another screen.
@@ -71,21 +68,8 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     }
   }
 
-  void _syncBannerWithSearch(bool searching) {
-    if (searching == _bannerHiddenForSearch) return;
-    _bannerHiddenForSearch = searching;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (searching) {
-        IronSource.hideBanner();
-      } else {
-        IronSource.displayBanner();
-      }
-    });
-  }
-
   @override
   void dispose() {
-    if (_bannerHiddenForSearch) IronSource.displayBanner();
     appSearch.dispose();
     appSearchFocus.dispose();
     tabController?.dispose();
@@ -113,7 +97,6 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   @override
   Widget build(BuildContext context) {
     _releaseSearchFocusWhenKeyboardCloses();
-    _syncBannerWithSearch(_searchingApps);
     return GetBuilder<SubscriptionController>(
         builder: (_) => GetBuilder<HomeController>(builder: (homeController) {
               if (homeController.findKid(widget.kidId) == null) {
@@ -371,7 +354,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
             Expanded(
               child: ListView(
                 // No room is needed for the ad banner while it is hidden for the keyboard.
-                padding: EdgeInsets.only(bottom: _searchingApps ? 16 : adBannerSpace),
+                padding: EdgeInsets.only(bottom: _searchingApps ? 16 : listEndSpace),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 children: [
                   if (!compact) ...[
@@ -640,7 +623,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: ListView(
-          padding: const EdgeInsets.only(bottom: adBannerSpace),
+          padding: const EdgeInsets.only(bottom: listEndSpace),
           children: [
             _tabActionButton(),
             Padding(
@@ -806,7 +789,7 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
   Widget _comingSoonTab({required IconData icon, required String text, bool showContacts = false}) {
     return Expanded(
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(10, 24, 10, adBannerSpace),
+        padding: const EdgeInsets.fromLTRB(10, 24, 10, listEndSpace),
         children: [
           Center(child: iconBadge(icon, size: 72)),
           verticalSpace(14),

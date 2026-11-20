@@ -15,6 +15,10 @@ String getStripeSecretKey() {
 
 
 
+/// Empty space after the last row of a scrolling list, so it doesn't sit against the bottom edge.
+const double listEndSpace = 24;
+
+
 /// APP LOGO
 Widget appLogo({double? size}) {
   if(size != null){

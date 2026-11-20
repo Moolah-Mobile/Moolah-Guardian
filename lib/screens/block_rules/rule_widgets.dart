@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
-import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
 import 'package:moolah/helper/models/kids_model.dart';
@@ -26,7 +25,7 @@ Widget ruleScreen(BuildContext context, {required String title, required List<Wi
           Expanded(
             child: pageSheet(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, adBannerSpace),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, listEndSpace),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 children: children,
               ),

@@ -6,9 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 // import 'package:flutter_ironsource_x/ironsource.dart';
 import 'package:get/get.dart';
-import 'package:ironsource_mediation/ironsource_mediation.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
-import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/helper/route_helper.dart';
 import 'package:moolah/helper/sharedHelper.dart';
 import 'package:moolah/screens/main_menu_profile/main_menu_profile.dart';
@@ -18,9 +16,16 @@ import 'package:moolah/util/mixpanel_events.dart';
 import 'package:moolah/util/theme/app_theme.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import './helper/get_di/get_di.dart' as get_di;
+import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Draw Google Maps natively (hybrid composition) on Android. Through a texture, some phones' graphics
+  // drivers show only the map's overlays (the Google logo) and never the map itself, while lite maps
+  // still draw.
+  final maps = GoogleMapsFlutterPlatform.instance;
+  if (maps is GoogleMapsFlutterAndroid) maps.useAndroidViewSurface = true;
   await Prefs.init();
   // Set before anything can open the payment sheet; initSDKS() below isn't awaited.
   Stripe.publishableKey = getStripeSecretKey();
@@ -43,26 +48,16 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<AdvertisementController>(
-      builder: (adController) {
-        return Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            GetMaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.light,
-              routes: RouteHelper.routes,
-              initialRoute: Splash.screenName,
-              // Debug builds print GetX's route and controller create/delete messages to logcat.
-              enableLog: kDebugMode,
-              logWriterCallback: (text, {bool isError = false}) {
-                if (kDebugMode) debugPrint("[GETX] $text");
-              },
-            ),
-            adController.optionalAdWidget()
-          ],
-        );
-      }
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      routes: RouteHelper.routes,
+      initialRoute: Splash.screenName,
+      // Debug builds print GetX's route and controller create/delete messages to logcat.
+      enableLog: kDebugMode,
+      logWriterCallback: (text, {bool isError = false}) {
+        if (kDebugMode) debugPrint("[GETX] $text");
+      },
     );
   }
 }
@@ -82,9 +77,6 @@ void initSDKS() async {
   /// OneSignal SDK
   print("Initializing OneSignal");
   initOneSignal();
-
-  /// IronSource SDK
-  Get.find<AdvertisementController>().init();
 
   ///Mixpanel
   await Get.find<MixPanelEventsController>().init();

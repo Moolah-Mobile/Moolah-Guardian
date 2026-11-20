@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
@@ -38,6 +39,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
         lng: _childAt?.longitude ?? 0,
       );
   late final name = TextEditingController(text: draft.name);
+  final address = TextEditingController();
   // A new place starts unpinned when the child's location isn't known.
   late bool pinned = widget.place != null || _childAt != null;
   GoogleMapController? _map;
@@ -48,6 +50,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
   @override
   void dispose() {
     name.dispose();
+    address.dispose();
     _map?.dispose();
     super.dispose();
   }
@@ -56,10 +59,138 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
         draft.lat = to.latitude;
         draft.lng = to.longitude;
         pinned = true;
+        _matches = [];
       });
 
+  // Address search. The phone's own geocoder does the lookup (Google's on Android, Apple's on iOS), so the
+  // app needs no geocoding key.
+  final _geocoder = geo.Geocoding();
+  bool _searching = false;
+  // Shown for the parent to pick from when an address matches more than one place.
+  List<({String label, LatLng at})> _matches = [];
+
+  Future<void> _findAddress() async {
+    final query = address.text.trim();
+    if (query.isEmpty || _searching) return;
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _searching = true;
+      _matches = [];
+    });
+    List<({String label, LatLng at})> found = [];
+    try {
+      final locations = await _geocoder.locationFromAddress(query);
+      found = await Future.wait(locations.take(5).map((l) async {
+        final at = LatLng(l.latitude, l.longitude);
+        return (label: await _addressAt(at) ?? query, at: at);
+      }));
+    } catch (_) {
+      // Android throws when nothing matches, as well as when the lookup fails.
+    }
+    if (!mounted) return;
+    setState(() => _searching = false);
+    if (found.isEmpty) {
+      return errorToast("Couldn't find that address. Check it, or add the city or ZIP code.");
+    }
+    if (found.length == 1) return _goTo(found.single);
+    setState(() => _matches = found);
+  }
+
+  Future<String?> _addressAt(LatLng at) async {
+    try {
+      final marks = await _geocoder.placemarkFromCoordinates(at.latitude, at.longitude);
+      if (marks.isEmpty) return null;
+      final m = marks.first;
+      final all = [m.name, m.street, m.locality, m.administrativeArea, m.postalCode]
+          .map((part) => part?.trim() ?? "")
+          .where((part) => part.isNotEmpty)
+          .toList();
+      // name is often just the house number, or the same as street: drop parts another part already says.
+      final parts = <String>[];
+      for (final (i, part) in all.indexed) {
+        final saidElsewhere = all.indexed.any((o) => o.$1 != i && o.$2 != part && o.$2.contains(part));
+        if (!saidElsewhere && !parts.contains(part)) parts.add(part);
+      }
+      return parts.isEmpty ? null : parts.join(", ");
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _goTo(({String label, LatLng at}) match) {
+    _movePin(match.at);
+    address.text = match.label;
+    _map?.animateCamera(CameraUpdate.newLatLngZoom(_pin, _zoomToFit()));
+  }
+
+  Widget _addressSearch() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        fieldLabel("Address"),
+        _textField(
+          address,
+          hint: "Search for an address",
+          action: TextInputAction.search,
+          onSubmitted: (_) => _findAddress(),
+          suffix: _searching
+              ? const Padding(
+                  padding: EdgeInsets.all(14),
+                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                )
+              : IconButton(
+                  tooltip: "Find address",
+                  icon: Icon(Icons.search, color: AppColors.normalGreen),
+                  onPressed: _findAddress,
+                ),
+        ),
+        if (_matches.isNotEmpty) ...[
+          verticalSpace(8),
+          regularText("More than one place matches. Which one?", fontSize: 13, color: AppColors.grey),
+          verticalSpace(4),
+          for (final m in _matches)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              dense: true,
+              leading: Icon(Icons.place_outlined, color: AppColors.normalGreen),
+              title: regularText(m.label, fontSize: 14),
+              onTap: () => _goTo(m),
+            ),
+        ],
+        verticalSpace(12),
+      ],
+    );
+  }
+
+  Widget _textField(TextEditingController controller,
+      {required String hint,
+      TextInputAction? action,
+      ValueChanged<String>? onChanged,
+      ValueChanged<String>? onSubmitted,
+      Widget? suffix}) {
+    return TextField(
+      controller: controller,
+      textCapitalization: TextCapitalization.sentences,
+      textInputAction: action,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      style: TextStyle(fontFamily: fontFamily, fontSize: 16),
+      decoration: InputDecoration(
+        hintText: hint,
+        suffixIcon: suffix,
+        filled: true,
+        fillColor: AppColors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.darkLightGrey)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.normalGreen, width: 2)),
+      ),
+    );
+  }
+
   String? get _problem {
-    if (!pinned) return "Tap the map to set where the place is.";
+    if (!pinned) return "Search for an address, or tap the map to set where the place is.";
     if (name.text.trim().isEmpty) return "Give the place a name.";
     if (draft.useTimes && draft.days.isEmpty) return "Pick at least one day.";
     if (draft.useTimes && draft.from == draft.to) return "The start and end times are the same.";
@@ -132,6 +263,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
     final problem = _problem;
 
     return ruleScreen(context, title: _isNew ? "New place" : "Edit place", children: [
+      _addressSearch(),
       _mapCard(childName),
       verticalSpace(16),
       Row(
@@ -165,22 +297,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
       ),
       verticalSpace(16),
       fieldLabel("Name"),
-      TextField(
-        controller: name,
-        textCapitalization: TextCapitalization.sentences,
-        onChanged: (_) => setState(() {}),
-        style: TextStyle(fontFamily: fontFamily, fontSize: 16),
-        decoration: InputDecoration(
-          hintText: "e.g. School",
-          filled: true,
-          fillColor: AppColors.white,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.darkLightGrey)),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.normalGreen, width: 2)),
-        ),
-      ),
+      _textField(name, hint: "e.g. School", onChanged: (_) => setState(() {})),
       verticalSpace(18),
       fieldLabel("Block apps while $childName is"),
       segmentedChoice(
@@ -328,7 +445,7 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
                 child: pill(
                   color: AppColors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  child: regularText(pinned ? "Tap or drag the pin to adjust" : "Tap the map to set the place",
+                  child: regularText(pinned ? "Tap or drag the pin to adjust" : "Search above, or tap the map",
                       fontSize: 13, fontWeight: FontWeight.w600),
                 ),
               ),

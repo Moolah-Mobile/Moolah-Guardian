@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/screens/connect_device/connect_device_screen.dart';
 import 'package:moolah/screens/home/widget/SyncDevice.dart';
@@ -98,7 +97,7 @@ class _HomeState extends State<Home> {
                     boxShadow: softShadow,
                   ),
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, adBannerSpace),
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, listEndSpace),
                     children: [
                       _connectCard(),
                       verticalSpace(26),
@@ -198,7 +197,6 @@ class _HomeState extends State<Home> {
   }
 
   void setController() async {
-    Get.find<AdvertisementController>().loadBanner();
     await Get.find<AuthController>().refreshToken();
     Get.find<SubscriptionController>().loadSubscription();
     await Get.find<HomeController>().getSyncedKidDevices();

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:moolah/controllers/advertisementController.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/device_detail_model.dart';
@@ -81,7 +80,7 @@ class _BlackListScreenState extends State<BlackListScreen> {
                                             : "",
                                     childName: childName)
                                 : ListView(
-                                    padding: const EdgeInsets.fromLTRB(16, 20, 16, adBannerSpace),
+                                    padding: const EdgeInsets.fromLTRB(16, 20, 16, listEndSpace),
                                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                                     children: [
                                       _summary(childName, apps.length),
