@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:moolah/helper/endpoints.dart';
+import 'package:moolah/helper/mock/mock_api.dart';
 import 'package:moolah/helper/models/response_model.dart';
 import 'package:moolah/helper/sharedHelper.dart';
 
@@ -11,6 +12,7 @@ class Network {
   static const String _logHeader = "═══════════════════════════════════════════";
 
   static Future<ResponseModel> get(String url) async {
+    if (MockApi.enabled) return MockApi.handle("GET", url);
     final timestamp = DateTime.now().toString();
     print("\n$_logHeader");
     print("🔵 GET REQUEST - $timestamp");
@@ -40,6 +42,8 @@ class Network {
 
   static Future<ResponseModel> post(String url,
       {Map<String, dynamic> body = const {}, bool encode = false}) async {
+    MockApi.enableIfDemoLogin(url, body);
+    if (MockApi.enabled) return MockApi.handle("POST", url, body);
     final timestamp = DateTime.now().toString();
     print("\n$_logHeader");
     print("🔴 POST REQUEST - $timestamp");

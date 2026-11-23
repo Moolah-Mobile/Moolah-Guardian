@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:moolah/controllers/baseController.dart';
 import 'package:moolah/helper/models/user_model1.dart';
+import 'package:moolah/helper/mock/mock_api.dart';
 import 'package:moolah/helper/repo/authRepo.dart';
 import 'package:moolah/helper/sharedHelper.dart';
 import 'package:moolah/screens/home/home.dart';
@@ -241,6 +242,7 @@ class AuthController extends BaseController {
     Prefs.userId.clear();
     Prefs.isLoggedIn.clear();
     Prefs.email.clear();
+    MockApi.disable();
     if (Get.isRegistered<SubscriptionController>()) Get.find<SubscriptionController>().reset();
     Get.find<HomeController>().logout();
   }
