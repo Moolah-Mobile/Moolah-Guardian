@@ -1,11 +1,12 @@
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moolah/controllers/baseController.dart';
+import 'package:moolah/helper/env.dart';
 
 class MixPanelEventsController extends BaseController {
   Mixpanel? mixpanel;
 
   init() async {
-    mixpanel = await Mixpanel.init("b2c2ea88edf4da993cb3572c6f126f6c",
+    mixpanel = await Mixpanel.init(Env.mixpanelToken,
         trackAutomaticEvents: true);
   }
 

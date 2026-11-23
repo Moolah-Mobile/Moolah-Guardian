@@ -1,0 +1,9 @@
+{
+  "API_BASE_URL": "https://api.example.com",
+  "MDM_BASE_URL": "https://mdm.example.com/rest",
+  "MDM_API_KEY": "",
+  "STRIPE_PUBLISHABLE_KEY": "pk_test_...",
+  "MIXPANEL_TOKEN": "",
+  "ONESIGNAL_APP_ID": "",
+  "IRONSOURCE_APP_KEY": ""
+}

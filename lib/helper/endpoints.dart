@@ -1,9 +1,10 @@
+import 'package:moolah/helper/env.dart';
+
 class EndPoints {
-  static String baseUrl = "https://api2.moolahmobile.com";
-  static String mdmBaseUrl = "https://moolahmdm.com/rest";
-  
-  // NOTE: Replace with your actual MDM API Key for production
-  static String mdmApiKey = "d927eaf4dbfffdd18836301d5698e4772d75505c9cc464761920c04df45b09af";
+  // Hosts and the MDM key come from the build config (config/prod.json); see Env.
+  static const String baseUrl = Env.apiBaseUrl;
+  static const String mdmBaseUrl = Env.mdmBaseUrl;
+  static const String mdmApiKey = Env.mdmApiKey;
 
   // Auth endpoints (api2)
   static String login = "$baseUrl/guardian/login";

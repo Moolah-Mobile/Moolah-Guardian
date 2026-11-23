@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:moolah/helper/env.dart';
 import 'package:moolah/util/images.dart';
 
 import '../apptext.dart';
@@ -9,9 +10,7 @@ import '../colors.dart';
 
 /// Stripe publishable key. It must come from the same Stripe account and mode as the backend's secret key,
 /// or the payment sheet fails with "No such payment_intent". This is a LIVE key: payments are real charges.
-String getStripeSecretKey() {
-  return "pk_live_51KO9fgLIMfEj3HFuUuyP1STEfAwtXXjsf1W7iEozlDXaptpKLjTHqq33ajf8gtFvpzGv9v7IXKo9OaGpz3S3Ty9v000JQGtj22";
-}
+String getStripeSecretKey() => Env.stripePublishableKey;
 
 
 

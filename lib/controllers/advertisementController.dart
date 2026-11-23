@@ -1,3 +1,4 @@
+import 'package:moolah/helper/env.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ironsource_mediation/ironsource_mediation.dart';
@@ -17,7 +18,7 @@ class AdvertisementController extends BaseController with LevelPlayBannerListene
 
   init() async {
     loadLocalAds();
-    await IronSource.init(appKey: "9459d105");
+    await IronSource.init(appKey: Env.ironSourceAppKey);
 
 
     IronSource.setLevelPlayBannerListener(this);
