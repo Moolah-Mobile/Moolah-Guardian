@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
+import 'package:moolah/controllers/commsController.dart';
 import 'package:moolah/controllers/baseController.dart';
 import 'package:moolah/helper/endpoints.dart';
 import 'package:moolah/helper/models/blocked_url_model.dart';
@@ -339,6 +340,7 @@ class HomeController extends BaseController {
     isLoading = false;
     connectedKids.removeWhere((k) => k.connectId == kid.connectId && k.kidId == kid.kidId);
     Get.find<BlockRulesController>().forgetDevice(connectId);
+    Get.find<CommsController>().forgetDevice(connectId);
     update();
     if (freed) {
       successToast("Device unpaired");

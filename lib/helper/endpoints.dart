@@ -38,6 +38,13 @@ class EndPoints {
   static String linkDevice = "$mdmBaseUrl/guardian/link";
   static String unlinkDevice = "$mdmBaseUrl/guardian/unlink";
 
+  // Calls, messages and emergency contacts (see build/share/mdm-calls-messages-emergency.md).
+  static String getCallLogUrl = "$mdmBaseUrl/getCallLog";
+  static String getMessageThreadsUrl = "$mdmBaseUrl/getMessageThreads";
+  static String getMessagesUrl = "$mdmBaseUrl/getMessages";
+  static String getEmergencyContactsUrl = "$mdmBaseUrl/getEmergencyContacts";
+  static String setEmergencyContactsUrl = "$mdmBaseUrl/setEmergencyContacts";
+
   // Other Feature Management (api2)
   static String getParentKidDevicesUrl = "$baseUrl/getConnectedKidDevices";
   static String getMSMSMonitoringStatus = "$baseUrl/getMSMSMonitoringStatus";
