@@ -279,11 +279,18 @@ class _PlaceEditScreenState extends State<PlaceEditScreen> {
   }
 
   void _delete() {
+    // What deleting changes depends on the saved place, not on edits not saved yet.
+    final inside = widget.place?.inside ?? draft.inside;
+    final child = childFirstName(kid);
     showDialog(
       context: context,
       builder: (dialog) => AlertDialog(
         title: boldText("Delete ${draft.name.isEmpty ? "this place" : draft.name}?", fontSize: 18),
-        content: regularText("Apps it blocks will stay on at this place.", fontSize: 14),
+        content: regularText(
+            inside
+                ? "Apps it blocks will stay on while $child is here."
+                : "Apps it blocks will stay on while $child is away from here.",
+            fontSize: 14),
         actions: [
           TextButton(onPressed: () => Navigator.pop(dialog), child: regularText("Cancel", fontSize: 14)),
           TextButton(
