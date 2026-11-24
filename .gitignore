@@ -94,3 +94,7 @@ gen_dart_plugin_registrant.stamp
 # App secrets: copy config/example.json to config/prod.json (see scripts/build_release.sh)
 /config/*.json
 !/config/example.json
+
+# Local IDE run configurations
+.run/
+.vscode/
