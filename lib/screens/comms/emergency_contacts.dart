@@ -262,6 +262,7 @@ class _EmergencyContactEditScreenState extends State<EmergencyContactEditScreen>
 
   String? get _problem {
     if (_name.text.trim().isEmpty) return "Enter a name.";
+    if (_name.text.trim().length > maxContactNameLength) return "Use a shorter name.";
     final numberProblem = phoneProblem(_number.text);
     if (numberProblem != null) return numberProblem;
     for (var i = 0; i < _settings.contacts.length; i++) {
@@ -314,6 +315,7 @@ class _EmergencyContactEditScreenState extends State<EmergencyContactEditScreen>
 
   InputDecoration _decoration(String hint) => InputDecoration(
         hintText: hint,
+        counterText: "", // the length limits are checked quietly; no "0/100" under the fields
         filled: true,
         fillColor: AppColors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -331,6 +333,7 @@ class _EmergencyContactEditScreenState extends State<EmergencyContactEditScreen>
       TextField(
         controller: _name,
         textCapitalization: TextCapitalization.words,
+        maxLength: maxContactNameLength,
         textInputAction: TextInputAction.next,
         onChanged: (_) => setState(() {}),
         style: TextStyle(fontFamily: fontFamily, fontSize: 16),
@@ -341,6 +344,7 @@ class _EmergencyContactEditScreenState extends State<EmergencyContactEditScreen>
       TextField(
         controller: _number,
         keyboardType: TextInputType.phone,
+        maxLength: maxPhoneLength,
         inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[\d\s()+.-]"))],
         onChanged: (_) => setState(() {}),
         style: TextStyle(fontFamily: fontFamily, fontSize: 16),

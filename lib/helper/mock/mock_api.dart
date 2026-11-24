@@ -124,6 +124,10 @@ class MockApi {
           },
         };
 
+      case "/unpairKidDevice":
+        s.devices.removeWhere((d) => d.connectId == body["kidDeviceAccountConnectID"]?.toString());
+        return {"success": true, "msg": "Device unpaired"};
+
       case "/getMSMSMonitoringStatus":
         return {"success": true, "msmsMonitoringStatus": s.msmsMonitoring};
       case "/enableMSMSMonitoring":
@@ -289,6 +293,40 @@ class MockApi {
       case "/getNetworkHistory":
         if (d == null) return notFound();
         return {"success": true, "data": d.networkHistory()};
+
+      // Unpairing removes the device in api2 first, so the MDM link may already be gone here.
+      case "/guardian/unlink":
+        return {
+          "success": true,
+          "data": {"status": "unlinked", "otherParentsLinked": 0, "rulesCleared": true, "commandId": null},
+        };
+
+      case "/getCallLog":
+        if (d == null) return notFound();
+        return {"success": true, "data": {"items": d.callLog(), "coverage": {"enabled": true}}};
+      case "/getMessageThreads":
+        if (d == null) return notFound();
+        return {"success": true, "data": {"items": d.messageThreads(), "coverage": {"enabled": true}}};
+      case "/getMessages":
+        if (d == null) return notFound();
+        return {"success": true, "data": {"items": d.messagesWith(q["number"] ?? "")}};
+      case "/getEmergencyContacts":
+        if (d == null) return notFound();
+        return {"success": true, "data": d.emergency()};
+      case "/setEmergencyContacts":
+        if (d == null) return notFound();
+        final contacts = [
+          for (final c in (body["contacts"] as List? ?? []))
+            if (c is Map) {"id": "ec-${s.nextId()}", "name": "${c["name"]}", "number": "${c["number"]}"}
+        ];
+        final only = body["emergencyOnly"] == true;
+        if (contacts.length > 5) return {"success": false, "msg": "Up to 5 emergency contacts."};
+        if (only && contacts.isEmpty) {
+          return {"success": false, "msg": "Add an emergency contact before turning this on."};
+        }
+        d.emergencyContacts = contacts;
+        d.emergencyOnly = only;
+        return {"success": true, "data": {...d.emergency(), "commandId": "mock-cmd-${s.nextId()}"}};
     }
     return null;
   }
@@ -417,6 +455,97 @@ class _MockDevice {
   final double lat;
   final double lng;
   List<Map<String, dynamic>> rules = [];
+
+  bool emergencyOnly = false;
+  List<Map<String, dynamic>> emergencyContacts = [
+    {"id": "ec-1", "name": "Mom", "number": "+12125550147"},
+  ];
+
+  Map<String, dynamic> emergency() => {
+        "emergencyOnly": emergencyOnly,
+        "contacts": emergencyContacts,
+        "maxContacts": 5,
+        "notApplied": null,
+      };
+
+  bool _isEmergency(String number) {
+    String digits(String n) {
+      final x = n.replaceAll(RegExp(r"\D"), "");
+      return x.length > 10 ? x.substring(x.length - 10) : x;
+    }
+
+    return emergencyContacts.any((c) => digits("${c["number"]}") == digits(number));
+  }
+
+  static String _ago(Duration d) => DateTime.now().toUtc().subtract(d).toIso8601String();
+
+  // Sample calls and texts, relative to now, so "Today" and "Yesterday" always have something.
+  static const _people = [
+    ("+12125550147", "Mom"),
+    ("+12125550199", "Dad"),
+    ("+13475550123", "Jake"),
+    ("+16465550188", null),
+  ];
+
+  List<Map<String, dynamic>> callLog() {
+    Map<String, dynamic> call(int i, Duration ago, String direction, (String, String?) who, int secs) => {
+          "id": "c-$i",
+          "time": _ago(ago),
+          "direction": direction,
+          "number": who.$1,
+          "name": who.$2,
+          "durationSec": secs,
+          "emergencyContact": _isEmergency(who.$1),
+        };
+    return [
+      call(1, const Duration(minutes: 25), "incoming", _people[0], 192),
+      call(2, const Duration(hours: 2, minutes: 10), "outgoing", _people[2], 534),
+      call(3, const Duration(hours: 3), emergencyOnly ? "blocked" : "missed", _people[3], 0),
+      call(4, const Duration(hours: 20), "outgoing", _people[1], 61),
+      call(5, const Duration(days: 1, hours: 4), "rejected", _people[2], 0),
+      call(6, const Duration(days: 3), "incoming", _people[0], 1260),
+    ];
+  }
+
+  List<(Duration, String, String)> _conversation(String number) {
+    switch (number) {
+      case "+12125550147":
+        return [
+          (const Duration(minutes: 40), "received", "On my way, 10 minutes"),
+          (const Duration(minutes: 42), "sent", "Where are you?"),
+          (const Duration(hours: 5), "received", "Don't forget your lunch"),
+        ];
+      case "+13475550123":
+        return [
+          (const Duration(hours: 1), "sent", "ok see you at practice"),
+          (const Duration(hours: 1, minutes: 3), "received", "you coming to practice?"),
+        ];
+      case "+16465550188":
+        return [
+          (const Duration(hours: 26), emergencyOnly ? "blocked" : "received", "Claim your free prize now!"),
+        ];
+    }
+    return [];
+  }
+
+  List<Map<String, dynamic>> messageThreads() => [
+        for (final who in [_people[0], _people[2], _people[3]])
+          if (_conversation(who.$1).isNotEmpty)
+            {
+              "number": who.$1,
+              "name": who.$2,
+              "lastTime": _ago(_conversation(who.$1).first.$1),
+              "lastText": _conversation(who.$1).first.$3,
+              "lastDirection": _conversation(who.$1).first.$2,
+              "messageCount": _conversation(who.$1).length,
+              "emergencyContact": _isEmergency(who.$1),
+            }
+      ];
+
+  List<Map<String, dynamic>> messagesWith(String number) => [
+        for (final (i, m) in _conversation(number).indexed)
+          {"id": "m-$i", "time": _ago(m.$1), "direction": m.$2, "text": m.$3, "kind": "sms", "attachments": 0}
+      ];
 
   static const _min = 60 * 1000;
 

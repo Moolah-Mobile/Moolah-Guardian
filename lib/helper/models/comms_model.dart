@@ -191,10 +191,15 @@ bool samePhoneNumber(String a, String b) {
   return x.length >= 10 && y.length >= 10 && x.substring(x.length - 10) == y.substring(y.length - 10);
 }
 
+/// The MDM refuses longer names and numbers (422).
+const maxContactNameLength = 100;
+const maxPhoneLength = 32;
+
 /// Why [number] can't be an emergency contact, or null when it can.
 String? phoneProblem(String number) {
   final trimmed = number.trim();
   if (trimmed.isEmpty) return "Enter a phone number.";
+  if (trimmed.length > maxPhoneLength) return "That number is too long.";
   if (!RegExp(r"^\+?[\d\s().-]+$").hasMatch(trimmed)) return "Use only digits, spaces, +, (, ) and -.";
   final digits = trimmed.replaceAll(RegExp(r"\D"), "").length;
   if (digits < 3 || digits > 15) return "Enter a full phone number.";

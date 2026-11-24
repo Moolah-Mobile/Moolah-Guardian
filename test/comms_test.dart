@@ -81,6 +81,7 @@ void main() {
     expect(phoneProblem("call me"), isNotNull);
     expect(phoneProblem("12"), isNotNull);
     expect(phoneProblem("+1 (212) 555-0147"), isNull);
+    expect(phoneProblem("1" * 33), isNotNull); // the MDM refuses numbers over 32 characters
   });
 
   test('durations and days read naturally', () {
