@@ -47,7 +47,7 @@ enum Plan {
     title: "Ultimate",
     monthlyPrice: 19.99,
     deviceLimit: 5,
-    highlights: ["Everything in Premium", "Manage up to 5 devices"],
+    highlights: ["Everything in Premium", "Manage up to 5 devices", "Up to 5 emergency contacts"],
   );
 
   const Plan({
@@ -68,6 +68,9 @@ enum Plan {
   String get priceLabel => monthlyPrice == 0 ? "Free" : "\$${monthlyPrice.toStringAsFixed(2)}/month";
 
   bool get isPaid => this != Plan.free;
+
+  /// How many emergency contacts a child's phone can have: 5 on Ultimate, 3 on the other plans.
+  int get emergencyContactLimit => this == Plan.ultimate ? 5 : 3;
 
   static Plan fromId(String? id) =>
       Plan.values.firstWhere((p) => p.id == id?.toLowerCase().trim(), orElse: () => Plan.free);

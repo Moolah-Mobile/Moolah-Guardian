@@ -5,6 +5,7 @@ import 'package:moolah/controllers/authController.dart';
 import 'package:moolah/controllers/blockRulesController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/block_rule_model.dart';
+import 'package:moolah/screens/comms/comms_tabs.dart';
 import 'package:moolah/screens/block_rules/rule_widgets.dart' show childFirstName, childNow, ruleBlocksNow;
 import 'package:moolah/screens/block_rules/places_screen.dart';
 import 'package:moolah/screens/block_rules/schedules_screen.dart';
@@ -770,96 +771,9 @@ class _SyncDeviceDetailScreenState extends State<SyncDeviceDetailScreen> with Si
     );
   }
 
-  Widget messagesSection(HomeController homeController) => _comingSoonTab(
-        icon: Icons.chat_bubble_outline,
-        text: "Messages monitoring is coming soon. We'll let you know when it's ready.",
-      );
+  Widget messagesSection(HomeController homeController) => MessagesTab(kidId: widget.kidId);
 
-  Widget callsSection(HomeController homeController) {
-    final name = homeController.getSelectedKid(widget.kidId).name?.split(" ").first ?? "your child";
-    return _comingSoonTab(
-      icon: Icons.call_outlined,
-      text: "See who $name calls and who calls $name, with the time and length of each call.",
-      showContacts: true,
-    );
-  }
-
-  /// A tab whose feature isn't ready: what it will show, then the emergency-contacts limit to come, which
-  /// covers both calls and messages. Its switch is shown but can't be turned on yet.
-  Widget _comingSoonTab({required IconData icon, required String text, bool showContacts = false}) {
-    return Expanded(
-      child: ListView(
-        padding: EdgeInsets.fromLTRB(10, 24, 10, listEndPadding(context)),
-        children: [
-          Center(child: iconBadge(icon, size: 72)),
-          verticalSpace(14),
-          Center(child: bigSubHeading("Coming soon")),
-          verticalSpace(8),
-          subHeadingText(text, textAlign: TextAlign.center, height: 1.45),
-          verticalSpace(22),
-          roundedContainer(
-            borderRadius: 20,
-            border: Border.all(color: AppColors.buttonBorderGrey),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    iconBadge(Icons.verified_user_outlined, size: 40),
-                    horizontalSpace(12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          boldText("Emergency contacts only", fontSize: 16),
-                          verticalSpace(4),
-                          roundedContainer(
-                            borderRadius: 20,
-                            color: AppColors.veryVeryLightGreen,
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            child: regularText("Coming soon",
-                                fontSize: 11, color: AppColors.normalGreen, fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Shown so parents know it's coming; it can't be switched on yet.
-                    const Switch(value: false, onChanged: null),
-                  ],
-                ),
-                verticalSpace(10),
-                regularText("Limit communication to only emergency contacts through calls and messages when enabled.",
-                    fontSize: 14, height: 1.45),
-              ],
-            ),
-          ),
-          if (showContacts) ...[
-            verticalSpace(20),
-            boldText("Emergency contacts", fontSize: 15),
-            verticalSpace(10),
-            roundedContainer(
-              borderRadius: 16,
-              color: AppColors.lightGrey,
-              border: Border.all(color: AppColors.darkLightGrey),
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add, size: 18, color: AppColors.grey),
-                  horizontalSpace(8),
-                  regularText("Add emergency contact", fontSize: 15, color: AppColors.grey, fontWeight: FontWeight.w600),
-                ],
-              ),
-            ),
-            verticalSpace(10),
-            regularText("Calls and messages to these people will always go through, even when everything else is limited.",
-                fontSize: 13, color: AppColors.grey, height: 1.45),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget callsSection(HomeController homeController) => CallsTab(kidId: widget.kidId);
 
   /// Battery or data on the summary's gradient card. A figure the plan doesn't include shows a lock and
   /// opens the upgrade prompt when tapped.
