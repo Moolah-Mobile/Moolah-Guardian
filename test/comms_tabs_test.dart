@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moolah/controllers/commsController.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/comms_model.dart';
 import 'package:moolah/helper/models/kids_model.dart';
+import 'package:moolah/helper/sharedHelper.dart';
 import 'package:moolah/screens/comms/comms_tabs.dart';
 import 'package:moolah/screens/comms/emergency_contacts.dart';
 
@@ -123,5 +125,23 @@ void main() {
     await tester.pump();
     expect(find.text("Add emergency contact (2 of 3)"), findsOneWidget);
     expect(find.text("Dad"), findsOneWidget);
+  });
+
+  // The tests above fill the data in first. This one lets the tabs load it, as the app does: the emergency
+  // card starts its load while the Calls tab around it is building, which used to throw in debug builds and
+  // leave the switch loading for ever.
+  testWidgets('Calls tab loads the emergency contacts itself', (tester) async {
+    SharedPreferences.setMockInitialValues({"mock_mode": true}); // the demo account's mock backend
+    await Prefs.init();
+    const mockKid = "MOCK-CONNECT-1";
+    Get.find<HomeController>().connectedKids = [Kid(kidId: mockKid)..name = "Emma Demo"];
+    _comms();
+    await _pump(tester, const CallsTab(kidId: mockKid));
+    expect(tester.takeException(), isNull);
+    await tester.pump(const Duration(seconds: 1)); // the mock answers after up to 550 ms
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.textContaining("Manage emergency contacts"), findsOneWidget);
+    expect(find.text("Recent calls"), findsOneWidget);
   });
 }

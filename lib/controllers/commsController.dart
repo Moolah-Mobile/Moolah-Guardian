@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:moolah/controllers/homeController.dart';
 import 'package:moolah/helper/models/comms_model.dart';
@@ -57,8 +58,16 @@ class CommsController extends GetxController {
       return;
     }
     load.loading = true;
-    update();
-    final res = await fetch();
+    _notify();
+    final ResponseModel res;
+    try {
+      res = await fetch();
+    } catch (e) {
+      load.loading = false;
+      load.error = "Couldn't load this. Try again.";
+      _notify();
+      return;
+    }
     load.loading = false;
     load.loadedAt = DateTime.now();
     if (res.isSuccessful) {
@@ -70,7 +79,18 @@ class CommsController extends GetxController {
       load.unavailable = isUnavailable(res);
       load.error = load.unavailable ? null : errorText(res);
     }
-    update();
+    _notify();
+  }
+
+  /// [update], but after the current frame when called while widgets are building: screens start their loads
+  /// from a GetBuilder's initState, and the emergency card's starts while the Calls or Messages tab around
+  /// it is building. Updating then throws in debug builds, which left the card's switch loading for ever.
+  void _notify() {
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => update());
+    } else {
+      update();
+    }
   }
 
   Future<void> loadCalls(String kidId, {bool force = false}) {
