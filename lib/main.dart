@@ -13,6 +13,7 @@ import 'package:moolah/helper/route_helper.dart';
 import 'package:moolah/helper/sharedHelper.dart';
 import 'package:moolah/screens/main_menu_profile/main_menu_profile.dart';
 import 'package:moolah/screens/splash/splash.dart';
+import 'package:moolah/screens/startup_error/startup_error.dart';
 import 'package:moolah/util/common_widgets/common_widgets.dart';
 import 'package:moolah/util/mixpanel_events.dart';
 import 'package:moolah/util/theme/app_theme.dart';
@@ -22,11 +23,22 @@ import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
 
 void main() {
+  // Until runApp(MyApp) runs, the phone shows only the launch screen; a failure before then would leave it
+  // there with no explanation, so it shows StartupErrorApp instead.
+  var started = false;
   // `print` writes to logcat in release builds too, where anyone with adb can read it. The ~100 print
   // calls in the app (URLs, response bodies) go through this zone, which drops them outside debug builds.
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    Env.ensureConfigured();
+    final missing = Env.missingKeys();
+    if (missing.isNotEmpty) {
+      if (kDebugMode) {
+        debugPrint("Missing build config ${missing.join(', ')}. Build with --dart-define-from-file=config/prod.json");
+      }
+      started = true;
+      runApp(StartupErrorApp.missingConfig());
+      return;
+    }
     // Draw Google Maps natively (hybrid composition) on Android. Through a texture, some phones' graphics
     // drivers show only the map's overlays (the Google logo) and never the map itself, while lite maps
     // still draw.
@@ -41,10 +53,15 @@ void main() {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    started = true;
     runApp(const MyApp());
   }, (error, stack) {
     if (kDebugMode) debugPrint("Uncaught: $error\n$stack");
     if (Firebase.apps.isNotEmpty) FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    if (!started) {
+      started = true;
+      runApp(StartupErrorApp.crashed(error));
+    }
   }, zoneSpecification: ZoneSpecification(
     print: (self, parent, zone, line) {
       if (kDebugMode) parent.print(zone, line);

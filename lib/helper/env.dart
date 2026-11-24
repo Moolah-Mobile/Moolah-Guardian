@@ -14,9 +14,10 @@ class Env {
   static const oneSignalAppId = String.fromEnvironment('ONESIGNAL_APP_ID');
   static const ironSourceAppKey = String.fromEnvironment('IRONSOURCE_APP_KEY');
 
-  /// Fails at startup, not on the first request, when the app was built without the config file.
-  static void ensureConfigured() {
-    const missing = {
+  /// The keys the app was built without, so startup can say so instead of failing on the first request.
+  /// Empty when the build had the whole config file.
+  static List<String> missingKeys() {
+    const keys = {
       'API_BASE_URL': apiBaseUrl,
       'MDM_BASE_URL': mdmBaseUrl,
       'MDM_API_KEY': mdmApiKey,
@@ -25,10 +26,6 @@ class Env {
       'ONESIGNAL_APP_ID': oneSignalAppId,
       'IRONSOURCE_APP_KEY': ironSourceAppKey,
     };
-    final empty = [for (final e in missing.entries) if (e.value.isEmpty) e.key];
-    if (empty.isNotEmpty) {
-      throw StateError('Missing build config ${empty.join(', ')}. '
-          'Run with --dart-define-from-file=config/prod.json');
-    }
+    return [for (final e in keys.entries) if (e.value.isEmpty) e.key];
   }
 }
