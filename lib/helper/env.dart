@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Build-time configuration, injected with `--dart-define-from-file=config/prod.json`
 /// (see scripts/build_release.sh). Nothing here is committed to git.
 ///
@@ -13,6 +15,11 @@ class Env {
   static const mixpanelToken = String.fromEnvironment('MIXPANEL_TOKEN');
   static const oneSignalAppId = String.fromEnvironment('ONESIGNAL_APP_ID');
   static const ironSourceAppKey = String.fromEnvironment('IRONSOURCE_APP_KEY');
+
+  /// Debug builds only: pair without checking this phone is within 1 mile of the child's device, for
+  /// testing with a device that's somewhere else. Turn on with `--dart-define=SKIP_PAIRING_DISTANCE=true`.
+  /// Always false in release and profile builds, whatever is passed, and not one of [missingKeys].
+  static const skipPairingDistance = kDebugMode && bool.fromEnvironment('SKIP_PAIRING_DISTANCE');
 
   /// The keys the app was built without, so startup can say so instead of failing on the first request.
   /// Empty when the build had the whole config file.

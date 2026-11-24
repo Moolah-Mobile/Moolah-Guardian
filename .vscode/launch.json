@@ -6,6 +6,13 @@
       "request": "launch",
       "type": "dart",
       "toolArgs": ["--dart-define-from-file=config/prod.json"]
+    },
+    {
+      "name": "moolah (skip pairing distance)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "toolArgs": ["--dart-define-from-file=config/prod.json", "--dart-define=SKIP_PAIRING_DISTANCE=true"]
     }
   ]
 }

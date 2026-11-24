@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:moolah/controllers/baseController.dart';
+import 'package:moolah/helper/env.dart';
 import 'package:moolah/helper/repo/connectDeviceRepo.dart';
 import 'package:moolah/helper/repo/homeRepo.dart';
 import 'package:moolah/helper/sharedHelper.dart';
@@ -79,12 +80,19 @@ class ConnectDeviceController extends BaseController {
   }) async {
     tooFarMeters = null;
     isLoading = true;
-    _progress("Finding your location…");
-    final parent = await _parentPosition();
-    if (parent == null) {
-      isLoading = false;
-      _progress(null);
-      return false;
+    // Debug builds started with SKIP_PAIRING_DISTANCE neither ask for location nor check the distance.
+    const checkDistance = !Env.skipPairingDistance;
+    Position? parent;
+    if (checkDistance) {
+      _progress("Finding your location…");
+      parent = await _parentPosition();
+      if (parent == null) {
+        isLoading = false;
+        _progress(null);
+        return false;
+      }
+    } else {
+      debugPrint("--- [CONNECT] SKIP_PAIRING_DISTANCE: not checking the 1-mile distance (debug build) ---");
     }
 
     // Note the parent's devices before linking, so the newly linked one can be told apart.
@@ -138,24 +146,26 @@ class ConnectDeviceController extends BaseController {
 
     // Only someone with the child's phone nearby may pair: compare this phone's position with the one the
     // child's device last reported. api2 has already linked by now, so a refusal takes that link back.
-    _progress("Checking you're near the device…");
-    final child = await _childPosition(deviceNumber);
-    if (child == null) {
-      await _undoApi2Link(api2Res.data, connectId);
-      isLoading = false;
-      _progress(null);
-      errorToast("Couldn't find where your child's device is. Make sure it's on, online and has location "
-          "turned on, then try again.");
-      return false;
-    }
-    final distance = Geolocator.distanceBetween(parent.latitude, parent.longitude, child.lat, child.lng);
-    print("--- [CONNECT] Parent is ${distance.round()} m from device $deviceNumber ---");
-    if (distance > pairRadiusMeters) {
-      await _undoApi2Link(api2Res.data, connectId);
-      tooFarMeters = distance;
-      isLoading = false;
-      _progress(null);
-      return false;
+    if (parent != null) {
+      _progress("Checking you're near the device…");
+      final child = await _childPosition(deviceNumber);
+      if (child == null) {
+        await _undoApi2Link(api2Res.data, connectId);
+        isLoading = false;
+        _progress(null);
+        errorToast("Couldn't find where your child's device is. Make sure it's on, online and has location "
+            "turned on, then try again.");
+        return false;
+      }
+      final distance = Geolocator.distanceBetween(parent.latitude, parent.longitude, child.lat, child.lng);
+      print("--- [CONNECT] Parent is ${distance.round()} m from device $deviceNumber ---");
+      if (distance > pairRadiusMeters) {
+        await _undoApi2Link(api2Res.data, connectId);
+        tooFarMeters = distance;
+        isLoading = false;
+        _progress(null);
+        return false;
+      }
     }
 
     _progress("Linking the device…");

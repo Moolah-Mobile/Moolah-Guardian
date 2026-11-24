@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <!-- Like "moolah", but pairing skips the 1-mile distance check (and the location prompt), for testing
+       with a child's device that's somewhere else. Works in debug runs only; release builds always check
+       (see Env.skipPairingDistance in lib/helper/env.dart). -->
+  <configuration default="false" name="moolah (skip pairing distance)" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="additionalArgs" value="--dart-define-from-file=config/prod.json --dart-define=SKIP_PAIRING_DISTANCE=true" />
+    <option name="filePath" value="$PROJECT_DIR$/lib/main.dart" />
+    <method v="2" />
+  </configuration>
+</component>
