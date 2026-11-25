@@ -21,6 +21,8 @@ class Kid {
   // Names of every app seen on the device, kept after an app stops being reported.
   Map<String, String> appNames = {};
   NetworkHistory? networkHistory;
+  // Bytes the device sent and received over the MDM's network-history window (the last 7 days); null until loaded.
+  int? dataUsageBytes;
   String? name;
   String? deviceType;
   String? batteryStatus;

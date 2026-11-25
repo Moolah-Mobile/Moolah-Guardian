@@ -19,7 +19,7 @@ class SyncDevice extends StatefulWidget {
     this.isIPad = false,
     this.batteryLocked = false,
     this.usageLocked = false,
-    required this.mbps
+    this.dataUsedGb,
 
 });
 
@@ -31,7 +31,8 @@ class SyncDevice extends StatefulWidget {
   String? image;
   String name;
   String battery;
-  String mbps;
+  // Data used over the last 7 days in GB, e.g. "1.47"; null until it has loaded.
+  String? dataUsedGb;
   String active;
 
 
@@ -117,7 +118,7 @@ class _SyncDeviceState extends State<SyncDevice> {
               children: [
                 _stat(AppImages.emptyBattery, "${widget.battery}%", locked: widget.batteryLocked),
                 horizontalSpace(8),
-                Flexible(child: _stat(AppImages.global, "${widget.mbps} Mb/s", locked: widget.usageLocked)),
+                Flexible(child: _stat(AppImages.global, "${widget.dataUsedGb ?? "–"} GB", locked: widget.usageLocked)),
               ],
             ),
           ],

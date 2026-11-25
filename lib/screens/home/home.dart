@@ -13,6 +13,7 @@ import 'package:moolah/util/images.dart';
 
 import '../../controllers/authController.dart';
 import '../../controllers/subscription_controller.dart';
+import '../../helper/models/network_history_model.dart';
 import '../../helper/models/plan.dart';
 import '../../util/common_widgets/plan_gate.dart';
 import '../../helper/sharedHelper.dart';
@@ -122,7 +123,7 @@ class _HomeState extends State<Home> {
                               image: kid.kidPic,
                               active: kid.lastActive ?? "N/A",
                               battery: kid.batteryStatus ?? "0",
-                              mbps: kid.dataUsageStatus ?? "0",
+                              dataUsedGb: kid.dataUsageBytes == null ? null : formatGb(kid.dataUsageBytes!),
                               batteryLocked: !subscription.allows(Feature.battery),
                               usageLocked: !subscription.allows(Feature.appUsage),
                               isIPad: (kid.deviceType ?? "").toLowerCase().contains("tab")),
@@ -198,7 +199,11 @@ class _HomeState extends State<Home> {
 
   void setController() async {
     await Get.find<AuthController>().refreshToken();
-    Get.find<SubscriptionController>().loadSubscription();
-    await Get.find<HomeController>().getSyncedKidDevices();
+    final plan = Get.find<SubscriptionController>().loadSubscription();
+    final home = Get.find<HomeController>();
+    await home.getSyncedKidDevices();
+    // Data used is a paid stat: wait for the current plan before asking the MDM for it.
+    await plan;
+    if (planAllows(Feature.appUsage)) home.getDataUsage();
   }
 }

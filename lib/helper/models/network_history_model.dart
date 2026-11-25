@@ -55,7 +55,7 @@ class NetworkHistory {
     );
   }
 
-  String get dataUsageGb => (dataUsageBytes / 1000000000).toStringAsFixed(2);
+  String get dataUsageGb => formatGb(dataUsageBytes);
 
   /// The sites the child visited: background lookups dropped, one entry per domain, most recent first.
   List<VisitedSite> get visitedSites => groupVisits(websites);
@@ -63,6 +63,9 @@ class NetworkHistory {
   /// How many lookups [visitedSites] left out as background traffic.
   int get hiddenLookups => websites.where((w) => w.isBackground).length;
 }
+
+/// Bytes as gigabytes with two decimals, e.g. "1.47".
+String formatGb(int bytes) => (bytes / 1000000000).toStringAsFixed(2);
 
 class WebsiteVisit {
   final DateTime? time;

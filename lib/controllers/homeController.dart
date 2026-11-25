@@ -271,8 +271,23 @@ class HomeController extends BaseController {
     ResponseModel res = await HomeRepo.getNetworkHistory(_connectIdOf(kid));
     if (res.isSuccessful && res.data?["data"] is Map) {
       kid.networkHistory = NetworkHistory.fromJson(Map<String, dynamic>.from(res.data["data"]));
+      kid.dataUsageBytes = kid.networkHistory!.dataUsageBytes;
     }
     update();
+  }
+
+  /// Data each device has used over the last 7 days, for the Home cards. Asks for a single website: the
+  /// per-app data use comes back whole whatever the limit, so the reply stays small.
+  Future<void> getDataUsage() async {
+    await Future.wait([for (final kid in connectedKids) _loadDataUsage(kid)]);
+    update();
+  }
+
+  Future<void> _loadDataUsage(Kid kid) async {
+    ResponseModel res = await HomeRepo.getNetworkHistory(_connectIdOf(kid), limit: 1);
+    if (res.isSuccessful && res.data?["data"] is Map) {
+      kid.dataUsageBytes = NetworkHistory.fromJson(Map<String, dynamic>.from(res.data["data"])).dataUsageBytes;
+    }
   }
 
   Future<void> sendDeviceAction({required String kidId, required String action, required String successMessage}) async {
